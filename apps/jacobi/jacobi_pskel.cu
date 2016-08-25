@@ -15,7 +15,7 @@
 //#define PSKEL_PAPI_DEBUG
 
 #include "PSkel.h"
-#include "hr_time.h"
+//#include "hr_time.h"
 //#include "wb.h"
 
 using namespace std;
@@ -64,12 +64,14 @@ int main(int argc, char **argv){
 	
 	Array2D<float> inputGrid(x_max, y_max);
 	Array2D<float> outputGrid(x_max, y_max);
-	Mask2D<float> mask(4);
+	int n[4][2] = {{0,1},{-1,0},{1,0},{-1,0}};
+	Mask2D<float> mask(4,n);	
+	//Mask2D<float> mask(4);
 	
-	mask.set(0,0,-1,0);
-	mask.set(1,0,1,0);
-	mask.set(2,1,0,0);
-	mask.set(3,-1,0,0);
+	//mask.set(0,0,-1,0);
+	//mask.set(1,0,1,0);
+	//mask.set(2,1,0,0);
+	//mask.set(3,-1,0,0);
 	
 	Arguments args;
 	//args.h = 1.f / (float) x_max;
@@ -137,7 +139,7 @@ int main(int argc, char **argv){
 		jacobi.runIterativeGPU(T_MAX, GPUBlockSizeX, GPUBlockSizeY);
 	}
 	else{
-		//jacobi.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSize);
+		jacobi.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSizeX, GPUBlockSizeY);
 		/*
         #ifdef PSKEL_PAPI
 			for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
