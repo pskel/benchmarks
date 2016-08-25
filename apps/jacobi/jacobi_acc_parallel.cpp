@@ -19,28 +19,72 @@ inline void stencilKernel(float* __restrict__ input, float* __restrict__ output,
 	#pragma acc data copyin(input[0:width*height]) copyout(output[0:width*height])
 	{
 	for (int t = 0; t < T_MAX; t++){
-		#pragma acc parallel loop 
-		for (int y = 1; y < height - 1; y++){
-			#pragma acc loop 
-			for (int x = 1; x < width - 1; x++){
-				output[y*width+x] = 0.25f * (input[(y+1)*width + x] + input[(y-1)*width + x] +
-				                   	     input[y*width + (x+1)] + input[y*width + (x-1)] - beta);
+		#pragma acc parallel loop independent
+		for (int y = 0; y < height; y++){
+			for (int x = 0; x < width; x++){
+				/*	Corner 1	*/
+                if ( (j == 0) && (i == 0) ) {
+                    output[y*width+x] = 0.25f * (input[(y+1)*width + x] + 
+												 input[y*width + (x+1)]
+												 - beta);
+                }	/*	Corner 2	*/
+                else if ((j == 0) && (i == width-1)) {
+					output[y*width+x] = 0.25f * (input[(y+1)*width + x] +
+												input[(y-1)*width + x]
+												- beta);
+                }	/*	Corner 3	*/
+                else if ((j == height-1) && (i == width-1)) {
+                    output[y*width+x] = 0.25f * (input[(y-1)*width + x] +
+												input[y*width + (x-1)]
+												- beta);
+                }	/*	Corner 4	*/
+                else if ((j == height-1) && (i == 0)) {
+                    output[y*width+x] = 0.25f * (input[(y)*width + (x+1)] +
+												input[(y-1)*width + x]
+												- beta);
+                }	/*	Edge 1	*/
+                else if (j == 0) {
+                    output[y*width+x] = 0.25f * (input[(y)*width + (x-1)] +
+												 input[(y)*width +(x+1)] +
+												 input[(y+1)*width +(x)]
+												- beta);
+                }	/*	Edge 2	*/
+                else if (i == width-1) {
+                    output[y*width+x] = 0.25f * (input[(y)*width + (x-1)] +
+												 input[(y-1)*width +(x)] +
+												 input[(y+1)*width +(x)]
+												- beta);
+                }	/*	Edge 3	*/
+                else if (j == height-1) {
+                    output[y*width+x] = 0.25f * (input[(y)*width + (x-1)] +
+												 input[(y)*width +(x+1)] +
+												 input[(y-1)*width +(x)]
+												- beta);
+                }	/*	Edge 4	*/
+                else if (i == 0) {
+                    output[y*width+x] = 0.25f * (input[(y-1)*width + (x)] +
+												 input[(y)*width +(x+1)] +
+												 input[(y+1)*width +(x)]
+												- beta);
+                }	/*	Inside the grid  */
+                else {
+					output[y*width+x] = 0.25f * (input[(y+1)*width + x] +
+												input[(y-1)*width + x] +
+												input[y*width + (x+1)] +
+												input[y*width + (x-1)] - beta);
+				}
 			}
-		}  
+		} 
 		
 		//swap data
 		if(t>1 & t<T_MAX - 1){
-			#pragma acc parallel loop  
+			#pragma acc parallel loop independent 
 			for (int y = 1; y < height - 1; y++){
-				#pragma acc loop 
 				for (int x = 1; x < width - 1; x++){
 					input[y*width+x] = output[y*width+x];
-				}
-			}
-		}
-		
-	}
-	}
+				}}}
+	}//end iterations
+	}//end pragma enter data
 }
 
 int main(int argc, char **argv){
