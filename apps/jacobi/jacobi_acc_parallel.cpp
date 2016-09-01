@@ -23,45 +23,45 @@ inline void stencilKernel(float* __restrict__ input, float* __restrict__ output,
 		for (int y = 0; y < height; y++){
 			for (int x = 0; x < width; x++){
 				/*	Corner 1	*/
-                if ( (j == 0) && (i == 0) ) {
+                if ( (y == 0) && (x == 0) ) {
                     output[y*width+x] = 0.25f * (input[(y+1)*width + x] + 
 												 input[y*width + (x+1)]
 												 - beta);
                 }	/*	Corner 2	*/
-                else if ((j == 0) && (i == width-1)) {
+                else if ((y == 0) && (x == width-1)) {
 					output[y*width+x] = 0.25f * (input[(y+1)*width + x] +
 												input[(y-1)*width + x]
 												- beta);
                 }	/*	Corner 3	*/
-                else if ((j == height-1) && (i == width-1)) {
+                else if ((y == height-1) && (x == width-1)) {
                     output[y*width+x] = 0.25f * (input[(y-1)*width + x] +
 												input[y*width + (x-1)]
 												- beta);
                 }	/*	Corner 4	*/
-                else if ((j == height-1) && (i == 0)) {
+                else if ((y == height-1) && (x == 0)) {
                     output[y*width+x] = 0.25f * (input[(y)*width + (x+1)] +
 												input[(y-1)*width + x]
 												- beta);
                 }	/*	Edge 1	*/
-                else if (j == 0) {
+                else if (y == 0) {
                     output[y*width+x] = 0.25f * (input[(y)*width + (x-1)] +
 												 input[(y)*width +(x+1)] +
 												 input[(y+1)*width +(x)]
 												- beta);
                 }	/*	Edge 2	*/
-                else if (i == width-1) {
+                else if (x == width-1) {
                     output[y*width+x] = 0.25f * (input[(y)*width + (x-1)] +
 												 input[(y-1)*width +(x)] +
 												 input[(y+1)*width +(x)]
 												- beta);
                 }	/*	Edge 3	*/
-                else if (j == height-1) {
+                else if (y == height-1) {
                     output[y*width+x] = 0.25f * (input[(y)*width + (x-1)] +
 												 input[(y)*width +(x+1)] +
 												 input[(y-1)*width +(x)]
 												- beta);
                 }	/*	Edge 4	*/
-                else if (i == 0) {
+                else if (x == 0) {
                     output[y*width+x] = 0.25f * (input[(y-1)*width + (x)] +
 												 input[(y)*width +(x+1)] +
 												 input[(y+1)*width +(x)]
