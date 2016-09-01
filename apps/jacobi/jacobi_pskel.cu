@@ -29,60 +29,44 @@ namespace PSkel{
 	
 	
 __parallel__ void stencilKernel(Array2D<float> input,Array2D<float> output,Mask2D<float> mask,Arguments args, size_t i, size_t j){
-	int height=input.getHeight();
-        int width=input.getWidth();
-	/*if ( (j == 0) && (i == 0) ) {
-                
-                }	//	Corner 2	
-                else if ((j == 0) && (i == width-1)) {
-                    sum = (inValue - input(i-1,j) ) +
-                          (inValue - input(i,j+1) );
-                    numNeighbor = 2;
-                }	//	Corner 3	
-                else if ((j == height-1) && (i == width-1)) {
-                    sum = (inValue - input(i-1,j) ) +
-                          (inValue - input(i,j-1) );
-                    numNeighbor = 2;
-                }	//	Corner 4	
-                else if ((j == height-1) && (i == 0)) {
-                    sum = (inValue - input(i,j-1) ) +
-                          (inValue - input(i+1,j) );
-                    numNeighbor = 2;
-                }	//	Edge 1	
-                else if (j == 0) {
-                    sum = (inValue - input(i-1,j) ) +
-                          (inValue - input(i+1,j) ) +
-                          (inValue - input(i,j+1) );
-                    numNeighbor = 3;
-                }	//	Edge 2	
-                else if (i == width-1) {
-                    sum = (inValue - input(i-1,j) ) +
-                          (inValue - input(i,j-1) ) +
-                          (inValue - input(i,j+1) );
-                    numNeighbor = 3;
-                }	//	Edge 3	
-                else if (j == height-1) {
-                    sum = (inValue - input(i-1,j) ) +
-                          (inValue - input(i,j-1) ) +
-                          (inValue - input(i+1,j) );
-                    numNeighbor = 3;
-                }	//	Edge 4	
-                else if (i == 0) {
-                    sum = (inValue - input(i,j-1) ) +
-                          (inValue - input(i,j+1) ) +
-                          (inValue - input(i+1,j) );
-                    numNeighbor = 3;
-                }	//	Inside the cloud  
-                else {
-	*/
-
-	output(i,j) = 0.25f * ( mask.get(0, input, i, j) + mask.get(1, input, i, j) +  
-				mask.get(2, input, i, j) + mask.get(3, input, i, j) - args.h );
-						  ////mask.get(2, input, i, j) + mask.get(3, input, i, j) - args.h );
+	//output(i,j) = 0.25f * ( mask.get(0, input, i, j) + mask.get(1, input, i, j) +  
+	//			mask.get(2, input, i, j) + mask.get(3, input, i, j) - args.h );
 						  
-	//if(i>0 && i<height-1 && j>0 && j<width-1){
-	//	output(i,j) = 0.25f * ( input(i-1,j) + (input(i,j-1) + input(i,j+1)) + input(i+1,j) - args.h);
-	//}
+	//output(i,j) = 0.25f * (input(i,j) + mask.get(0, input, i, j) + mask.get(1, input, i, j) + 
+	//					     mask.get(2, input, i, j) + mask.get(3, input, i, j));
+						 
+	//output(i,j) = 0.25f * ( input(i-1,j) + (input(i,j-1) + input(i,j+1)) + input(i+1,j) - args.h);
+    //	Corner 1	*/
+    if ( (j == 0) && (i == 0) ) {
+         output(i,j) = 0.25f * (input(i+1,j) + input(i,j+1) - args.h);
+    }	//	Corner 2	*/
+    else if ((j == 0) && (i == width-1)) {
+         output(i,j) = 0.25f * (input(i,j+1) + input(i-1,j) - args.h);
+    }	//	Corner 3	*/
+    else if ((j == height-1) && (i == width-1)) {
+        output(i,j) = 0.25f * (input(i,j-1) + input(i-1,j) - args.h);
+    }	/*	Corner 4	*/
+    else if ((j == height-1) && (i == 0)) {
+        output(i,j) = 0.25f * (input(i+1,j) + input(i,j-1) - args.h);
+    }	/*	Edge 1	*/
+    else if (j == 0) {
+        output(i,j) = 0.25f * (input(i-1,j) + input(i+1,j) + input(i,j+1) - args.h);
+        //output[y*width+x] = 0.25f * (input[(y)*width + (x-1)] + input[(y)*width +(x+1)] + input[(y+1)*width +(x)]- args.h);
+    }	/*	Edge 2	*/
+    else if (i == width-1) {
+        output(i,j) = 0.25f * (input(i-1,j) + input(i,j-1) + input(i,j+1) - args.h);
+        //output[y*width+x] = 0.25f * (input[(y)*width + (x-1)] + input[(y-1)*width +(x)] +input[(y+1)*width +(x)] - args.h);
+    }	/*	Edge 3	*/
+    else if (j == height-1) {
+        output(i,j) = 0.25f * (input(i-1,j) + input(i+1,j) + input(i,j-1) - args.h);
+    }	/*	Edge 4	*/
+    else if (i == 0) {
+        output(i,j) = 0.25f * (input(i,j-1) + input(i+1,j) + input(i,j+1) - args.h);
+    }	/*	Inside the grid  */
+    else {
+        output(i,j) = 0.25f * (input(i,j-1) + input(i+1,j) + input(i-1,j) + input(i,j+1) - args.h);
+    }    
+
 	}
 
 }
@@ -108,12 +92,14 @@ int main(int argc, char **argv){
 	
 	Array2D<float> inputGrid(x_max, y_max);
 	Array2D<float> outputGrid(x_max, y_max);
-	Mask2D<float> mask(4);
+	int n[4][2] = {{0,1},{-1,0},{1,0},{-1,0}};
+	Mask2D<float> mask(4,n);	
+	//Mask2D<float> mask(4);
 	
-	mask.set(0,0,-1,0);
-	mask.set(1,0,1,0);
-	mask.set(2,1,0,0);
-	mask.set(3,-1,0,0);
+	//mask.set(0,0,-1,0);
+	//mask.set(1,0,1,0);
+	//mask.set(2,1,0,0);
+	//mask.set(3,-1,0,0);
 	
 	Arguments args;
 	//args.h = 1.f / (float) x_max;
@@ -181,7 +167,7 @@ int main(int argc, char **argv){
 		jacobi.runIterativeGPU(T_MAX, GPUBlockSizeX, GPUBlockSizeY);
 	}
 	else{
-		jacobi.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSizeX,GPUBlockSizeY);
+		jacobi.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSizeX, GPUBlockSizeY);
 		/*
         #ifdef PSKEL_PAPI
 			for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
