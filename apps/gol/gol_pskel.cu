@@ -120,6 +120,8 @@ int main(int argc, char **argv){
 	#ifdef PSKEL_PAPI
 		if(GPUTime < 1.0)
 			PSkelPAPI::init(PSkelPAPI::RAPL);
+		else 
+			PSkelPAPI::init(PSkelPAPI::NVML);
 	#endif	
 	
 	if(GPUTime == 0.0){
@@ -141,7 +143,14 @@ int main(int argc, char **argv){
 		#endif
 	}
 	else if(GPUTime == 1.0){
+		#ifdef PSKEL_PAPI
+                        PSkelPAPI::papi_start(PSkelPAPI::NVML,0);
+                #endif
 		stencil.runIterativeGPU(T_MAX, GPUBlockSizeX, GPUBlockSizeY);
+		#ifdef PSKEL_PAPI
+                        PSkelPAPI::papi_stop(PSkelPAPI::NVML,0);
+                #endif
+
 	}
 	else{
 		//jacobi.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSize);
@@ -163,8 +172,11 @@ int main(int argc, char **argv){
 	#ifdef PSKEL_PAPI
 		if(GPUTime < 1.0){
 			PSkelPAPI::print_profile_values(PSkelPAPI::RAPL);
-			PSkelPAPI::shutdown();
 		}
+		else{
+			PSkelPAPI::print_profile_values(PSkelPAPI::NVML);
+		}
+		PSkelPAPI::shutdown();
 	#endif
     
     if(verbose){		
