@@ -38,6 +38,9 @@ acc_kernels: ${SRC_NAME}_acc_kernels.cpp
 
 pskel: ${SRC_NAME}_pskel.cu
 	${CUDAC} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel ${SRC_NAME}_pskel.cu ${LIBS}
+
+debug: ${SRC_NAME}_pskel.cu
+	${CUDAC} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel ${SRC_NAME}_pskel.cu ${LIBS} -DDEBUG
 	
 pskel_managed: ${SRC_NAME}_pskel.cu
 	${CUDAC} ${CUDAFLAGS_T} -o ${BIN_DIR}${SRC_NAME}_pskel ${SRC_NAME}_pskel.cu ${LIBS}
