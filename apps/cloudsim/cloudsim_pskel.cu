@@ -316,7 +316,7 @@ int main(int argc, char **argv){
 		stencilCloud.runIterativeGPU(numero_iteracoes, GPUBlockSizeX, GPUBlockSizeY);
 	}
 	else{
-		//stencilCloud.runIterativePartition(numero_iteracoes, GPUTime, numCPUThreads,GPUBlockSize);
+		stencilCloud.runIterativePartition(numero_iteracoes, GPUTime, numCPUThreads,GPUBlockSizeX, GPUBlockSizeY);
 	}
 	
 	hrt_stop(&timer);

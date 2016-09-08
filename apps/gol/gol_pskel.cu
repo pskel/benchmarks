@@ -36,6 +36,11 @@ __parallel__ void stencilKernel(Array2D<bool> input, Array2D<bool> output,
 
                       
     
+    
+    int neighbors =  input(i-1,j-1) + input(i-1,j) + input(i-1,j+1)  +
+                     input(i+1,j-1) + input(i+1,j) + input(i+1,j+1)  + 
+                     input(i,j-1)   + input(i,j+1) ;
+    /*
     int neighbors = 0;
     int height=input.getHeight();
     int width=input.getWidth();
@@ -69,7 +74,7 @@ __parallel__ void stencilKernel(Array2D<bool> input, Array2D<bool> output,
                      input(i+1,j-1) + input(i+1,j) + input(i+1,j+1)  + 
                      input(i,j-1)   + input(i,j+1) ;
     }
-                  
+    */
     output(i,j) = (neighbors == 3 || (input(i,j) == 1 && neighbors == 2))?1:0;
         
     }
@@ -120,6 +125,8 @@ int main(int argc, char **argv){
 	#ifdef PSKEL_PAPI
 		if(GPUTime < 1.0)
 			PSkelPAPI::init(PSkelPAPI::RAPL);
+		else 
+			PSkelPAPI::init(PSkelPAPI::NVML);
 	#endif	
 	
 	if(GPUTime == 0.0){
@@ -141,10 +148,17 @@ int main(int argc, char **argv){
 		#endif
 	}
 	else if(GPUTime == 1.0){
+		#ifdef PSKEL_PAPI
+                        PSkelPAPI::papi_start(PSkelPAPI::NVML,0);
+                #endif
 		stencil.runIterativeGPU(T_MAX, GPUBlockSizeX, GPUBlockSizeY);
+		#ifdef PSKEL_PAPI
+                        PSkelPAPI::papi_stop(PSkelPAPI::NVML,0);
+                #endif
+
 	}
 	else{
-		//jacobi.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSize);
+		stencil.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSizeX, GPUBlockSizeY);
 		/*
         #ifdef PSKEL_PAPI
 			for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
@@ -163,8 +177,11 @@ int main(int argc, char **argv){
 	#ifdef PSKEL_PAPI
 		if(GPUTime < 1.0){
 			PSkelPAPI::print_profile_values(PSkelPAPI::RAPL);
-			PSkelPAPI::shutdown();
 		}
+		else{
+			PSkelPAPI::print_profile_values(PSkelPAPI::NVML);
+		}
+		PSkelPAPI::shutdown();
 	#endif
     
     if(verbose){		

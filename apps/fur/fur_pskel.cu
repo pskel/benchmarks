@@ -163,7 +163,9 @@ int main(int argc, char **argv){
 		//#endif
 	}
 	else if(GPUTime == 1.0){
-		fur.runIterativeGPU(T_MAX, GPUBlockSizeX, GPUBlockSizeY);
+		#ifdef PSKEL_CUDA
+			fur.runIterativeGPU(T_MAX, GPUBlockSizeX, GPUBlockSizeY);
+		#endif
 	}
 	else{
 		//jacobi.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSize);
@@ -223,7 +225,7 @@ int main(int argc, char **argv){
 		
 		for(size_t h = 0; h < outputGrid.getHeight(); h++){		
 			for(size_t w = 0; w < outputGrid.getWidth(); w++){
-				cout<<outputGrid(h,w)<<"\t\t";
+				cout<<outputGrid(h,w);
 			}
 			cout<<endl;
 		}
