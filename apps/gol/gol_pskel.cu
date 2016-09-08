@@ -36,6 +36,11 @@ __parallel__ void stencilKernel(Array2D<bool> input, Array2D<bool> output,
 
                       
     
+    
+    int neighbors =  input(i-1,j-1) + input(i-1,j) + input(i-1,j+1)  +
+                     input(i+1,j-1) + input(i+1,j) + input(i+1,j+1)  + 
+                     input(i,j-1)   + input(i,j+1) ;
+    /*
     int neighbors = 0;
     int height=input.getHeight();
     int width=input.getWidth();
@@ -69,7 +74,7 @@ __parallel__ void stencilKernel(Array2D<bool> input, Array2D<bool> output,
                      input(i+1,j-1) + input(i+1,j) + input(i+1,j+1)  + 
                      input(i,j-1)   + input(i,j+1) ;
     }
-                  
+    */
     output(i,j) = (neighbors == 3 || (input(i,j) == 1 && neighbors == 2))?1:0;
         
     }
@@ -153,7 +158,7 @@ int main(int argc, char **argv){
 
 	}
 	else{
-		//jacobi.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSize);
+		stencil.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSizeX, GPUBlockSizeY);
 		/*
         #ifdef PSKEL_PAPI
 			for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
