@@ -26,9 +26,9 @@ namespace PSkel{
 	
 __parallel__ void stencilKernel(Array2D<bool> input, Array2D<bool> output,
                   Mask2D<bool> mask, short args, size_t i, size_t j){
-    //int neighbors =  input(i-1,j-1) + input(i-1,j) + input(i-1,j+1)  +
-    //                 input(i+1,j-1) + input(i+1,j) + input(i+1,j+1)  + 
-    //                 input(i,j-1)   + input(i,j+1) ; 
+    int neighbors =  input(i-1,j-1) + input(i-1,j) + input(i-1,j+1)  +
+                     input(i+1,j-1) + input(i+1,j) + input(i+1,j+1)  + 
+                     input(i,j-1)   + input(i,j+1) ; 
 
     //int neighbors = mask.get(0,input,i,j) + mask.get(1,input,i,j) + mask.get(2,input,i,j) +
     //	              mask.get(3,input,i,j) + mask.get(4,input,i,j) + mask.get(5,input,i,j) +
@@ -37,9 +37,9 @@ __parallel__ void stencilKernel(Array2D<bool> input, Array2D<bool> output,
                       
     
     
-    int neighbors =  input(i-1,j-1) + input(i-1,j) + input(i-1,j+1)  +
-                     input(i+1,j-1) + input(i+1,j) + input(i+1,j+1)  + 
-                     input(i,j-1)   + input(i,j+1) ;
+    //int neighbors =  input(i-1,j-1) + input(i-1,j) + input(i-1,j+1)  +
+    //                 input(i+1,j-1) + input(i+1,j) + input(i+1,j+1)  + 
+    //                 input(i,j-1)   + input(i,j+1) ;
     /*
     int neighbors = 0;
     int height=input.getHeight();
@@ -74,7 +74,7 @@ __parallel__ void stencilKernel(Array2D<bool> input, Array2D<bool> output,
                      input(i+1,j-1) + input(i+1,j) + input(i+1,j+1)  + 
                      input(i,j-1)   + input(i,j+1) ;
     }
-    */
+    */ 
     output(i,j) = (neighbors == 3 || (input(i,j) == 1 && neighbors == 2))?1:0;
         
     }
