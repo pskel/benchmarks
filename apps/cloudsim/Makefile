@@ -11,11 +11,13 @@ ACCFLAGS_T		= -O3 -ta=tesla,managed -tp=sandybridge -Minfo=accel
 ACCFLAGS_M		= -O3 -ta=multicore -tp=sandybridge -Minfo=accel
 CXXFLAGS		= -O3 -w
 GENCODE			= -gencode arch=compute_20,code=sm_20 -gencode arch=compute_30,code=sm_30 -gencode arch=compute_35,code=\"sm_35,compute_35\"
-OMP_TBB         = -fopenmp -lgomp -ltbb
+TBB_SRC_PATH	= /opt/intel/tbb/include
+TBB_LIB_PATH	= /opt/intel/tbb/lib/intel64/gcc4.4
+OMP_TBB         = -fopenmp -lgomp -I${TBB_SRC_PATH} -L${TBB_LIB_PATH} -ltbb
 GA_LIB_PATH 	= /home/alyson/galib247/ga
 GA_SRC_PATH 	= /home/alyson/galib247/
-PAPI_LIB_PATH 	= /home/alyson/papi-5.4.1/build/lib
-PAPI_SRC_PATH 	= /home/alyson/papi-5.4.1/build/include
+PAPI_LIB_PATH 	= /usr/local/lib
+PAPI_SRC_PATH 	= /usr/local/include
 HR_TIME			= ../../pskel/include
 LIBS			= -Xcompiler -fopenmp -lgomp -I${HR_TIME} -I${GA_SRC_PATH} -L${GA_LIB_PATH} -lga -lm 
 ACC_LIBS		= -I${HR_TIME} -lrt -mp
@@ -29,6 +31,9 @@ serial: ${SRC_NAME}_serial.cpp
 
 acc_parallel: ${SRC_NAME}_acc_parallel.cpp
 	${ACC} ${ACCFLAGS_T} -o  ${BIN_DIR}${SRC_NAME}_acc_parallel ${SRC_NAME}_acc_parallel.cpp ${ACC_LIBS}
+
+acc_papi: ${SRC_NAME}_acc_parallel.cpp
+	${ACC} ${ACCFLAGS_M} -o  ${BIN_DIR}${SRC_NAME}_acc_papi ${SRC_NAME}_acc_parallel.cpp ${ACC_LIBS} -I${PAPI_SRC_PATH}
 	
 acc_multicore: ${SRC_NAME}_acc_kernels.cpp
 	${ACC} ${ACCFLAGS_M} -o  ${BIN_DIR}${SRC_NAME}_acc_multicore ${SRC_NAME}_acc_parallel.cpp ${ACC_LIBS}
@@ -52,6 +57,12 @@ papi: ${SRC_NAME}.cu
 papi_debug:${SRC_NAME}.cu
 	${CUDAC} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME} ${SRC_NAME}.cu ${LIBS} -DPSKEL_PAPI -DPSKEL_PAPI_DEBUG
 
+papi_tesla: ${SRC_NAME}_pskel.cu
+	${CUDAC} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi ${SRC_NAME}_pskel.cu ${LIBS} -I${PAPI_SRC_PATH} -L${PAPI_LIB_PATH} -lpapi -DPSKEL_PAPI -DTESLA
+	
+papi_debug_tesla: ${SRC_NAME}_pskel.cu
+	${CUDAC} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi ${SRC_NAME}_pskel.cu ${LIBS} -I${PAPI_SRC_PATH} -L${PAPI_LIB_PA
+	
 papi_quadro: ${SRC_NAME}.cu
 	${CUDAC} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME} ${SRC_NAME}.cu ${LIBS} -DPSKEL_PAPI -DQUADRO
 	
