@@ -152,7 +152,7 @@ int main(int argc, char **argv){
 			//cout<<"Running Iterative CPU"<<endl;
 		#ifdef PSKEL_PAPI
             for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
-			PSkelPAPI::papi_start(PSkelPAPI::RAPL,i);
+			PSkelPAPI::papi_start(PSkelPAPI::CPU,i);
 		#endif
 
 			jacobi.runIterativeCPU(T_MAX, numCPUThreads);	
