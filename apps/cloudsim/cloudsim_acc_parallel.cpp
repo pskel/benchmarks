@@ -39,11 +39,11 @@ void stencilKernel(float* __restrict__ input,float* __restrict__ output, int wid
 			#pragma acc loop independent
 			for(int i=0;i<width;i++){
 				int numNeighbor = 0.25f;
-				float sum = 0.0f;
+				//float sum = 0.0f;
 				float inValue = input[j*width+i];
-                		float temp_wind = 0.0f;
+                		//float temp_wind = 0.0f;
 				
-				sum = (inValue - input[(j-1)*width+i]) + (inValue - input[j*width+(i-1)]) +
+				float sum = (inValue - input[(j-1)*width+i]) + (inValue - input[j*width+(i-1)]) +
                       			(inValue - input[j*width+(i+1)]) + (inValue - input[(j+1)*width+i]);
                     
 				float xwind = wind_x[j*width+i];
@@ -56,8 +56,8 @@ void stencilKernel(float* __restrict__ input,float* __restrict__ output, int wid
 				float temperaturaNeighborY = input[j*width + (i+yfactor)];
 				float componenteVentoY = yfactor * ywind;
 			
-				temp_wind = (-componenteVentoX * ((inValue - temperaturaNeighborX)/CELL_LENGTH)) -
-							( componenteVentoY * ((inValue - temperaturaNeighborY)/CELL_LENGTH));
+				float temp_wind = (-componenteVentoX * ((inValue - temperaturaNeighborX)*10.0f)) -
+							( componenteVentoY * ((inValue - temperaturaNeighborY)*10.0f));
 				
                 /*	Corner 1	
                 if ( (j == 0) && (i == 0) ) {
@@ -271,11 +271,6 @@ int main(int argc, char **argv){
 	
 	//cout<<"Starting simulation..."<<endl;
     
-    #ifdef PSKEL_PAPI
-		if(GPUTime < 1.0)
-			PSkelPAPI::init(PSkelPAPI::CPU);
-	#endif
-    	
 	hr_timer_t timer;
 	hrt_start(&timer);
 	
