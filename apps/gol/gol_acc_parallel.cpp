@@ -8,10 +8,9 @@
 #include <iostream>
 #include <cstdlib>
 #include <stdlib.h>
-
-#include "hr_time.h"
 #include <omp.h>
-//#include <openacc.h>
+#include <openacc.h>
+#include "hr_time.h"
 
 #ifdef PSKEL_PAPI
 #include "PSkelPAPI.h"
@@ -19,7 +18,7 @@ using namespace PSkel;
 #endif
 
 using namespace std;
-void stencilKernel(int *input, int *output, int width, int height, int T_MAX){
+inline void stencilKernel(int *input, int *output, int width, int height, int T_MAX){
     #pragma acc data copyin(input[0:width*height]) copy(output[0:width*height])
     {
 	for(int t=0;t<T_MAX;t++){
@@ -148,15 +147,17 @@ int main(int argc, char **argv){
   
     	hr_timer_t timer;
 	hrt_start(&timer);
-	//#pragma pskel stencil dim2d(width, height) inout(inputGrid, outputGrid) iterations(T_MAX) device(cpu)
 	
 	#ifdef PSKEL_PAPI
 	PSkelPAPI::init(PSkelPAPI::CPU);
 	for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
 		PSkelPAPI::papi_start(PSkelPAPI::CPU,i);
 	#endif
-	stencilKernel(inputGrid, outputGrid,width,height,T_MAX);
-	#ifdef PSKEL_PAPI
+    //#pragma pskel stencil dim2d(width, height) inout(inputGrid, outputGrid) iterations(T_MAX) device(cpu)
+	
+    stencilKernel(inputGrid, outputGrid,width,height,T_MAX);
+	
+    #ifdef PSKEL_PAPI
 		PSkelPAPI::papi_stop(PSkelPAPI::CPU,i);
 	}
 	#endif
