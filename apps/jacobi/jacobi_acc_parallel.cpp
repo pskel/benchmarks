@@ -10,11 +10,14 @@
 #include <stdlib.h>
 #include <omp.h>
 #include <openacc.h>
-
 #include "hr_time.h"
 
-using namespace std;
+#ifdef PSKEL_PAPI
+#include "PSkelPAPI.h"
+using namespace PSkel;
+#endif
 
+using namespace std;
 inline void stencilKernel(float* __restrict__ input, float* __restrict__ output, int width, int height, int T_MAX,float alpha, float beta){
 	#pragma acc data copyin(input[0:width*height]) copyout(output[0:width*height])
 	{
@@ -123,9 +126,20 @@ int main(int argc, char **argv){
   
 	hr_timer_t timer;
 	hrt_start(&timer);
-	//#pragma pskel stencil dim2d(width,height) inout(inputGrid, outputGrid) iterations(T_MAX) device(cpu)
-	stencilKernel(inputGrid, outputGrid,width,height,T_MAX,alpha,beta);
 	
+	#ifdef PSKEL_PAPI
+	PSkelPAPI::init(PSkelPAPI::CPU);
+	for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
+		PSkelPAPI::papi_start(PSkelPAPI::CPU,i);
+	#endif
+    
+    //#pragma pskel stencil dim2d(width,height) inout(inputGrid, outputGrid) iterations(T_MAX) device(cpu)
+    stencilKernel(inputGrid, outputGrid,width,height,T_MAX,alpha,beta);
+	
+    #ifdef PSKEL_PAPI
+		PSkelPAPI::papi_stop(PSkelPAPI::CPU,i);
+	}
+	#endif
 	hrt_stop(&timer);
 	
 	cout << "Exec_time\t" << hrt_elapsed_time(&timer) << endl;
