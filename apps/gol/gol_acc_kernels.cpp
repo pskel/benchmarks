@@ -20,8 +20,8 @@ void stencilKernel(int *input, int *output, int width, int height, int T_MAX){
         #pragma acc kernels
         {
         #pragma acc loop independent
-		for(int j=1;j<height-1;j++){
-			#pragma acc loop independent
+	for(int j=1;j<height-1;j++){
+	    #pragma acc loop independent
             for(int i=1;i<width-1;i++){
                 
                 
@@ -54,16 +54,16 @@ void stencilKernel(int *input, int *output, int width, int height, int T_MAX){
         
         //swap
         #pragma acc loop independent
-		for(int j=0;j<height;j++){
-            #pragma acc loop independent
-			for(int i=0;i<width;i++){
-                input[j*width + i] = output[j*width + i];
+	for(int j=0;j<height;j++){
+        #pragma acc loop independent
+	for(int i=0;i<width;i++){
+            input[j*width + i] = output[j*width + i];
             }
         }
-        }
-	}
-    }
-}
+        }// iterations
+	}//kernels
+    }//acc data
+}//stencil kernel
 
 int main(int argc, char **argv){
 	int width;
