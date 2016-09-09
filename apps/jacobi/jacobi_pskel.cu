@@ -31,44 +31,41 @@ namespace PSkel{
 __parallel__ void stencilKernel(Array2D<float> input,Array2D<float> output,Mask2D<float> mask,Arguments args, size_t i, size_t j){
 	//output(i,j) = 0.25f * ( mask.get(0, input, i, j) + mask.get(1, input, i, j) +  
 	//			mask.get(2, input, i, j) + mask.get(3, input, i, j) - args.h );
-						  
-	//output(i,j) = 0.25f * (input(i,j) + mask.get(0, input, i, j) + mask.get(1, input, i, j) + 
-	//					     mask.get(2, input, i, j) + mask.get(3, input, i, j));
 						 
-	//output(i,j) = 0.25f * ( input(i-1,j) + (input(i,j-1) + input(i,j+1)) + input(i+1,j) - args.h);
-    //	Corner 1	*/
+	output(i,j) = 0.25f * ( input(i-1,j) + (input(i,j-1) + input(i,j+1)) + input(i+1,j) - args.h);
+    /*int width = input.getWidth(); 
+    int height = input.getHeight();
+    //	Corner 1	
     if ( (j == 0) && (i == 0) ) {
          output(i,j) = 0.25f * (input(i+1,j) + input(i,j+1) - args.h);
-    }	//	Corner 2	*/
+    }	//	Corner 2	
     else if ((j == 0) && (i == width-1)) {
          output(i,j) = 0.25f * (input(i,j+1) + input(i-1,j) - args.h);
-    }	//	Corner 3	*/
+    }	//	Corner 3	
     else if ((j == height-1) && (i == width-1)) {
         output(i,j) = 0.25f * (input(i,j-1) + input(i-1,j) - args.h);
-    }	/*	Corner 4	*/
+    }		Corner 4	
     else if ((j == height-1) && (i == 0)) {
         output(i,j) = 0.25f * (input(i+1,j) + input(i,j-1) - args.h);
-    }	/*	Edge 1	*/
+    }	//	Edge 1	
     else if (j == 0) {
         output(i,j) = 0.25f * (input(i-1,j) + input(i+1,j) + input(i,j+1) - args.h);
         //output[y*width+x] = 0.25f * (input[(y)*width + (x-1)] + input[(y)*width +(x+1)] + input[(y+1)*width +(x)]- args.h);
-    }	/*	Edge 2	*/
+    }	//	Edge 2	
     else if (i == width-1) {
         output(i,j) = 0.25f * (input(i-1,j) + input(i,j-1) + input(i,j+1) - args.h);
-        //output[y*width+x] = 0.25f * (input[(y)*width + (x-1)] + input[(y-1)*width +(x)] +input[(y+1)*width +(x)] - args.h);
-    }	/*	Edge 3	*/
+    }	//	Edge 3	
     else if (j == height-1) {
         output(i,j) = 0.25f * (input(i-1,j) + input(i+1,j) + input(i,j-1) - args.h);
-    }	/*	Edge 4	*/
+    }	//	Edge 4	
     else if (i == 0) {
         output(i,j) = 0.25f * (input(i,j-1) + input(i+1,j) + input(i,j+1) - args.h);
-    }	/*	Inside the grid  */
+    }	//	Inside the grid
     else {
         output(i,j) = 0.25f * (input(i,j-1) + input(i+1,j) + input(i-1,j) + input(i,j+1) - args.h);
     }    
-
+    */
 	}
-
 }
 
 int main(int argc, char **argv){
