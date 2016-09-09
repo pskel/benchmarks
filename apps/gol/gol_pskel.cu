@@ -140,11 +140,11 @@ int main(int argc, char **argv){
 			//cout<<"Running Iterative CPU"<<endl;
 		
 		#ifdef PSKEL_PAPI
-			PSkelPAPI::papi_start(PSkelPAPI::RAPL,0);
+			PSkelPAPI::papi_start(PSkelPAPI::CPU,0);
 		#endif
 			stencil.runIterativeCPU(T_MAX, numCPUThreads);	
 		#ifdef PSKEL_PAPI
-			PSkelPAPI::papi_stop(PSkelPAPI::RAPL,0);
+			PSkelPAPI::papi_stop(PSkelPAPI::CPU,0);
 		#endif
 	}
 	else if(GPUTime == 1.0){

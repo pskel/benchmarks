@@ -19,61 +19,54 @@ inline void stencilKernel(float* __restrict__ input, float* __restrict__ output,
 	#pragma acc data copyin(input[0:width*height]) copyout(output[0:width*height])
 	{
 	for (int t = 0; t < T_MAX; t++){
-
-	#pragma acc parallel loop tile(32,32) device_type(nvidia) stencil 
-	for (int y = 1; y < height - 1; y++){
-		//#pragma acc loop 
-		for (int x = 1; x < width - 1; x++){
-				output[y*width+x] = 0.25f * (input[(y+1)*width + x] + input[(y-1)*width + x] +
-				                   	     input[y*width + (x+1)] + input[y*width + (x-1)] - beta);
-		#pragma acc parallel loop independent
+        #pragma acc parallel loop  
 		for (int y = 0; y < height; y++){
 			for (int x = 0; x < width; x++){
 				/*	Corner 1	*/
-                if ( (j == 0) && (i == 0) ) {
+                if ( (y == 0) && (x == 0) ) {
                     output[y*width+x] = 0.25f * (input[(y+1)*width + x] + 
 												 input[y*width + (x+1)]
 												 - beta);
                 }	/*	Corner 2	*/
-                else if ((j == 0) && (i == width-1)) {
+                else if ((y == 0) && (x == width-1)) {
 					output[y*width+x] = 0.25f * (input[(y+1)*width + x] +
 												input[(y-1)*width + x]
 												- beta);
                 }	/*	Corner 3	*/
-                else if ((j == height-1) && (i == width-1)) {
+                else if ((y == height-1) && (x == width-1)) {
                     output[y*width+x] = 0.25f * (input[(y-1)*width + x] +
 												input[y*width + (x-1)]
 												- beta);
                 }	/*	Corner 4	*/
-                else if ((j == height-1) && (i == 0)) {
+                else if ((y == height-1) && (x == 0)) {
                     output[y*width+x] = 0.25f * (input[(y)*width + (x+1)] +
 												input[(y-1)*width + x]
 												- beta);
                 }	/*	Edge 1	*/
-                else if (j == 0) {
+                else if (y == 0) {
                     output[y*width+x] = 0.25f * (input[(y)*width + (x-1)] +
 												 input[(y)*width +(x+1)] +
 												 input[(y+1)*width +(x)]
 												- beta);
                 }	/*	Edge 2	*/
-                else if (i == width-1) {
+                else if (x == width-1) {
                     output[y*width+x] = 0.25f * (input[(y)*width + (x-1)] +
 												 input[(y-1)*width +(x)] +
 												 input[(y+1)*width +(x)]
 												- beta);
                 }	/*	Edge 3	*/
-                else if (j == height-1) {
+                else if (y == height-1) {
                     output[y*width+x] = 0.25f * (input[(y)*width + (x-1)] +
 												 input[(y)*width +(x+1)] +
 												 input[(y-1)*width +(x)]
 												- beta);
                 }	/*	Edge 4	*/
-                else if (i == 0) {
+                else if (x == 0) {
                     output[y*width+x] = 0.25f * (input[(y-1)*width + (x)] +
 												 input[(y)*width +(x+1)] +
 												 input[(y+1)*width +(x)]
 												- beta);
-                }	/*	Inside the grid  */
+                }	/*	xnsxde the grxd  */
                 else {
 					output[y*width+x] = 0.25f * (input[(y+1)*width + x] +
 												input[(y-1)*width + x] +
@@ -81,17 +74,12 @@ inline void stencilKernel(float* __restrict__ input, float* __restrict__ output,
 												input[y*width + (x-1)] - beta);
 				}
 			}
-		} 
-		
+        }
 		//swap data
 		if(t>1 & t<T_MAX - 1){
-
-			#pragma acc parallel loop tile(32,32)  
-			for (int y = 1; y < height - 1; y++){
-				//#pragma acc loop 
-			#pragma acc parallel loop independent 
-			for (int y = 1; y < height - 1; y++){
-				for (int x = 1; x < width - 1; x++){
+			#pragma acc parallel loop 
+            for (int y = 0; y < height; y++){
+                for (int x = 0; x < width; x++){
 					input[y*width+x] = output[y*width+x];
 				}}}
 	}//end iterations
@@ -119,8 +107,8 @@ int main(int argc, char **argv){
 	T_MAX = atoi (argv[3]);
 	verbose = atoi (argv[4]);
 
-	alpha = 0.25/(float) width;
-    	beta = 4.0f/(float) (height*height);
+	alpha = 0.25/(float) (width);
+    beta = 4.0f/(float) (height*height);
 
 	inputGrid = (float*) malloc(width*height*sizeof(float));
 	outputGrid = (float*) malloc(width*height*sizeof(float));
