@@ -54,7 +54,6 @@ __parallel__ void stencilKernel(Array2D<float> input,Array2D<float> output,Mask2
     }	//	Edge 2	
     else if (i == width-1) {
         output(i,j) = 0.25f * (input(i-1,j) + input(i,j-1) + input(i,j+1) - args.h);
-        //output[y*width+x] = 0.25f * (input[(y)*width + (x-1)] + input[(y-1)*width +(x)] +input[(y+1)*width +(x)] - args.h);
     }	//	Edge 3	
     else if (j == height-1) {
         output(i,j) = 0.25f * (input(i-1,j) + input(i+1,j) + input(i,j-1) - args.h);
@@ -67,7 +66,6 @@ __parallel__ void stencilKernel(Array2D<float> input,Array2D<float> output,Mask2
     }    
     */
 	}
-
 }
 
 int main(int argc, char **argv){

@@ -124,7 +124,7 @@ int main(int argc, char **argv){
 	
 	#ifdef PSKEL_PAPI
 		if(GPUTime < 1.0)
-			PSkelPAPI::init(PSkelPAPI::RAPL);
+			PSkelPAPI::init(PSkelPAPI::CPU);
 		else 
 			PSkelPAPI::init(PSkelPAPI::NVML);
 	#endif	
@@ -140,11 +140,13 @@ int main(int argc, char **argv){
 			//cout<<"Running Iterative CPU"<<endl;
 		
 		#ifdef PSKEL_PAPI
-			PSkelPAPI::papi_start(PSkelPAPI::CPU,0);
+			for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
+			PSkelPAPI::papi_start(PSkelPAPI::CPU,i);
 		#endif
 			stencil.runIterativeCPU(T_MAX, numCPUThreads);	
 		#ifdef PSKEL_PAPI
-			PSkelPAPI::papi_stop(PSkelPAPI::CPU,0);
+			PSkelPAPI::papi_stop(PSkelPAPI::CPU,i);
+			}
 		#endif
 	}
 	else if(GPUTime == 1.0){
@@ -176,7 +178,7 @@ int main(int argc, char **argv){
 
 	#ifdef PSKEL_PAPI
 		if(GPUTime < 1.0){
-			PSkelPAPI::print_profile_values(PSkelPAPI::RAPL);
+			PSkelPAPI::print_profile_values(PSkelPAPI::CPU);
 		}
 		else{
 			PSkelPAPI::print_profile_values(PSkelPAPI::NVML);
