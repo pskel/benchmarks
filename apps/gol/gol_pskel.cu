@@ -117,17 +117,18 @@ int main(int argc, char **argv){
 		}
 	}	
 	
-	hr_timer_t timer;
-	hrt_start(&timer);
-	//wbTime_start(GPU, "Doing GPU Computation (memory + compute)");
-	Stencil2D<Array2D<bool>, Mask2D<bool>, short> stencil(inputGrid, outputGrid, mask, 0);
-	
 	#ifdef PSKEL_PAPI
 		if(GPUTime < 1.0)
 			PSkelPAPI::init(PSkelPAPI::CPU);
 		else 
 			PSkelPAPI::init(PSkelPAPI::NVML);
 	#endif	
+	
+	hr_timer_t timer;
+	hrt_start(&timer);
+	//wbTime_start(GPU, "Doing GPU Computation (memory + compute)");
+	Stencil2D<Array2D<bool>, Mask2D<bool>, short> stencil(inputGrid, outputGrid, mask, 0);
+	
 	
 	if(GPUTime == 0.0){
 		//jacobi.runIterativeCPU(T_MAX, numCPUThreads);

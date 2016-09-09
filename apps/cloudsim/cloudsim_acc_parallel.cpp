@@ -41,10 +41,10 @@ void stencilKernel(float* __restrict__ input,float* __restrict__ output, int wid
 				int numNeighbor = 0.25f;
 				float sum = 0.0f;
 				float inValue = input[j*width+i];
-                float temp_wind = 0.0f;
+                		float temp_wind = 0.0f;
 				
 				sum = (inValue - input[(j-1)*width+i]) + (inValue - input[j*width+(i-1)]) +
-                      (inValue - input[j*width+(i+1)]) + (inValue - input[(j+1)*width+i]);
+                      			(inValue - input[j*width+(i+1)]) + (inValue - input[(j+1)*width+i]);
                     
 				float xwind = wind_x[j*width+i];
 				float ywind = wind_y[j*width+i];
@@ -64,46 +64,46 @@ void stencilKernel(float* __restrict__ input,float* __restrict__ output, int wid
                     sum = (inValue - input[j*width+(i+1)]) +
                           (inValue - input[(j+1)*width+i]);
                     numNeighbor = 2;
-                }	/*	Corner 2	
+                }	//	Corner 2	
                 else if ((j == 0) && (i == width-1)) {
                     sum = (inValue - input[j*width+(i-1)]) +
                           (inValue - input[(j+1)*width+i]);
                     numNeighbor = 2;
-                }	/*	Corner 3	
+                }	//	Corner 3	
                 else if ((j == height-1) && (i == width-1)) {
                     sum = (inValue - input[j*width+(i-1)]) +
                           (inValue - input[(j-1)*width+i]);
                     numNeighbor = 2;
-                }	/*	Corner 4	
+                }	//	Corner 4	
                 else if ((j == height-1) && (i == 0)) {
                     sum = (inValue - input[j*width+(i+1)]) +
                           (inValue - input[(j-1)*width+i]);
                     numNeighbor = 2;
-                }	/*	Edge 1	
+                }	//	Edge 1	
                 else if (j == 0) {
                     sum = (inValue - input[j*width+(i-1)]) +
                           (inValue - input[j*width+(i+1)]) +
                           (inValue - input[(j+1)*width+i]);
                     numNeighbor = 3;
-                }	/*	Edge 2	
+                }	//	Edge 2	
                 else if (i == width-1) {
                     sum = (inValue - input[j*width+(i-1)]) +
                           (inValue - input[(j-1)*width+i]) +
                           (inValue - input[(j+1)*width+i]);
                     numNeighbor = 3;
-                }	/*	Edge 3	
+                }	//	Edge 3	
                 else if (j == height-1) {
                     sum = (inValue - input[j*width+(i-1)]) +
                           (inValue - input[j*width+(i+1)]) +
                           (inValue - input[(j-1)*width+i]);
                     numNeighbor = 3;
-                }	/*	Edge 4	
+                }	//	Edge 4	
                 else if (i == 0) {
                     sum = (inValue - input[(j-1)*width+i]) +
                           (inValue - input[j*width+(i+1)]) +
                           (inValue - input[(j+1)*width+i]);
                     numNeighbor = 3;
-                }	/*	Inside the cloud  
+                }	//	Inside the cloud  
                 else {
                     sum = (inValue - input[(j-1)*width+i]) +
                           (inValue - input[j*width+(i-1)]) +

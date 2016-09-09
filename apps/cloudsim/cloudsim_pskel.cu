@@ -44,26 +44,27 @@ struct Cloud{
 };
 
 namespace PSkel{	
-	__parallel__ void stencilKernel(Array2D<float> input,Array2D<float> output,Mask2D<float> mask,Cloud cloud,size_t i, size_t j){
-		int numNeighbor = 0.25f;
-		float sum;
-		float inValue = input(i,j);
-        
-        sum =   (inValue - input(i-1,j) ) + (inValue - input(i,j-1) ) +
-                (inValue - input(i,j+1) ) + (inValue - input(i+1,j) );
-            
+__parallel__ void stencilKernel(Array2D<float> input,Array2D<float> output,Mask2D<float> mask,Cloud cloud,size_t i, size_t j){
+	int numNeighbor = 0.25f;
+	float sum;
+	float inValue = input(i,j);
+           
         float xwind = cloud.wind_x(i,j);
         float ywind = cloud.wind_y(i,j);
         int xfactor = (xwind>0)?1:-1;
         int yfactor = (ywind>0)?1:-1;
-
+	
+	sum =   (inValue - input(i-1,j) ) + (inValue - input(i,j-1) ) +
+                (inValue - input(i,j+1) ) + (inValue - input(i+1,j) );
+         
         float temperaturaNeighborX = input(i,(j+xfactor));
-        float componenteVentoX = xfactor * xwind;
-        float temperaturaNeighborY = input((i+yfactor),j);
-        float componenteVentoY = yfactor * ywind;
-    
-        temp_wind = (-componenteVentoX * ((inValue - temperaturaNeighborX)/CELL_LENGTH)) -
-                    ( componenteVentoY * ((inValue - temperaturaNeighborY)/CELL_LENGTH));
+       	float temperaturaNeighborY = input((i+yfactor),j);
+        
+	float componenteVentoY = yfactor * ywind;
+     	float componenteVentoX = xfactor * xwind;
+        
+        float temp_wind = (-componenteVentoX * ((inValue - temperaturaNeighborX)*10.0f)) -
+                          ( componenteVentoY * ((inValue - temperaturaNeighborY)*10.0f));
         	
 		/*
 		float temp_wind = 0.0f;
