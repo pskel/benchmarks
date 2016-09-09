@@ -148,6 +148,11 @@ int main(int argc, char **argv){
 	}
 	#endif
 	hrt_stop(&timer);
+    
+    #ifdef PSKEL_PAPI
+	PSkelPAPI::print_profile_values(PSkelPAPI::CPU);
+	PSkelPAPI::shutdown();
+	#endif
 	
 	cout << "Exec_time\t" << hrt_elapsed_time(&timer) << endl;
 	
