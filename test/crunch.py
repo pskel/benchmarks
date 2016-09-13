@@ -58,7 +58,7 @@ kv_prof['PAPI_FP_OPS'] = 'PAPI_FP_OPS'
 #PAPI PERCENTS
 kv_prof['FP_INS'] = 'FP_INS'
 kv_prof['FDV_INS'] = 'FDV_INS'
-#kv_prof['VEC_SP'] = 'VEC_SP'
+kv_prof['VEC_SP'] = 'VEC_SP'
 kv_prof['LD_INS'] = 'LD_INS'
 kv_prof['SR_INS'] = 'SR_INS'
 kv_prof['BR_INS'] = 'BR_INS'
@@ -93,6 +93,7 @@ kv_prof['gld_transactions'] = 'gld_transactions'
 kv_prof['gst_transactions'] = 'gst_transactions'
 kv_prof['gst_throughput'] = 'gst_throughput'
 kv_prof['gld_throughput'] = 'gld_throughput'
+kv_prof['nc_cache_global_hit_rate'] = 'nc_cache_global_hit_rate'
 
 #DRAM
 kv_prof['dram_write_transactions'] = 'dram_write_transactions'
@@ -108,7 +109,13 @@ kv_prof['l1_cache_local_hit_rate'] = 'l1_cache_local_hit_rate'
 kv_prof['l2_read_throughput'] = 'l2_read_throughput'
 kv_prof['l2_write_throughput'] = 'l2_write_throughput'
 kv_prof['l2_read_transactions'] = 'l2_read_transactions'
+kv_prof['nc_l2_read_transactions'] = 'nc_l2_read_transactions'
 kv_prof['l2_write_transactions'] = 'l2_write_transactions'
+kv_prof['l2_tex_read_transactions'] = 'l2_tex_read_transactions'
+kv_prof['l2_texture_read_hit_rate'] = 'l2_texture_read_hit_rate'
+kv_prof['l2_texture_read_throughput'] = 'l2_texture_read_throughput'
+#l2_atomic_throughput
+#l2_atomic_transactions
 
 #L2_L1
 kv_prof['l2_l1_read_hit_rate'] = 'l2_l1_read_hit_rate'
@@ -117,12 +124,21 @@ kv_prof['l2_l1_write_throughput'] = 'l2_l1_write_throughput'
 kv_prof['l2_l1_read_transactions'] = 'l2_l1_read_transactions'
 kv_prof['l2_l1_write_transactions'] = 'l2_l1_write_transactions'
 
+kv_prof['tex_cache_hit_rate'] = 'tex_cache_hit_rate'
+kv_prof['tex_cache_transactions'] = 'tex_cache_transactions'
+kv_prof['tex_cache_throughput'] = 'tex_cache_throughput'
+
+
 #FLOPS
 kv_prof['flop_count_sp'] = 'flop_count_sp'
 kv_prof['flop_count_sp_add'] = 'flop_count_sp_add'
 kv_prof['flop_count_sp_mul'] = 'flop_count_sp_mul'
 kv_prof['flop_count_sp_fma'] = 'flop_count_sp_fma'
 kv_prof['flop_count_sp_special'] = 'flop_count_sp_special'
+#kv_prof['flop_count_dp'] = 'flop_count_dp'
+#kv_prof['flop_count_dp_add'] = 'flop_count_dp_add'
+#kv_prof['flop_count_dp_mul'] = 'flop_count_dp_mul'
+#kv_prof['flop_count_dp_fma'] = 'flop_count_dp_fma'
 
 #FLOPS_QUADRO
 kv_prof['flops_sp'] = 'flops_sp'
@@ -153,6 +169,8 @@ kv_prof['cf_issued'] = 'cf_issued'
 kv_prof['cf_executed'] = 'cf_executed'
 kv_prof['ldst_issued'] = 'ldst_issued'
 kv_prof['ldst_executed'] = 'ldst_executed'
+#inst_inter_thread_communication
+
 
 #STALL
 kv_prof['stall_pipe_busy'] = 'stall_pipe_busy'
@@ -164,6 +182,7 @@ kv_prof['stall_other'] = 'stall_other'
 kv_prof['stall_memory_throttle'] = 'stall_memory_throttle'
 kv_prof['stall_constant_memory_dependency'] = 'stall_constant_memory_dependency'
 kv_prof['stall_not_selected'] = 'stall_not_selected'
+kv_prof['stall_texture'] =  'stall_texture'
 
 #STALL_QUADRO
 kv_prof['stall_data_request'] = 'stall_data_request'
@@ -178,6 +197,9 @@ kv_prof['warp_nonpred_execution_efficiency'] = 'warp_nonpred_execution_efficienc
 kv_prof['branch_efficiency'] = 'branch_efficiency'
 kv_prof['gld_efficiency'] = 'gld_efficiency'
 kv_prof['gst_efficiency'] = 'gst_efficiency'
+kv_prof['shared_efficiency'] = 'shared_efficiency'
+kv_prof['nc_gld_efficiency'] = 'nc_gld_efficiency'
+
 
 #UTILIZATION
 kv_prof['sysmem_utilization'] = 'sysmem_utilization'
@@ -188,9 +210,9 @@ kv_prof['issue_slot_utilization'] = 'issue_slot_utilization'
 kv_prof['l1_shared_utilization'] = 'l1_shared_utilization'
 kv_prof['l2_utilization'] = 'l2_utilization'
 kv_prof['dram_utilization'] = 'dram_utilization'
-#tex_utilization
-#tex_fu_utilization
-
+kv_prof['tex_utilization'] = 'tex_utilization'
+kv_prof['tex_fu_utilization'] = 'tex_fu_utilization'
+ 
 #SYSMEM
 kv_prof['sysmem_write_throughput'] = 'sysmem_write_throughput'
 kv_prof['sysmem_read_throughput'] = 'sysmem_read_throughput'
@@ -205,6 +227,130 @@ kv_prof['ecc_transactions'] = 'ecc_transactions'
 kv_prof['ecc_throughput'] = 'ecc_throughput'
 kv_prof['eligible_warps_per_cycle'] = 'eligible_warps_per_cycle'
 
+#EVENTS
+kv_prof['tex0_cache_sector_queries'] = 'tex0_cache_sector_queries'
+kv_prof['tex1_cache_sector_queries'] = 'tex1_cache_sector_queries'
+kv_prof['tex2_cache_sector_queries'] = 'tex2_cache_sector_queries'
+kv_prof['tex3_cache_sector_queries'] = 'tex3_cache_sector_queries'
+kv_prof['tex0_cache_sector_misses'] = 'tex0_cache_sector_misses'
+kv_prof['tex1_cache_sector_misses'] = 'tex1_cache_sector_misses'
+kv_prof['tex2_cache_sector_misses'] = 'tex2_cache_sector_misses'
+kv_prof['tex3_cache_sector_misses'] = 'tex3_cache_sector_misses'
+
+kv_prof['fb_subp0_read_sectors'] = 'fb_subp0_read_sectors'
+kv_prof['fb_subp1_read_sectors'] = 'fb_subp1_read_sectors'
+kv_prof['fb_subp0_write_sectors'] = 'fb_subp0_write_sectors'
+kv_prof['fb_subp1_write_sectors']= 'fb_subp1_write_sectors'
+
+kv_prof['l2_subp0_write_sector_misses'] = 'l2_subp0_write_sector_misses'
+kv_prof['l2_subp1_write_sector_misses'] = 'l2_subp1_write_sector_misses'
+kv_prof['l2_subp2_write_sector_misses'] = 'l2_subp2_write_sector_misses'
+kv_prof['l2_subp3_write_sector_misses'] = 'l2_subp3_write_sector_misses'
+kv_prof['l2_subp0_read_sector_misses']= 'l2_subp0_read_sector_misses'
+kv_prof['l2_subp1_read_sector_misses'] = 'l2_subp1_read_sector_misses'
+kv_prof['l2_subp2_read_sector_misses'] = 'l2_subp2_read_sector_misses'
+kv_prof['l2_subp3_read_sector_misses'] = 'l2_subp3_read_sector_misses'
+
+kv_prof['l2_subp0_write_l1_sector_queries'] = 'l2_subp0_write_l1_sector_queries'
+kv_prof['l2_subp1_write_l1_sector_queries'] = 'l2_subp1_write_l1_sector_queries'
+kv_prof['l2_subp2_write_l1_sector_queries'] = 'l2_subp2_write_l1_sector_queries'
+kv_prof['l2_subp3_write_l1_sector_queries'] = 'l2_subp3_write_l1_sector_queries'
+kv_prof['l2_subp0_read_l1_sector_queries'] = 'l2_subp0_read_l1_sector_queries'
+kv_prof['l2_subp1_read_l1_sector_queries'] = 'l2_subp1_read_l1_sector_queries'
+kv_prof['l2_subp2_read_l1_sector_queries'] = 'l2_subp2_read_l1_sector_queries'
+kv_prof['l2_subp3_read_l1_sector_queries'] = 'l2_subp3_read_l1_sector_queries'
+
+kv_prof['l2_subp0_read_l1_hit_sectors'] = 'l2_subp0_read_l1_hit_sectors'
+kv_prof['l2_subp1_read_l1_hit_sectors'] = 'l2_subp1_read_l1_hit_sectors'
+kv_prof['l2_subp2_read_l1_hit_sectors'] = 'l2_subp2_read_l1_hit_sectors'
+kv_prof['l2_subp3_read_l1_hit_sectors'] = 'l2_subp3_read_l1_hit_sectors'
+
+kv_prof['l2_subp0_read_tex_sector_queries'] = 'l2_subp0_read_tex_sector_queries'
+kv_prof['l2_subp1_read_tex_sector_queries'] = 'l2_subp1_read_tex_sector_queries'
+kv_prof['l2_subp2_read_tex_sector_queries'] = 'l2_subp2_read_tex_sector_queries'
+kv_prof['l2_subp3_read_tex_sector_queries'] = 'l2_subp3_read_tex_sector_queries'
+
+kv_prof['l2_subp0_read_tex_hit_sectors'] = 'l2_subp0_read_tex_hit_sectors'
+kv_prof['l2_subp1_read_tex_hit_sectors'] = 'l2_subp1_read_tex_hit_sectors'
+kv_prof['l2_subp2_read_tex_hit_sectors'] = 'l2_subp2_read_tex_hit_sectors'
+kv_prof['l2_subp3_read_tex_hit_sectors'] = 'l2_subp3_read_tex_hit_sectors'
+
+kv_prof['rocache_subp0_gld_thread_count_32b'] =  'rocache_subp0_gld_thread_count_32b'
+kv_prof['rocache_subp1_gld_thread_count_32b'] =  'rocache_subp1_gld_thread_count_32b'
+kv_prof['rocache_subp2_gld_thread_count_32b'] =  'rocache_subp2_gld_thread_count_32b'
+kv_prof['rocache_subp3_gld_thread_count_32b'] =  'rocache_subp3_gld_thread_count_32b'
+kv_prof['rocache_subp0_gld_thread_count_64b'] =  'rocache_subp0_gld_thread_count_64b'
+kv_prof['rocache_subp1_gld_thread_count_64b'] =  'rocache_subp1_gld_thread_count_64b'
+kv_prof['rocache_subp2_gld_thread_count_64b'] =  'rocache_subp2_gld_thread_count_64b'
+kv_prof['rocache_subp3_gld_thread_count_64b'] =  'rocache_subp3_gld_thread_count_64b'
+kv_prof['rocache_subp0_gld_thread_count_128b'] = 'rocache_subp0_gld_thread_count_128b'
+kv_prof['rocache_subp1_gld_thread_count_128b'] =  'rocache_subp1_gld_thread_count_128b'
+kv_prof['rocache_subp2_gld_thread_count_128b'] =  'rocache_subp2_gld_thread_count_128b'
+kv_prof['rocache_subp3_gld_thread_count_128b'] =  'rocache_subp3_gld_thread_count_128b'
+
+kv_prof['rocache_subp0_gld_warp_count_32b'] =  'rocache_subp0_gld_warp_count_32b'
+kv_prof['rocache_subp1_gld_warp_count_32b'] =  'rocache_subp1_gld_warp_count_32b'
+kv_prof['rocache_subp2_gld_warp_count_32b'] =  'rocache_subp2_gld_warp_count_32b'
+kv_prof['rocache_subp3_gld_warp_count_32b'] =  'rocache_subp3_gld_warp_count_32b'
+kv_prof['rocache_subp0_gld_warp_count_64b'] =  'rocache_subp0_gld_warp_count_64b'
+kv_prof['rocache_subp1_gld_warp_count_64b'] =  'rocache_subp1_gld_warp_count_64b'
+kv_prof['rocache_subp2_gld_warp_count_64b'] =  'rocache_subp2_gld_warp_count_64b'
+kv_prof['rocache_subp3_gld_warp_count_64b'] =  'rocache_subp3_gld_warp_count_64b'
+kv_prof['rocache_subp0_gld_warp_count_128b'] = 'rocache_subp0_gld_warp_count_128b'
+kv_prof['rocache_subp1_gld_warp_count_128b'] =  'rocache_subp1_gld_warp_count_128b'
+kv_prof['rocache_subp2_gld_warp_count_128b'] =  'rocache_subp2_gld_warp_count_128b'
+kv_prof['rocache_subp3_gld_warp_count_128b'] =  'rocache_subp3_gld_warp_count_128b'
+
+kv_prof['l2_subp0_read_system_sector_queries'] = 'l2_subp0_read_system_sector_queries'
+kv_prof['l2_subp1_read_system_sector_queries'] = 'l2_subp1_read_system_sector_queries'
+kv_prof['l2_subp2_read_system_sector_queries'] = 'l2_subp2_read_system_sector_queries'
+kv_prof['l2_subp3_read_system_sector_queries'] = 'l2_subp3_read_system_sector_queries'
+kv_prof['l2_subp0_write_system_sector_queries'] = 'l2_subp0_write_system_sector_queries'
+kv_prof['l2_subp1_write_system_sector_queries'] = 'l2_subp1_write_system_sector_queries'
+kv_prof['l2_subp2_write_system_sector_queries'] = 'l2_subp2_write_system_sector_queries'
+kv_prof['l2_subp3_write_system_sector_queries'] = 'l2_subp3_write_system_sector_queries'
+
+kv_prof['l2_subp0_total_read_sector_queries'] = 'l2_subp0_total_read_sector_queries'
+kv_prof['l2_subp1_total_read_sector_queries'] = 'l2_subp1_total_read_sector_queries'
+kv_prof['l2_subp2_total_read_sector_queries'] = 'l2_subp2_total_read_sector_queries'
+kv_prof['l2_subp3_total_read_sector_queries'] = 'l2_subp3_total_read_sector_queries'
+kv_prof['l2_subp0_total_write_sector_queries'] = 'l2_subp0_total_write_sector_queries'
+kv_prof['l2_subp1_total_write_sector_queries'] = 'l2_subp1_total_write_sector_queries'
+kv_prof['l2_subp2_total_write_sector_queries'] = 'l2_subp2_total_write_sector_queries'
+kv_prof['l2_subp3_total_write_sector_queries'] = 'l2_subp3_total_write_sector_queries'
+
+kv_prof['elapsed_cycles_sm'] = 'elapsed_cycles_sm'
+kv_prof['gld_inst_8bit'] = 'gld_inst_8bit'
+kv_prof['gld_inst_16bit'] = 'gld_inst_16bit'
+kv_prof['gld_inst_32bit'] = 'gld_inst_32bit'
+kv_prof['gld_inst_64bit'] =  'gld_inst_64bit'
+kv_prof['gld_inst_128bit'] =  'gld_inst_128bit'
+kv_prof['gst_inst_8bit'] = 'gst_inst_8bit'
+kv_prof['gst_inst_16bit'] = 'gst_inst_16bit'
+kv_prof['gst_inst_32bit'] = 'gst_inst_32bit'
+kv_prof['gst_inst_64bit'] =  'gst_inst_64bit'
+kv_prof['gst_inst_128bit'] =  'gst_inst_128bit'
+kv_prof['rocache_gld_inst_8bit'] = 'rocache_gld_inst_8bit'
+kv_prof['rocache_gld_inst_16bit'] = 'rocache_gld_inst_16bit'
+kv_prof['rocache_gld_inst_32bit'] = 'rocache_gld_inst_32bit'
+kv_prof['rocache_gld_inst_64bit'] =  'rocache_gld_inst_64bit'
+kv_prof['rocache_gld_inst_128bit'] =  'rocache_gld_inst_128bit'
+kv_prof['warps_launched'] = 'warps_launched'
+kv_prof['threads_launched'] = 'threads_launched'
+kv_prof['inst_issued1'] = 'inst_issued1'
+kv_prof['inst_issued2'] =  'inst_issued2'
+kv_prof['thread_inst_executed'] = 'thread_inst_executed'
+kv_prof['gld_request'] = 'gld_request'
+kv_prof['gst_request'] = 'gst_request'
+kv_prof['active_cycles'] = 'active_cycles'
+kv_prof['active_warps'] = 'active_warps'
+kv_prof['sm_cta_launched'] = 'sm_cta_launched'
+kv_prof['not_predicated_off_thread_inst_executed'] = 'not_predicated_off_thread_inst_executed'
+kv_prof['uncached_global_load_transaction'] = 'uncached_global_load_transaction'
+kv_prof['global_store_transaction'] = 'global_store_transaction'
+kv_prof['__l1_global_load_transactions'] =  'l1_global_load_transactions'
+kv_prof['__l1_global_store_transactions'] =  'l1_global_store_transactions'
+ 
 
 #kv_prof['inst_replay_overhead'] = 'inst_replay_overhead'
 #kv_prof['global_cache_replay_overhead'] = 'global_cache_replay_overhead'
@@ -212,40 +358,30 @@ kv_prof['eligible_warps_per_cycle'] = 'eligible_warps_per_cycle'
 #local_store_transactions
 #shared_load_transactions
 #shared_store_transactions
-#local_load_transactions_per_re
-#local_store_transactions_per_r
-#shared_load_transactions_per_r
-#shared_store_transactions_per_
+#local_load_transactions_per_request
+#local_store_transactions_per_request
+#shared_load_transactions_per_request
+#shared_store_transactions_per_request
 #local_load_throughput
 #local_store_throughput
 #shared_load_throughput
 #shared_store_throughput
-# shared_efficiency
-#stall_texture
+#shared_efficiency
 #shared_replay_overhead
 #global_cache_replay_overhead
-#tex_cache_hit_rate
-#tex_cache_throughput
 #local_replay_overhead
-#l2_texture_read_throughput
-#l2_texture_read_hit_rate
 #local_memory_overhead
-#tex_cache_transactions
-#inst_inter_thread_communication
 #atomic_replay_overhead
-# atomic_transactions
+#atomic_transactions
 #atomic_transactions_per_request
 #inst_replay_overhead
 #global_cache_replay_overhead
-# shared_replay_overhead
-#tex_cache_throughput
-#l2_texture_read_throughput
-# l2_texture_read_hit_rate
-# local_memory_overhead
-#  l2_atomic_throughput
-#  l2_tex_read_transactions
-# l2_atomic_transactions
-# atomic_throughput
+#shared_replay_overhead
+#local_memory_overhead
+#l2_atomic_throughput
+#l2_tex_read_transactions
+#l2_atomic_transactions
+#atomic_throughput
 
 # fixed header fields for synthetic
 #fixed_header = ['app','input','ite','pct_gpu','blk_gpu','thrd_cpu','mask_type','mask_radius','numAdd','numMult']
@@ -263,7 +399,8 @@ header = list()
 metrics_time = list()
 for metric in kv_time:
   metrics_time.append(metric)
-#  header.append(kv_time[metric])
+  header.append(kv_time[metric])
+
 
 metrics_prof = list()
 for metric in kv_prof:
@@ -272,7 +409,7 @@ for metric in kv_prof:
 
 #sort the header by metric name
 header.sort()
-#metrics_time.sort()
+metrics_time.sort()
 metrics_prof.sort()
 
 #Exec_time will be the first metric after the fixed header
@@ -302,7 +439,7 @@ def get_test_files():
   prof = basedir + '/prof'
   time = basedir + '/time'
 
-  for d in (basedir, time):
+  for d in (basedir, prof):
     if not os.path.isdir(d):
       print 'Error: ' + dirname + ' is not a directory.\n'
       sys.exit(1)
@@ -408,8 +545,8 @@ for i in range(len(prof_files)):
   data = get_attr_from_filename(prof_files[i])
 
   # from the "time" files, we want PS: also needs to take this for prof
-  #for metric in metrics_time:
-  #  data += [ mean(extract_values(metric, time_files[i])) ]
+  for metric in metrics_time:
+    data += [ mean(extract_values(metric, time_files[i])) ]
 
   # for the "prof" files, we want all metrics
   #if data[3] > '0' :
