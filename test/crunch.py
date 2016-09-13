@@ -396,7 +396,7 @@ header = list()
 metrics_time = list()
 for metric in kv_time:
   metrics_time.append(metric)
-#  header.append(kv_time[metric])
+  header.append(kv_time[metric])
 
 metrics_prof = list()
 for metric in kv_prof:
@@ -409,7 +409,7 @@ metrics_time.sort()
 metrics_prof.sort()
 
 #Exec_time will be the first metric after the fixed header
-header.insert(0,'Exec_time')
+#header.insert(0,'Exec_time')
 
 header = fixed_header + header
 
