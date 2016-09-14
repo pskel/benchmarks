@@ -28,33 +28,33 @@ void stencilKernel(float *input,float *output, int width, int height, int T_MAX,
 	#pragma acc data copyin(input[0:width*height],wind_x[0:width*height],wind_y[0:width*height]) copyout(output[0:width*height])
     {
 	for(int t=0;t<T_MAX;t++){
-		#pragma acc kernels
+	#pragma acc kernels
         {
-        #pragma acc loop independent
-		for(int j=0;j<height;j++){
-            #pragma acc loop independent
-			for(int i=0;i<width;i++){
-				int numNeighbor = 0;
-				float sum = 0.0f;
-				float inValue = input[j*width+i];
+        #pragma acc loop vector(8) independent
+	for(int j=1;j<height-1;j++){
+            #pragma acc loop vector(32) independent
+	    for(int i=1;i<width-1;i++){
+	        int numNeighbor = 0;
+		float sum = 0.0f;
+		float inValue = input[j*width+i];
                 float temp_wind = 0.0f;
 				
-                /*	Corner 1	*/
+                //Corner 1
                 if ( (j == 0) && (i == 0) ) {
                     sum = (inValue - input[j*width+(i+1)]) +
                           (inValue - input[(j+1)*width+i]);
                     numNeighbor = 2;
-                }	/*	Corner 2	*/
+                }// Corner 2
                 else if ((j == 0) && (i == width-1)) {
                     sum = (inValue - input[j*width+(i-1)]) +
                           (inValue - input[(j+1)*width+i]);
                     numNeighbor = 2;
-                }	/*	Corner 3	*/
+                }//Corner 3
                 else if ((j == height-1) && (i == width-1)) {
                     sum = (inValue - input[j*width+(i-1)]) +
                           (inValue - input[(j-1)*width+i]);
                     numNeighbor = 2;
-                }	/*	Corner 4	*/
+                }//Corner 4
                 else if ((j == height-1) && (i == 0)) {
                     sum = (inValue - input[j*width+(i+1)]) +
                           (inValue - input[(j-1)*width+i]);
@@ -111,9 +111,9 @@ void stencilKernel(float *input,float *output, int width, int height, int T_MAX,
 			}
 		}
 		//swap(output,input);	
-		#pragma acc loop independent
+		#pragma acc loop vector(8) independent
 		for(int j=0;j<height;j++){
-			#pragma acc loop independent
+			#pragma acc loop vector(32) independent
 			for(int i=0;i<width;i++){
 				input[j*width+i] = output[j*width+i];
 			}
