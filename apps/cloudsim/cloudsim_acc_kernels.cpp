@@ -29,98 +29,116 @@ void stencilKernel(float *input,float *output, int width, int height, int T_MAX,
     {
 	for(int t=0;t<T_MAX;t++){
 	#pragma acc kernels
-        {
-        #pragma acc loop vector(8) independent
+    {
+    #pragma acc loop vector(8) independent
 	for(int j=1;j<height-1;j++){
-            #pragma acc loop vector(32) independent
+        #pragma acc loop vector(32) independent
 	    for(int i=1;i<width-1;i++){
-	        int numNeighbor = 0;
-		float sum = 0.0f;
-		float inValue = input[j*width+i];
-                float temp_wind = 0.0f;
+			float inValue = input[j*width+i];
+            int numNeighbor = 0.25f;
+            //float sum = 0.0f;
+			float inValue = input[j*width+i];
+            //float temp_wind = 0.0f;
 				
-                //Corner 1
-                if ( (j == 0) && (i == 0) ) {
-                    sum = (inValue - input[j*width+(i+1)]) +
-                          (inValue - input[(j+1)*width+i]);
-                    numNeighbor = 2;
-                }// Corner 2
-                else if ((j == 0) && (i == width-1)) {
-                    sum = (inValue - input[j*width+(i-1)]) +
-                          (inValue - input[(j+1)*width+i]);
-                    numNeighbor = 2;
-                }//Corner 3
-                else if ((j == height-1) && (i == width-1)) {
-                    sum = (inValue - input[j*width+(i-1)]) +
-                          (inValue - input[(j-1)*width+i]);
-                    numNeighbor = 2;
-                }//Corner 4
-                else if ((j == height-1) && (i == 0)) {
-                    sum = (inValue - input[j*width+(i+1)]) +
-                          (inValue - input[(j-1)*width+i]);
-                    numNeighbor = 2;
-                }	/*	Edge 1	*/
-                else if (j == 0) {
-                    sum = (inValue - input[j*width+(i-1)]) +
-                          (inValue - input[j*width+(i+1)]) +
-                          (inValue - input[(j+1)*width+i]);
-                    numNeighbor = 3;
-                }	/*	Edge 2	*/
-                else if (i == width-1) {
-                    sum = (inValue - input[j*width+(i-1)]) +
-                          (inValue - input[(j-1)*width+i]) +
-                          (inValue - input[(j+1)*width+i]);
-                    numNeighbor = 3;
-                }	/*	Edge 3	*/
-                else if (j == height-1) {
-                    sum = (inValue - input[j*width+(i-1)]) +
-                          (inValue - input[j*width+(i+1)]) +
-                          (inValue - input[(j-1)*width+i]);
-                    numNeighbor = 3;
-                }	/*	Edge 4	*/
-                else if (i == 0) {
-                    sum = (inValue - input[(j-1)*width+i]) +
-                          (inValue - input[j*width+(i+1)]) +
-                          (inValue - input[(j+1)*width+i]);
-                    numNeighbor = 3;
-                }	/*	Inside the cloud  */
-                else {
-                    sum = (inValue - input[(j-1)*width+i]) +
-                          (inValue - input[j*width+(i-1)]) +
-                          (inValue - input[j*width+(i+1)]) +
-                          (inValue - input[(j+1)*width+i]);
-                    numNeighbor = 4;
-                    
-                    float xwind = wind_x[j*width+i];
-                    float ywind = wind_y[j*width+i];
-                    int xfactor = (xwind>0)?1:-1;
-                    int yfactor = (ywind>0)?1:-1;
+            float sum = (inValue - input[(j-1)*width+i]) + (inValue - input[j*width+(i-1)]) +
+                        (inValue - input[j*width+(i+1)]) + (inValue - input[(j+1)*width+i]);
+                
+            float xwind = wind_x[j*width+i];
+            float ywind = wind_y[j*width+i];
+            int xfactor = (xwind>0)?1:-1;
+            int yfactor = (ywind>0)?1:-1;
 
-                    float temperaturaNeighborX = input[(j+xfactor) * width + i];
-                    float componenteVentoX = xfactor * xwind;
-                    float temperaturaNeighborY = input[j*width + (i+yfactor)];
-                    float componenteVentoY = yfactor * ywind;
-				
-                    temp_wind = (-componenteVentoX * ((inValue - temperaturaNeighborX)/CELL_LENGTH)) -
-                                ( componenteVentoY * ((inValue - temperaturaNeighborY)/CELL_LENGTH));
-                    
-                }
-				float temperatura_conducao = -K*(sum / numNeighbor) * deltaT;
-				float result = inValue + temperatura_conducao;
-				output[j*width+i] = result + temp_wind * deltaT;
-			}
-		}
-		//swap(output,input);	
-		#pragma acc loop vector(8) independent
-		for(int j=0;j<height;j++){
-			#pragma acc loop vector(32) independent
-			for(int i=0;i<width;i++){
-				input[j*width+i] = output[j*width+i];
-			}
-		}
-        }	
-	}
+            float temperaturaNeighborX = input[(j+xfactor) * width + i];
+            float componenteVentoX = xfactor * xwind;
+            float temperaturaNeighborY = input[j*width + (i+yfactor)];
+            float componenteVentoY = yfactor * ywind;
+        
+            float temp_wind = (-componenteVentoX * ((inValue - temperaturaNeighborX)*10.0f)) -
+                              ( componenteVentoY * ((inValue - temperaturaNeighborY)*10.0f));    
+            
+            /* Corner 1
+            if ( (j == 0) && (i == 0) ) {
+                sum = (inValue - input[j*width+(i+1)]) +
+                      (inValue - input[(j+1)*width+i]);
+                numNeighbor = 2;
+            }// Corner 2
+            else if ((j == 0) && (i == width-1)) {
+                sum = (inValue - input[j*width+(i-1)]) +
+                      (inValue - input[(j+1)*width+i]);
+                numNeighbor = 2;
+            }//Corner 3
+            else if ((j == height-1) && (i == width-1)) {
+                sum = (inValue - input[j*width+(i-1)]) +
+                      (inValue - input[(j-1)*width+i]);
+                numNeighbor = 2;
+            }//Corner 4
+            else if ((j == height-1) && (i == 0)) {
+                sum = (inValue - input[j*width+(i+1)]) +
+                      (inValue - input[(j-1)*width+i]);
+                numNeighbor = 2;
+            }	//	Edge 1	
+            else if (j == 0) {
+                sum = (inValue - input[j*width+(i-1)]) +
+                      (inValue - input[j*width+(i+1)]) +
+                      (inValue - input[(j+1)*width+i]);
+                numNeighbor = 3;
+            }	//	Edge 2
+            else if (i == width-1) {
+                sum = (inValue - input[j*width+(i-1)]) +
+                      (inValue - input[(j-1)*width+i]) +
+                      (inValue - input[(j+1)*width+i]);
+                numNeighbor = 3;
+            }	//	Edge 3	
+            else if (j == height-1) {
+                sum = (inValue - input[j*width+(i-1)]) +
+                      (inValue - input[j*width+(i+1)]) +
+                      (inValue - input[(j-1)*width+i]);
+                numNeighbor = 3;
+            }	//	Edge 4	
+            else if (i == 0) {
+                sum = (inValue - input[(j-1)*width+i]) +
+                      (inValue - input[j*width+(i+1)]) +
+                      (inValue - input[(j+1)*width+i]);
+                numNeighbor = 3;
+            }	//	Inside the cloud  
+            else {
+                sum = (inValue - input[(j-1)*width+i]) +
+                      (inValue - input[j*width+(i-1)]) +
+                      (inValue - input[j*width+(i+1)]) +
+                      (inValue - input[(j+1)*width+i]);
+                numNeighbor = 4;
+                
+                float xwind = wind_x[j*width+i];
+                float ywind = wind_y[j*width+i];
+                int xfactor = (xwind>0)?1:-1;
+                int yfactor = (ywind>0)?1:-1;
+
+                float temperaturaNeighborX = input[(j+xfactor) * width + i];
+                float componenteVentoX = xfactor * xwind;
+                float temperaturaNeighborY = input[j*width + (i+yfactor)];
+                float componenteVentoY = yfactor * ywind;
+            
+                temp_wind = (-componenteVentoX * ((inValue - temperaturaNeighborX)/CELL_LENGTH)) -
+                            ( componenteVentoY * ((inValue - temperaturaNeighborY)/CELL_LENGTH));
+                
+            }
+            */
+            float temperatura_conducao = -K*(sum / numNeighbor) * deltaT;
+            float result = inValue + temperatura_conducao;
+            output[j*width+i] = result + temp_wind * deltaT;
+        } //end for width
+    }// end for height
+    //swap(output,input);	
+    #pragma acc loop vector(8) independent
+    for(int j=0;j<height;j++){
+        #pragma acc loop vector(32) independent
+        for(int i=0;i<width;i++){
+            input[j*width+i] = output[j*width+i];
+        }
     }
+    }//end pragma acc kernels
+	}//end timesteps
+    }//end pragma acc data
 	//swap(output,input);
 	//if(T_MAX%2==0)
 	//   memcpy(input,output,width*height*sizeof(float));
