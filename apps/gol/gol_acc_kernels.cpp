@@ -19,9 +19,9 @@ void stencilKernel(int *input, int *output, int width, int height, int T_MAX){
 	for(int t=0;t<T_MAX;t++){
         #pragma acc kernels
         {
-        #pragma acc loop independent
+        #pragma acc loop independent vector(8)
 	for(int j=1;j<height-1;j++){
-	    #pragma acc loop independent
+	    #pragma acc loop independent vector(32)
             for(int i=1;i<width-1;i++){
                 
                 
@@ -53,13 +53,15 @@ void stencilKernel(int *input, int *output, int width, int height, int T_MAX){
 		}
         
         //swap
-        #pragma acc loop independent
-	for(int j=0;j<height;j++){
-        #pragma acc loop independent
-	for(int i=0;i<width;i++){
-            input[j*width + i] = output[j*width + i];
-            }
-        }
+        if(T_MAX>1 & t<T_MAX - 1){
+		#pragma acc loop independent vector(8)
+		for(int j=0;j<height;j++){
+        		#pragma acc loop independent vector(32)
+			for(int i=0;i<width;i++){
+        			 input[j*width + i] = output[j*width + i];
+            		}
+        	}
+	}
         }// iterations
 	}//kernels
     }//acc data
@@ -83,7 +85,7 @@ int main(int argc, char **argv){
 	width = atoi (argv[1]);
 	height = atoi (argv[2]);
 	T_MAX = atoi (argv[3]);
-    verbose = atoi (argv[4]);
+    	verbose = atoi (argv[4]);
 
 	inputGrid = (int*) calloc(width*height,sizeof(int));
 	outputGrid = (int*) calloc(width*height,sizeof(int));
