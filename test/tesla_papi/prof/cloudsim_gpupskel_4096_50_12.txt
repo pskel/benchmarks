@@ -277,3 +277,30 @@ Device "Tesla K20m (0)"
           1                        stall_not_selected        Issue Stall Reasons (Not Selected)      16.96%      16.96%      16.96%
           1                  eligible_warps_per_cycle           Eligible Warps Per Active Cycle    8.910923    8.910923    8.910923
           1                         atomic_throughput                         Atomic Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+==35725== NVPROF is profiling process 35725, command: ../bin/cloudsim_pskel 4096 4096 50 1 32 8 12 0
+Exec_time	0.332045
+==35725== Profiling application: ../bin/cloudsim_pskel 4096 4096 50 1 32 8 12 0
+==35725== Profiling result:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+ 78.32%  307.81ms        50  6.1562ms  6.1538ms  6.1585ms  void PSkel::stencilTilingCU<float, float, Cloud>(PSkel::Array2D<float>, float, PSkel::Mask2D<float>, Cloud, unsigned long, unsigned long, unsigned long, unsigned long)
+ 10.62%  41.728ms         8  5.2159ms  430.42us  10.005ms  [CUDA memset]
+  8.52%  33.481ms         5  6.6962ms     896ns  11.169ms  [CUDA memcpy HtoD]
+  2.54%  9.9947ms         1  9.9947ms  9.9947ms  9.9947ms  [CUDA memcpy DtoH]
+
+==35725== API calls:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+ 57.20%  529.86ms         4  132.47ms  34.802ms  377.87ms  cudaMallocHost
+ 33.31%  308.52ms        50  6.1704ms  6.1582ms  6.5350ms  cudaDeviceSynchronize
+  4.84%  44.855ms         6  7.4758ms  10.163us  11.614ms  cudaMemcpy
+  4.37%  40.460ms         8  5.0575ms  17.702us  10.112ms  cudaMemset
+  0.11%  974.46us         6  162.41us  10.282us  324.34us  cudaMalloc
+  0.08%  718.70us        50  14.374us  12.277us  38.167us  cudaLaunch
+  0.04%  362.94us        83  4.3720us     326ns  152.16us  cuDeviceGetAttribute
+  0.03%  311.60us         4  77.899us  11.723us  123.73us  cudaFree
+  0.01%  90.527us       400     226ns     174ns  2.1850us  cudaSetupArgument
+  0.01%  53.674us         1  53.674us  53.674us  53.674us  cuDeviceGetName
+  0.01%  48.337us         1  48.337us  48.337us  48.337us  cuDeviceTotalMem
+  0.00%  27.310us        50     546ns     410ns  3.0960us  cudaConfigureCall
+  0.00%  19.834us        50     396ns     317ns  2.6900us  cudaPeekAtLastError
+  0.00%  5.2600us         2  2.6300us     990ns  4.2700us  cuDeviceGetCount
+  0.00%  1.3000us         2     650ns     510ns     790ns  cuDeviceGet
