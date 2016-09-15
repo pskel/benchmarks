@@ -15,16 +15,16 @@
 
 using namespace std;
 
-inline void stencilKernel(float* __restrict__ input, float* __restrict__ output, int width, int height, int T_MAX,float alpha, float beta){
-	#pragma acc data copyin(input[0:width*height]) create(output[0:width*height])
+inline void stencilKernel(float* input, float* output, int width, int height, int T_MAX,float alpha, float beta){
+	#pragma acc data copyin(input[0:width*height]) copyout(output[0:width*height])
 	{
 	for (int t = 0; t < T_MAX; t++){
-		//#pragma acc kernels //loop gang worker vector_length(32) num_workers(32)
-		//{
-		#pragma acc kernels loop independent //gang(32) vector(16) 
-		for (int y = 0; y < height ; y++){
-			//#pragma acc loop independent //gang(16) vector(32) 
-			for (int x = 0; x < width ; x++){
+	#pragma acc kernels //loop gang worker vector_length(32) num_workers(32)
+	{
+		#pragma acc loop independent vector(8) 
+		for (int y = 1; y < height -1; y++){
+			#pragma acc loop independent vector(32) 
+			for (int x = 1; x < width - 1; x++){
 				output[y*width+x] = 0.25f * (input[(y+1)*width + x] + input[(y-1)*width + x] +
 						             input[y*width + (x+1)] + input[y*width + (x-1)] - beta);
 			}
@@ -32,15 +32,15 @@ inline void stencilKernel(float* __restrict__ input, float* __restrict__ output,
 		
 		//swap data
 		if(T_MAX > 1 && t<T_MAX-1){
-			#pragma acc kernels loop independent //gang(32) vector(16) 
+			#pragma acc loop independent vector(8) 
 			for (int y = 0; y < height ; y++){
-				//#pragma acc loop independent //independent //gang(16) vector(32)
+				#pragma acc loop independent vector(32)
 				for (int x = 0; x < width ; x++){
 					input[y*width+x] = output[y*width+x];
 				}
 			}
 		}
-	//	}
+	}
 	}
 	}
 	#pragma acc exit data

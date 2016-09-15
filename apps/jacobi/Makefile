@@ -6,11 +6,11 @@ OPTIMUS         = optirun #remover este valor se não estiver em um sistema OPTI
 CUDA_LIB_PATH   = /usr/local/cuda-5.5/lib64
 CUDAFLAGS    	= -O3 -arch=sm_21 -m64 -lineinfo -Xcompiler -ftree-vectorize -Xcompiler -march=native -Xcompiler -mtune=native -Xcompiler -O3 
 CUDAFLAGS_T    	= -O3 -arch=sm_35 -m64 -lineinfo -Xcompiler -ftree-vectorize -Xcompiler -march=native -Xcompiler -mtune=native -Xcompiler -O3 
-ACCFLAGS		= -O3 -ta=tesla -tp=sandybridge -Minfo=accel
-ACCFLAGS_T		= -O3 -ta=tesla,managed -tp=sandybridge -Minfo=accel
-ACCFLAGS_M		= -O3 -ta=multicore -tp=sandybridge -Minfo=accel
-CXXFLAGS		= -O3 -w
-GENCODE			= -gencode arch=compute_20,code=sm_20 -gencode arch=compute_30,code=sm_30 -gencode arch=compute_35,code=\"sm_35,compute_35\"
+ACCFLAGS	= -O3 -ta=tesla -tp=sandybridge -Minfo=accel
+ACCFLAGS_T	= -O3 -ta=tesla -tp=sandybridge -Minfo=accel
+ACCFLAGS_M	= -O3 -ta=multicore -tp=sandybridge -Minfo=accel
+CXXFLAGS	= -O3 -w
+GENCODE		= -gencode arch=compute_20,code=sm_20 -gencode arch=compute_30,code=sm_30 -gencode arch=compute_35,code=\"sm_35,compute_35\"
 TBB_SRC_PATH	= /opt/intel/tbb/include
 TBB_LIB_PATH	= /opt/intel/tbb/lib/intel64/gcc4.4
 OMP_TBB         = -fopenmp -lgomp -I${TBB_SRC_PATH} -L${TBB_LIB_PATH} -ltbb
