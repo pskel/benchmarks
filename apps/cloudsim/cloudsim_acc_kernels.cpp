@@ -25,19 +25,18 @@ using namespace std;
 #define TAM_VETOR_FILENAME  200
 
 void stencilKernel(float *input,float *output, int width, int height, int T_MAX,float *wind_x,float *wind_y,float deltaT){
-	#pragma acc data copyin(input[0:width*height],wind_x[0:width*height],wind_y[0:width*height]) copyout(output[0:width*height])
+    #pragma acc data pcopyin(input[0:width*height],wind_x[0:width*height],wind_y[0:width*height]) pcopyout(output[0:width*height])
     {
-	for(int t=0;t<T_MAX;t++){
-	#pragma acc kernels
+    for(int t=0;t<T_MAX;t++){
+    #pragma acc kernels
     {
-    #pragma acc loop vector(8) independent
+        #pragma acc loop independent vector(8) 
 	for(int j=1;j<height-1;j++){
-        #pragma acc loop vector(32) independent
+            #pragma acc loop independent vector(32) 
 	    for(int i=1;i<width-1;i++){
-			float inValue = input[j*width+i];
             int numNeighbor = 0.25f;
             //float sum = 0.0f;
-			float inValue = input[j*width+i];
+	    float inValue = input[j*width+i];
             //float temp_wind = 0.0f;
 				
             float sum = (inValue - input[(j-1)*width+i]) + (inValue - input[j*width+(i-1)]) +
@@ -123,18 +122,20 @@ void stencilKernel(float *input,float *output, int width, int height, int T_MAX,
                 
             }
             */
-            float temperatura_conducao = -K*(sum / numNeighbor) * deltaT;
+            float temperatura_conducao = -K*(sum * numNeighbor) * deltaT;
             float result = inValue + temperatura_conducao;
             output[j*width+i] = result + temp_wind * deltaT;
         } //end for width
     }// end for height
     //swap(output,input);	
-    #pragma acc loop vector(8) independent
-    for(int j=0;j<height;j++){
-        #pragma acc loop vector(32) independent
-        for(int i=0;i<width;i++){
-            input[j*width+i] = output[j*width+i];
-        }
+    if(T_MAX > 1 && t<T_MAX-1){
+	#pragma acc loop independent vector(8) 
+    	for(int j=0;j<height;j++){
+        	#pragma acc loop independent vector(32)
+        	for(int i=0;i<width;i++){
+            		input[j*width+i] = output[j*width+i];
+        	}
+    	}
     }
     }//end pragma acc kernels
 	}//end timesteps
