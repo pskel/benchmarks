@@ -221,7 +221,7 @@ int main(int argc, char **argv){
 		cout<<fixed;
 		cout<<"INPUT"<<endl;
 		for(int i=0; i<y_max/10;i+=10){
-			cout<<"("<<i<<","<<i<<") = "<<inputGrid(i,i)<<"\t\t("<<x_max-i<<","<<y_max-i<<") = "<<inputGrid(x_max-i,y_max-i)<<endl;
+			cout<<"("<<i<<","<<i<<") = "<<inputGrid(i,i)<<"\t("<<x_max-i<<","<<y_max-i<<") = "<<inputGrid(x_max-i,y_max-i)<<endl;
 		}
 		cout<<endl;
 		
@@ -233,7 +233,7 @@ int main(int argc, char **argv){
 		
 		for(size_t h = 0; h < outputGrid.getHeight(); h++){		
 			for(size_t w = 0; w < outputGrid.getWidth(); w++){
-				cout<<outputGrid(h,w)<<"\t\t";
+				cout<<outputGrid(h,w)<<"\t";
 			}
 			cout<<endl;
 		}
