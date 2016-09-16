@@ -32,7 +32,7 @@ __parallel__ void stencilKernel(Array2D<float> input,Array2D<float> output,float
 	//size_t index = (tx-1+1)*10+(ty+1);
 	//printf("idx %d ",index);
 	//printf("val %f\n",shared[index]);
-	output(i,j) = 0.25f * (shared[(ty-1+1)*34+(tx+1)] + shared[(ty+1)*34+(tx-1+1)] + shared[(ty+1)*34+(tx+1+1)] + shared[(ty+1+1)*34+(tx+1)] - args.h);
+	output(i,j) = 0.25f * (shared[(ty+1-1)*34+(tx+1)] + shared[(ty+1)*34+(tx+1-1)] + shared[(ty+1)*34+(tx+1+1)] + shared[(ty+1+1)*34+(tx+1)]-args.h);
 							//( shared(i-1,j) + (shared(i,j-1) + shared(i,j+1)) + shared(i+1,j) - args.h);
 	}
 }
@@ -116,8 +116,8 @@ int main(int argc, char **argv){
 
 	/* initialize the first timesteps */
 	#pragma omp parallel for
-    	for(size_t h = 0; h < inputGrid.getHeight(); h++){		
-		for(size_t w = 0; w < inputGrid.getWidth(); w++){
+    	for(size_t h = 1; h < inputGrid.getHeight()-1; h++){		
+		for(size_t w = 1; w < inputGrid.getWidth()-1; w++){
 			inputGrid(h,w) = 1.0 + w*0.1 + h*0.01;
 			outputGrid(h,w) = 0.0f;
 		}
@@ -217,7 +217,7 @@ int main(int argc, char **argv){
 			ofs<<endl;
 		}*/		
 		
-		cout<<setprecision(6);
+		cout<<setprecision(2);
 		cout<<fixed;
 		cout<<"INPUT"<<endl;
 		for(int i=0; i<y_max/10;i+=10){
@@ -233,7 +233,7 @@ int main(int argc, char **argv){
 		
 		for(size_t h = 0; h < outputGrid.getHeight(); h++){		
 			for(size_t w = 0; w < outputGrid.getWidth(); w++){
-				cout<<outputGrid(h,w)<<"\t\t";
+				cout<<outputGrid(h,w)<<" ";
 			}
 			cout<<endl;
 		}
