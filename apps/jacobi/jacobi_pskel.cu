@@ -9,7 +9,7 @@
 #include <fstream>
 
 //#define PSKEL_SHARED_MASK
-//#define PSKEL_OMP
+#define PSKEL_OMP
 #define PSKEL_CUDA
 //#define PSKEL_PAPI
 //#define PSKEL_PAPI_DEBUG
@@ -37,7 +37,7 @@ __parallel__ void stencilKernel(Array2D<float> input,Array2D<float> output,float
 	}
 }
 #else
-__parallel__ void stencilKernel(Array2D<float> input,Array2D<float> output,Mask2D<float> mask,Arguments args, size_t i, size_t j){
+__parallel__ void stencilKernel(Array2D<float> &input,Array2D<float> &output,Mask2D<float> &mask,Arguments &args, size_t i, size_t j){
 	//output(i,j) = 0.25f * ( mask.get(0, input, i, j) + mask.get(1, input, i, j) +  
 	//			mask.get(2, input, i, j) + mask.get(3, input, i, j) - args.h );
 						 
@@ -165,7 +165,7 @@ int main(int argc, char **argv){
 			PSkelPAPI::papi_start(PSkelPAPI::CPU,i);
 		#endif
 
-			//jacobi.runIterativeCPU(T_MAX, numCPUThreads);	
+			jacobi.runIterativeCPU(T_MAX, numCPUThreads);	
 
 		#ifdef PSKEL_PAPI
 			PSkelPAPI::papi_stop(PSkelPAPI::CPU,i);
@@ -176,7 +176,7 @@ int main(int argc, char **argv){
 		jacobi.runIterativeGPU(T_MAX, GPUBlockSizeX, GPUBlockSizeY);
 	}
 	else{
-		//jacobi.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSizeX, GPUBlockSizeY);
+		jacobi.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSizeX, GPUBlockSizeY);
 		/*
         #ifdef PSKEL_PAPI
 			for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
