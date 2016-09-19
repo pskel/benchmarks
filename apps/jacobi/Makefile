@@ -45,7 +45,7 @@ pskel: ${SRC_NAME}_pskel.cu
 	${CUDAC} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel ${SRC_NAME}_pskel.cu ${LIBS}
 
 pskel_shared: ${SRC_NAME}_pskel.cu
-	${CUDAC} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_shared ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_SHARED
+	${CUDAC} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_shared ${SRC_NAME}_pskel.cu ${LIBS} -Xptxas -v --keep --keep-dir nvcc -DPSKEL_SHARED
 
 
 debug: ${SRC_NAME}_pskel.cu
