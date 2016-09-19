@@ -30,14 +30,14 @@ using namespace std;
 #define DELTAPO       	0.5f
 #define TAM_VETOR_FILENAME  200
 
-void stencilKernel(float* __restrict__ input,float* __restrict__ output, int width, int height, int T_MAX,float* __restrict__ wind_x,float* __restrict__ wind_y,float deltaT){
-	#pragma acc data copyin(input[0:width*height],wind_x[0:width*height],wind_y[0:width*height]) copyout(output[0:width*height])
+void stencilKernel(float* input,float* output, int width, int height, int T_MAX,float* wind_x,float* wind_y,float deltaT){
+    #pragma acc data copyin(input[0:width*height],wind_x[0:width*height],wind_y[0:width*height]) copyout(output[0:width*height])
     {
 	for(int t=0;t<T_MAX;t++){
-		#pragma acc parallel loop
-		for(int j=0;j<height;j++){
+		#pragma acc parallel loop 
+		for(int j=1;j<height-1;j++){
 			#pragma acc loop independent
-			for(int i=0;i<width;i++){
+			for(int i=1;i<width-1;i++){
 				int numNeighbor = 0.25f;
 				//float sum = 0.0f;
 				float inValue = input[j*width+i];
