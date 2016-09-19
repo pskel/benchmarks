@@ -77,23 +77,24 @@ __parallel__ void stencilKernel(Array2D<float> &input,Array2D<float> &output,Mas
 
 
 int main(int argc, char **argv){
-	int x_max, y_max, T_MAX, GPUBlockSizeX, GPUBlockSizeY, numCPUThreads;
+	int x_max, y_max, T_MAX, pyramidHeight, GPUBlockSizeX, GPUBlockSizeY, numCPUThreads;
 	float GPUTime;
 
-	if (argc != 9){
+	if (argc != 10){
 		printf ("Wrong number of parameters.\n");
-		printf ("Usage: jacobi WIDTH HEIGHT ITERATIONS GPUPERCENT GPUBLOCKS_X GPUBLOCKS_Y CPUTHREADS OUTPUT_WRITE_FLAG\n");
+		printf ("Usage: jacobi WIDTH HEIGHT ITERATIONS PYRAMID_HEIGHT GPUPERCENT GPUBLOCKS_X GPUBLOCKS_Y CPUTHREADS OUTPUT_WRITE_FLAG\n");
 		exit (-1);
 	}
 
 	x_max = atoi (argv[1]);
 	y_max = atoi (argv[2]);
 	T_MAX=atoi(argv[3]);
-	GPUTime = atof(argv[4]);
-	GPUBlockSizeX = atoi(argv[5]);
-	GPUBlockSizeY = atoi(argv[6]);
-	numCPUThreads = atoi(argv[7]);
-	int writeToFile = atoi(argv[8]);
+	pyramidHeight=atoi(argv[4]);
+	GPUTime = atof(argv[5]);
+	GPUBlockSizeX = atoi(argv[6]);
+	GPUBlockSizeY = atoi(argv[7]);
+	numCPUThreads = atoi(argv[8]);
+	int writeToFile = atoi(argv[9]);
 	
 	Array2D<float> inputGrid(x_max, y_max);
 	Array2D<float> outputGrid(x_max, y_max);
@@ -172,7 +173,7 @@ int main(int argc, char **argv){
 	}
 	else if(GPUTime == 1.0){
 		#ifdef PSKEL_SHARED
-			jacobi.runIterativeGPU(T_MAX,2,GPUBlockSizeX, GPUBlockSizeY);
+			jacobi.runIterativeGPU(T_MAX,pyramidHeight,GPUBlockSizeX, GPUBlockSizeY);
 		#else
 			jacobi.runIterativeGPU(T_MAX,GPUBlockSizeX, GPUBlockSizeY);
 		#endif
