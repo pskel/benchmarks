@@ -27,17 +27,14 @@ struct Arguments{
 
 namespace PSkel{
 
-#ifdef PSKEL_SHARED
-__parallel__ void stencilKernel(Array2D<float> input,Array2D<float> output,float *shared, Arguments args, size_t i, size_t j,size_t tx, size_t ty){					 
+__parallel__ void stencilKernel(float input[BLOCK_SIZE][BLOCK_SIZE],float output[BLOCK_SIZE][BLOCK_SIZE], Arguments args, size_t ty, size_t tx){					 
 	//size_t index = (tx-1+1)*10+(ty+1);
 	//printf("idx %d ",index);
 	//printf("val %f\n",shared[index]);
-	output(i,j) = 0.25f * (shared[(ty+1-1)*34+(tx+1)] + shared[(ty+1)*34+(tx+1-1)] + shared[(ty+1)*34+(tx+1+1)] + shared[(ty+1+1)*34+(tx+1)]-args.h);
-							//( shared(i-1,j) + (shared(i,j-1) + shared(i,j+1)) + shared(i+1,j) - args.h);
-	}
+	output[ty][tx] = 0.25f * (input[ty][tx-1] + input[ty][tx+1] + input[ty-1][tx] + input[ty+1][tx] - args.h);
 }
-#else
-__parallel__ void stencilKernel(Array2D<float> input,Array2D<float> output,Mask2D<float> mask,Arguments args, size_t i, size_t j){
+
+__parallel__ void stencilKernel(Array2D<float> &input,Array2D<float> &output,Mask2D<float> &mask,Arguments &args, size_t i, size_t j){
 	//output(i,j) = 0.25f * ( mask.get(0, input, i, j) + mask.get(1, input, i, j) +  
 	//			mask.get(2, input, i, j) + mask.get(3, input, i, j) - args.h );
 						 
@@ -74,9 +71,10 @@ __parallel__ void stencilKernel(Array2D<float> input,Array2D<float> output,Mask2
         output(i,j) = 0.25f * (input(i,j-1) + input(i+1,j) + input(i-1,j) + input(i,j+1) - args.h);
     }    
     */
-	}
 }
-#endif
+
+}
+
 
 int main(int argc, char **argv){
 	int x_max, y_max, T_MAX, GPUBlockSizeX, GPUBlockSizeY, numCPUThreads;
@@ -173,7 +171,11 @@ int main(int argc, char **argv){
 		#endif
 	}
 	else if(GPUTime == 1.0){
-		jacobi.runIterativeGPU(T_MAX, GPUBlockSizeX, GPUBlockSizeY);
+		#ifdef PSKEL_SHARED
+			jacobi.runIterativeGPU(T_MAX,2,GPUBlockSizeX, GPUBlockSizeY);
+		#else
+			jacobi.runIterativeGPU(T_MAX,GPUBlockSizeX, GPUBlockSizeY);
+		#endif
 	}
 	else{
 		//jacobi.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSizeX, GPUBlockSizeY);

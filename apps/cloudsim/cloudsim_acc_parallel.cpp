@@ -41,7 +41,7 @@ void stencilKernel(float* input,float* output, int width, int height, int T_MAX,
 				int numNeighbor = 0.25f;
 				//float sum = 0.0f;
 				float inValue = input[j*width+i];
-                		//float temp_wind = 0.0f;
+                //float temp_wind = 0.0f;
 				
 				float sum = (inValue - input[(j-1)*width+i]) + (inValue - input[j*width+(i-1)]) +
                       			(inValue - input[j*width+(i+1)]) + (inValue - input[(j+1)*width+i]);

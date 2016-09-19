@@ -54,14 +54,14 @@ __parallel__ void stencilKernel(Array2D<float> input,Array2D<float> output,Mask2
         int xfactor = (xwind>0)?1:-1;
         int yfactor = (ywind>0)?1:-1;
 	
-	sum =   (inValue - input(i-1,j) ) + (inValue - input(i,j-1) ) +
+        sum =   (inValue - input(i-1,j) ) + (inValue - input(i,j-1) ) +
                 (inValue - input(i,j+1) ) + (inValue - input(i+1,j) );
        	//sum = 4 * inValue - ( input(i-1,j) + input(i+1,j) + input(i,j+1) + input(i,j-1) );
          
         float temperaturaNeighborX = input(i,(j+xfactor));
        	float temperaturaNeighborY = input((i+yfactor),j);
         
-	float componenteVentoY = yfactor * ywind;
+        float componenteVentoY = yfactor * ywind;
      	float componenteVentoX = xfactor * xwind;
         
         float temp_wind = (-componenteVentoX * ((inValue - temperaturaNeighborX)*10.0f)) -
