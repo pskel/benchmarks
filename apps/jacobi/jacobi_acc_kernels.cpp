@@ -18,7 +18,7 @@ using namespace std;
 inline void stencilKernel(float* input, float* output, int width, int height, int T_MAX,float alpha, float beta){
 	#pragma acc data copyin(input[0:width*height]) copyout(output[0:width*height])
 	{
-	for (int t = 0; t < T_MAX; t++){
+	for (int t = 0; t < T_MAX/2; t++){
 	#pragma acc kernels //loop gang worker vector_length(32) num_workers(32)
 	{
 		#pragma acc loop independent vector(8) 
@@ -31,7 +31,7 @@ inline void stencilKernel(float* input, float* output, int width, int height, in
 		}  
 		
 		//swap data
-		if(T_MAX > 1 && t<T_MAX-1){
+		/*if(T_MAX > 1 && t<T_MAX-1){
 			#pragma acc loop independent vector(8) 
 			for (int y = 0; y < height ; y++){
 				#pragma acc loop independent vector(32)
@@ -39,7 +39,16 @@ inline void stencilKernel(float* input, float* output, int width, int height, in
 					input[y*width+x] = output[y*width+x];
 				}
 			}
-		}
+		}*/
+		#pragma acc loop independent vector(8) 
+		for (int y = 1; y < height -1; y++){
+			#pragma acc loop independent vector(32) 
+			for (int x = 1; x < width - 1; x++){
+				input[y*width+x] = 0.25f * (output[(y+1)*width + x] + output[(y-1)*width + x] +
+						             output[y*width + (x+1)] + output[y*width + (x-1)] - beta);
+			}
+		}  
+		
 	}
 	}
 	}
@@ -68,14 +77,14 @@ int main(int argc, char **argv){
 	verbose = atoi (argv[4]);
 
 	alpha = 0.25/(float) width;
-    	beta = 4.0f/(float) (height*height);
+    beta = 4.0f/(float) (height*height);
 
-	inputGrid = (float*) malloc(width*height*sizeof(float));
-	outputGrid = (float*) malloc(width*height*sizeof(float));
+	inputGrid = (float*) calloc(width*height,sizeof(float));
+	outputGrid = (float*) calloc(width*height,sizeof(float));
 
 	#pragma omp parallel for
-	for(int j=0;j<height;j++) {
-		for(int i=0;i<width;i++) {
+	for(int j=1;j<height-1;j++) {
+		for(int i=1;i<width-1;i++) {
 			inputGrid[j*width + i] = 1. + i*0.1 + j*0.01;
 			outputGrid[j*width + i] = 0.0f;
 		}
@@ -91,7 +100,7 @@ int main(int argc, char **argv){
 	cout << "Exec_time\t" << hrt_elapsed_time(&timer) << endl;
 	
 	if(verbose){		
-		cout<<setprecision(6);
+		cout<<setprecision(2);
 		cout<<fixed;
 		cout<<"INPUT"<<endl;
 		for(int i=0; i<width/10;i+=10){
@@ -107,7 +116,7 @@ int main(int argc, char **argv){
 		
 		for(size_t h = 0; h < height; h++){		
 			for(size_t w = 0; w < width; w++){
-				cout<<outputGrid[h*width + w]<<"\t\t";
+				cout<<outputGrid[h*width + w]<<" ";
 			}
 			cout<<endl;
 		}
