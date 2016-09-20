@@ -25,7 +25,7 @@ using namespace std;
 #define TAM_VETOR_FILENAME  200
 
 void stencilKernel(float *input,float *output, int width, int height, int T_MAX,float *wind_x,float *wind_y,float deltaT){
-    #pragma acc data copyin(input[0:width*height],wind_x[0:width*height],wind_y[0:width*height]) copyout(output[0:width*height])
+    #pragma acc data copy(input[0:width*height]) copyin(wind_x[0:width*height],wind_y[0:width*height],output[0:width*height])
     {
     for(int t=0;t<T_MAX/2;t++){
     #pragma acc kernels
@@ -298,29 +298,36 @@ int main(int argc, char **argv){
 	}
 	
     	//cout<<"Starting simulation..."<<endl;
+
+	if(menu_option == 1){
+		cout.precision(6);
+		cout<<std::fixed;
+		cout<<"INPUT"<<endl;
+		for( i = 0; i < linha; i++ ){
+                	for(j = 0; j < coluna; j++ ){
+				cout<<inputGrid[i*coluna+j]<<"\t";
+			}
+			cout<<endl;
+		}
+	}
+	//#pragma pskel stencil dim2d(coluna,linha) inout(inputGrid, outputGrid) iterations(T_MAX) device(cpu)
 	hr_timer_t timer;
 	hrt_start(&timer);
-	
-	//#pragma pskel stencil dim2d(coluna,linha) inout(inputGrid, outputGrid) iterations(T_MAX) device(cpu)
-	stencilKernel(inputGrid, outputGrid, coluna, linha, T_MAX, wind_x, wind_y, deltaT);
-	
+	stencilKernel(inputGrid, outputGrid, coluna, linha, T_MAX, wind_x, wind_y, deltaT);	
 	hrt_stop(&timer);
+	
+	if(menu_option == 1){			
+		cout<<"OUTPUT"<<endl;
+		for( i = 0; i < linha; i++ ){
+                	for(j = 0; j < coluna; j++ ){
+				cout<<inputGrid[i*coluna+j]<<"\t"; /*Final data is in inputGrid */
+			}
+			cout<<endl;
+		}
+	}
+	
 	cout << "Exec_time\t" << hrt_elapsed_time(&timer) << endl;
 	
-	if(menu_option == 1){		
-		cout.precision(12);
-		cout<<"INPUT"<<endl;
-		for(int i=10; i<coluna;i+=10){
-			cout<<"("<<i<<","<<i<<") = "<<inputGrid[i*coluna+i]<<"\t\t("<<coluna-i<<","<<linha-i<<") = "<<inputGrid[(coluna-i)*coluna+linha-i]<<endl;
-		}
-		cout<<endl;
-		
-		cout<<"OUTPUT"<<endl;
-		for(int i=10; i<coluna;i+=10){
-			cout<<"("<<i<<","<<i<<") = "<<outputGrid[i*coluna+i]<<"\t\t("<<coluna-i<<","<<linha-i<<") = "<<outputGrid[(coluna-i)*coluna+(linha-i)]<<endl;
-		}
-		cout<<endl;
-	}
 	free(inputGrid);
 	free(outputGrid);
 	free(wind_x);
