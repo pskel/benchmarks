@@ -1,6 +1,7 @@
-#define PSKEL_OMP 1
+//#define PSKEL_OMP 1
 //#define PSKEL_TBB 1
 #define PSKEL_CUDA 1
+#define CLOUDSIM_KERNEL
 
 #include <stdio.h>
 #include <omp.h>
@@ -219,14 +220,14 @@ float CalculateDewPoint(float temperature_Kelvin, float pressure_mmHg)
 }
 
 int main(int argc, char **argv){
-	int linha, coluna, i, j, numero_iteracoes, raio_nuvem, menu_option, GPUBlockSizeX, GPUBlockSizeY, numCPUThreads;
+	int linha, coluna, i, j, timeTileSize,numero_iteracoes, raio_nuvem, menu_option, GPUBlockSizeX, GPUBlockSizeY, numCPUThreads;
 	float temperaturaAtmosferica, pressaoAtmosferica, pontoOrvalho, limInfPO, limSupPO, deltaT, GPUTime;
 	//float alturaNuvem;
     //int write_step;
-	if (argc != 9){
+	if (argc != 10){
 		printf ("Wrong number of parameters.\n");
 		//printf ("Usage: cloudsim Numero_Iteraoes Linha Coluna Raio_Nuvem Temperatura_Atmosferica Altura_Nuvem Pressao_Atmosferica Delta_T GPUTIME GPUBLOCKS CPUTHREADS Menu_Option Write_Step\n");
-		printf ("Usage: cloudsim WIDTH HEIGHT ITERATIONS GPUTIME GPUBLOCK_X GPU_BLOCK_Y CPUTHREADS OUTPUT_WRITE_FLAG\n");
+		printf ("Usage: cloudsim WIDTH HEIGHT ITERATIONS TIME_TILE_SIZE GPUTIME GPUBLOCK_X GPU_BLOCK_Y CPUTHREADS OUTPUT_WRITE_FLAG\n");
 		exit (-1);
 	}
 	//20 -3 5.0 700.0 0.001 1.0 32 12 0 10
@@ -234,11 +235,12 @@ int main(int argc, char **argv){
 	coluna = atoi(argv[1]);
 	linha = atoi(argv[2]);
 	numero_iteracoes = atoi(argv[3]);
-	GPUTime = atof(argv[4]);
-	GPUBlockSizeX = atoi(argv[5]);
-    GPUBlockSizeY = atoi(argv[6]);
-	numCPUThreads = atoi(argv[7]);
-	menu_option = atoi(argv[8]);
+	timeTileSize = atoi(argv[4]);
+	GPUTime = atof(argv[5]);
+	GPUBlockSizeX = atoi(argv[6]);
+    GPUBlockSizeY = atoi(argv[7]);
+	numCPUThreads = atoi(argv[8]);
+	menu_option = atoi(argv[9]);
 	
 	raio_nuvem = 20; 				//atoi(argv[4]);
 	temperaturaAtmosferica = -3.0f; 	//atof(argv[5]);
@@ -333,7 +335,7 @@ int main(int argc, char **argv){
             for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
 			PSkelPAPI::papi_start(PSkelPAPI::CPU,i);
 		#endif
-			stencilCloud.runIterativeCPU(numero_iteracoes, numCPUThreads);	
+			//stencilCloud.runIterativeCPU(numero_iteracoes, numCPUThreads);	
 		#ifdef PSKEL_PAPI
 			PSkelPAPI::papi_stop(PSkelPAPI::CPU,i);
             }
@@ -345,10 +347,10 @@ int main(int argc, char **argv){
 		//cloud.wind_x.copyToDevice();
 		//cloud.wind_y.deviceAlloc();
 		//cloud.wind_y.copyToDevice();	
-		stencilCloud.runIterativeGPU(numero_iteracoes, GPUBlockSizeX, GPUBlockSizeY);
+		stencilCloud.runIterativeGPU(numero_iteracoes, timeTileSize,GPUBlockSizeX, GPUBlockSizeY);
 	}
 	else{
-		stencilCloud.runIterativePartition(numero_iteracoes, GPUTime, numCPUThreads,GPUBlockSizeX, GPUBlockSizeY);
+		//stencilCloud.runIterativePartition(numero_iteracoes, GPUTime, numCPUThreads,GPUBlockSizeX, GPUBlockSizeY);
 	}
 	
 	hrt_stop(&timer);
