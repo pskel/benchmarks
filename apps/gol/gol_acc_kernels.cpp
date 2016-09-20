@@ -14,17 +14,15 @@
 using namespace std;
 
 void stencilKernel(int *input, int *output, int width, int height, int T_MAX){
-    #pragma acc data copyin(input[0:width*height]) copy(output[0:width*height])
+    #pragma acc data copy(input[0:width*height]) create(output[0:width*height])
     {
-	for(int t=0;t<T_MAX;t++){
-        #pragma acc kernels
-        {
-        #pragma acc loop independent vector(8)
+	for(int t=0;t<T_MAX/2;t++){
+    #pragma acc kernels
+    {
+    #pragma acc loop independent vector(8)
 	for(int j=1;j<height-1;j++){
 	    #pragma acc loop independent vector(32)
             for(int i=1;i<width-1;i++){
-                
-                
                 int neighbors = input[(j)*width + (i+1)] + input[(j)*width + (i-1)] +
                                 input[(j+1)*width + (i)] + input[(j-1)*width + (i)] +
                                 input[(j+1)*width + (i+1)] + input[(j-1)*width + (i-1)] +
@@ -51,8 +49,8 @@ void stencilKernel(int *input, int *output, int width, int height, int T_MAX){
                 */
 			}
 		}
-        
         //swap
+        /*
         if(T_MAX>1 & t<T_MAX - 1){
 		#pragma acc loop independent vector(8)
 		for(int j=0;j<height;j++){
@@ -61,7 +59,20 @@ void stencilKernel(int *input, int *output, int width, int height, int T_MAX){
         			 input[j*width + i] = output[j*width + i];
             		}
         	}
-	}
+        }
+        */
+        #pragma acc loop independent vector(8)
+        for(int j=1;j<height-1;j++){
+            #pragma acc loop independent vector(32)
+            for(int i=1;i<width-1;i++){
+                int neighbors = output[(j)*width + (i+1)] + output[(j)*width + (i-1)] +
+                                output[(j+1)*width + (i)] + output[(j-1)*width + (i)] +
+                                output[(j+1)*width + (i+1)] + output[(j-1)*width + (i-1)] +
+                                output[(j+1)*width + (i-1)] + output[(j-1)*width + (i+1)];
+            
+                input[j*width + i] = (neighbors == 3 || (output[j*width + i] == 1 && neighbors == 2))?1:0;
+            }
+        }
         }// iterations
 	}//kernels
     }//acc data
@@ -124,7 +135,7 @@ int main(int argc, char **argv){
 		
 		for(int h = 0; h < height; ++h){		
 			for(int w = 0; w < width; ++w){
-				cout<<outputGrid[h*width + w];
+				cout<<inputGrid[h*width + w];
 			}
 			cout<<endl;
 		}

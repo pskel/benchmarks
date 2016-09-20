@@ -4,7 +4,7 @@ ACC				= /opt/pgi/linux86-64/2016/bin/pgc++
 PSKEL_SRC		= python ../pskelccv2.py 
 OPTIMUS         = optirun #remover este valor se não estiver em um sistema OPTIMUS (notebook)
 CUDA_LIB_PATH   = /usr/local/cuda-5.5/lib64
-GENCODE		= -gencode arch=compute_20,code=sm_20 -gencode arch=compute_30,code=sm_30 -gencode arch=compute_35,code=\"sm_35,compute_35\"
+GENCODE			= -gencode arch=compute_20,code=sm_20 -gencode arch=compute_30,code=sm_30 -gencode arch=compute_35,code=\"sm_35,compute_35\"
 CUDAFLAGS    	= -O3 ${GENCODE} -m64 -lineinfo -Xcompiler -ftree-vectorize -Xcompiler -march=native -Xcompiler -mtune=native -Xcompiler -O3 
 CUDAFLAGS_T    	= -O3 ${GENCODE} -m64 -lineinfo -Xcompiler -ftree-vectorize -Xcompiler -march=native -Xcompiler -mtune=native -Xcompiler -O3
 ACCFLAGS	= -O3 -ta=tesla -tp=sandybridge -Minfo=accel

@@ -24,8 +24,8 @@ using namespace PSkel;
 #define WIND_Y_BASE	12
 #define DISTURB		0.1f
 #define CELL_LENGTH	0.1f
-#define K           	0.0243f
-#define DELTAPO       	0.5f
+#define K           0.0243f
+#define DELTAPO     0.5f
 #define TAM_VETOR_FILENAME  200
 
 struct Cloud{	

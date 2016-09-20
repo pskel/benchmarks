@@ -4,8 +4,8 @@ ACC		= /opt/pgi/linux86-64/2016/bin/pgc++
 PSKEL_SRC	= python ../pskelccv2.py 
 OPTIMUS         = optirun #remover este valor se não estiver em um sistema OPTIMUS (notebook)
 CUDA_LIB_PATH   = /usr/local/cuda-5.5/lib64
-CUDAFLAGS       = -O3 -arch=sm_21 -m64 -lineinfo -Xcompiler -ftree-vectorize -Xcompiler -march=native -Xcompiler -mtune=native -Xcompiler -O3 
-CUDAFLAGS_T     = -O3 -arch=sm_35 -m64 -lineinfo -Xcompiler -ftree-vectorize -Xcompiler -march=native -Xcompiler -mtune=native -Xcompiler -O3 
+CUDAFLAGS   = -O3 ${GENCODE} -m64 -lineinfo -Xcompiler -ftree-vectorize -Xcompiler -march=native -Xcompiler -mtune=native -Xcompiler -O3 
+CUDAFLAGS_T = -O3 ${GENCODE} -m64 -lineinfo -Xcompiler -ftree-vectorize -Xcompiler -march=native -Xcompiler -mtune=native -Xcompiler -O3 
 ACCFLAGS	= -O3 -ta=tesla -tp=sandybridge -Minfo=accel
 ACCFLAGS_T	= -O3 -ta=tesla -tp=sandybridge -Minfo=accel
 ACCFLAGS_M	= -O3 -ta=multicore -tp=sandybridge -Minfo=accel
@@ -43,6 +43,9 @@ acc_kernels: ${SRC_NAME}_acc_kernels.cpp
 
 pskel: ${SRC_NAME}_pskel.cu
 	${CUDAC} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel ${SRC_NAME}_pskel.cu ${LIBS}
+
+pskel_shared: ${SRC_NAME}_pskel.cu
+	${CUDAC} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_shared ${SRC_NAME}_pskel.cu ${LIBS} -Xptxas -v --keep --keep-dir nvcc -DPSKEL_SHARED
 
 pskel_managed: ${SRC_NAME}_pskel.cu
 	${CUDAC} ${CUDAFLAGS_T} -o ${BIN_DIR}${SRC_NAME}_pskel ${SRC_NAME}_pskel.cu ${LIBS}

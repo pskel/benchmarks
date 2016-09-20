@@ -9,8 +9,9 @@
 #include <fstream>
 
 //#define PSKEL_SHARED_MASK
-#define PSKEL_OMP
+//#define PSKEL_OMP
 #define PSKEL_CUDA
+#define GOL_KERNEL
 //#define PSKEL_PAPI
 //#define PSKEL_PAPI_DEBUG
 
@@ -24,8 +25,8 @@ using namespace PSkel;
 namespace PSkel{
 	
 	
-__parallel__ void stencilKernel(Array2D<bool> input, Array2D<bool> output,
-                  Mask2D<bool> mask, short args, size_t i, size_t j){
+__parallel__ void stencilKernel(Array2D<float> input, Array2D<float> output,
+                  Mask2D<float> mask, short args, size_t i, size_t j){
     int neighbors =  input(i-1,j-1) + input(i-1,j) + input(i-1,j+1)  +
                      input(i+1,j-1) + input(i+1,j) + input(i+1,j+1)  + 
                      input(i,j-1)   + input(i,j+1) ; 
@@ -81,38 +82,39 @@ __parallel__ void stencilKernel(Array2D<bool> input, Array2D<bool> output,
 }
 
 int main(int argc, char **argv){
-	int width, height, T_MAX, GPUBlockSizeX, GPUBlockSizeY, numCPUThreads,verbose;
+	int width, height, T_MAX,timeTileSize,GPUBlockSizeX, GPUBlockSizeY, numCPUThreads,verbose;
 	float GPUTime;
 
-	if (argc != 9){
+	if (argc != 10){
 		printf ("Wrong number of parameters.\n");
-		printf ("Usage: gol WIDTH HEIGHT ITERATIONS GPUPERCENT GPUBLOCKS_X GPUBLOCKS_Y CPUTHREADS VERBOSE\n");
+		printf ("Usage: gol WIDTH HEIGHT ITERATIONS TIME_TILE_SIZE GPUPERCENT GPUBLOCKS_X GPUBLOCKS_Y CPUTHREADS VERBOSE\n");
 		exit (-1);
 	}
 
 	width = atoi (argv[1]);
 	height = atoi (argv[2]);
-	T_MAX= atoi(argv[3]);
-	GPUTime = atof(argv[4]);
-	GPUBlockSizeX = atoi(argv[5]);
-	GPUBlockSizeY = atoi(argv[6]);
-	numCPUThreads = atoi(argv[7]);
-	verbose = atoi(argv[8]);
+	T_MAX = atoi(argv[3]);
+    timeTileSize = atoi(argv[4]);
+	GPUTime = atof(argv[5]);
+	GPUBlockSizeX = atoi(argv[6]);
+	GPUBlockSizeY = atoi(argv[7]);
+	numCPUThreads = atoi(argv[8]);
+	verbose = atoi(argv[9]);
 	
-	Array2D<bool> inputGrid(width, height);
-	Array2D<bool> outputGrid(width, height);
-	Mask2D<bool> mask(8);
+	Array2D<float> inputGrid(width, height);
+	Array2D<float> outputGrid(width, height);
+	Mask2D<float> mask(8);
 	
 	mask.set(0,-1,-1);	mask.set(1,-1,0);	mask.set(2,-1,1);
 	mask.set(3,0,-1);						mask.set(4,0,1);
 	mask.set(5,1,-1);	mask.set(6,1,0);	mask.set(7,1,1);
 		
-	omp_set_num_threads(numCPUThreads);
+	//omp_set_num_threads(numCPUThreads);
 
-    	srand(1234);
-    	for(int h = 1; h < height-1; h++){		
-        	for(int w = 1; w < width-1; w++){
-            		inputGrid(h,w) = (rand()%2);            
+    srand(123456789);
+    for(int h = 1; h < height-1; h++){		
+       	for(int w = 1; w < width-1; w++){
+      		inputGrid(h,w) = (rand()%2);            
             //outputGrid(i,j) =  inputGrid(i,j);
 		}
 	}	
@@ -127,7 +129,7 @@ int main(int argc, char **argv){
 	hr_timer_t timer;
 	hrt_start(&timer);
 	//wbTime_start(GPU, "Doing GPU Computation (memory + compute)");
-	Stencil2D<Array2D<bool>, Mask2D<bool>, short> stencil(inputGrid, outputGrid, mask, 0);
+	Stencil2D<Array2D<float>, Mask2D<float>, short> stencil(inputGrid, outputGrid, mask, 0);
 	
 	
 	if(GPUTime == 0.0){
@@ -141,27 +143,27 @@ int main(int argc, char **argv){
 			//cout<<"Running Iterative CPU"<<endl;
 		
 		#ifdef PSKEL_PAPI
-			for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
-			PSkelPAPI::papi_start(PSkelPAPI::CPU,i);
+		for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
+		PSkelPAPI::papi_start(PSkelPAPI::CPU,i);
 		#endif
-			stencil.runIterativeCPU(T_MAX, numCPUThreads);	
+		//stencil.runIterativeCPU(T_MAX, numCPUThreads);	
 		#ifdef PSKEL_PAPI
-			PSkelPAPI::papi_stop(PSkelPAPI::CPU,i);
-			}
+		PSkelPAPI::papi_stop(PSkelPAPI::CPU,i);
+		}
 		#endif
 	}
 	else if(GPUTime == 1.0){
 		#ifdef PSKEL_PAPI
-                        PSkelPAPI::papi_start(PSkelPAPI::NVML,0);
-                #endif
-		stencil.runIterativeGPU(T_MAX, GPUBlockSizeX, GPUBlockSizeY);
+        PSkelPAPI::papi_start(PSkelPAPI::NVML,0);
+        #endif
+		stencil.runIterativeGPU(T_MAX,timeTileSize,GPUBlockSizeX, GPUBlockSizeY);
 		#ifdef PSKEL_PAPI
-                        PSkelPAPI::papi_stop(PSkelPAPI::NVML,0);
-                #endif
+        PSkelPAPI::papi_stop(PSkelPAPI::NVML,0);
+        #endif
 
 	}
 	else{
-		stencil.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSizeX, GPUBlockSizeY);
+		//stencil.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSizeX, GPUBlockSizeY);
 		/*
         #ifdef PSKEL_PAPI
 			for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
