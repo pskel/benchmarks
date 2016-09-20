@@ -14,7 +14,7 @@
 using namespace std;
 
 void stencilKernel(bool *input, bool *output, int width, int height, int T_MAX){
-    #pragma acc data copyin(input[0:width*height]) copy(output[0:width*height])
+    #pragma acc data copy(input[0:width*height]) create(output[0:width*height])
     {
 	for(int t=0;t<T_MAX/2;t++){
         #pragma acc kernels
@@ -137,7 +137,7 @@ int main(int argc, char **argv){
 		
 		for(int h = 0; h < height; ++h){		
 			for(int w = 0; w < width; ++w){
-				cout<<outputGrid[h*width + w];
+				cout<<inputGrid[h*width + w];
 			}
 			cout<<endl;
 		}
