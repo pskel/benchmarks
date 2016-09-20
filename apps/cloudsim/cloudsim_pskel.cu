@@ -238,7 +238,7 @@ int main(int argc, char **argv){
 	timeTileSize = atoi(argv[4]);
 	GPUTime = atof(argv[5]);
 	GPUBlockSizeX = atoi(argv[6]);
-    GPUBlockSizeY = atoi(argv[7]);
+	GPUBlockSizeY = atoi(argv[7]);
 	numCPUThreads = atoi(argv[8]);
 	menu_option = atoi(argv[9]);
 	
@@ -283,11 +283,11 @@ int main(int argc, char **argv){
 	for (i = 0; i < linha; i++){		
 		for (j = 0; j < coluna; j++){
 			inputGrid(i,j) = temperaturaAtmosferica;
-			outputGrid(i,j) = temperaturaAtmosferica;
+			//outputGrid(i,j) = temperaturaAtmosferica;
 		}
 	}	
 	/* Inicialização dos ventos Latitudinal(Wind_X) e Longitudinal(Wind_Y) */
-    srand(1234);
+    	srand(1234);
 	for( i = 0; i < linha; i++ ){
 		for(j = 0; j < coluna; j++ ){			
 			cloud.wind_x(i,j) = (WIND_X_BASE - DISTURB) + (float)rand()/RAND_MAX * 2 * DISTURB;
@@ -304,6 +304,7 @@ int main(int argc, char **argv){
 	}
 					
 	/* Inicialização de uma nuvem no centro da matriz de entrada */
+	srand(1);
 	int y, x0 = linha/2, y0 = coluna/2;
 	for(i = x0 - raio_nuvem; i < x0 + raio_nuvem; i++){
 		 // Equação da circunferencia: (x0 - x)² + (y0 - y)² = r²
@@ -319,7 +320,7 @@ int main(int argc, char **argv){
 			PSkelPAPI::init(PSkelPAPI::CPU);
 	#endif
     
-    hr_timer_t timer;
+    	hr_timer_t timer;
 	hrt_start(&timer);
     
 	Stencil2D<Array2D<float>, Mask2D<float>, Cloud> stencilCloud(inputGrid, outputGrid, mask, cloud);
@@ -355,17 +356,18 @@ int main(int argc, char **argv){
 	
 	hrt_stop(&timer);
     
-    #ifdef PSKEL_PAPI
-		if(GPUTime < 1.0){
-			PSkelPAPI::print_profile_values(PSkelPAPI::CPU);
-			PSkelPAPI::shutdown();
-		}
-	#endif
-	cout << "Exec_time\t" << hrt_elapsed_time(&timer) << endl;
-	
-	if(menu_option == 1){		
-		cout.precision(12);
+	if(menu_option == 1){
+		cout.precision(6);
+		cout<<std::fixed;
 		cout<<"INPUT"<<endl;
+		for( i = 0; i < linha; i++ ){
+                	for(j = 0; j < coluna; j++ ){
+				cout<<inputGrid(i,j)<<"\t";
+			}
+			cout<<endl;
+		}
+	
+	/*
 		for(int i=10; i<coluna;i+=10){
 			cout<<"("<<i<<","<<i<<") = "<<inputGrid(i,i)<<"\t\t("<<coluna-i<<","<<linha-i<<") = "<<inputGrid(coluna-i,linha-i)<<endl;
 		}
@@ -376,7 +378,23 @@ int main(int argc, char **argv){
 			cout<<"("<<i<<","<<i<<") = "<<outputGrid(i,i)<<"\t\t("<<coluna-i<<","<<linha-i<<") = "<<outputGrid(coluna-i,linha-i)<<endl;
 		}
 		cout<<endl;
+		*/
+		cout<<"OUTPUT"<<endl;
+		for(int h = 0; h < linha; ++h){		
+			for(int w = 0; w < coluna; ++w){
+				cout<<outputGrid(h,w)<<"\t";
+			}
+			cout<<endl;
+		}
 	}
+	#ifdef PSKEL_PAPI
+		if(GPUTime < 1.0){
+			PSkelPAPI::print_profile_values(PSkelPAPI::CPU);
+			PSkelPAPI::shutdown();
+		}
+	#endif
+	cout << "Exec_time\t" << hrt_elapsed_time(&timer) << endl;
+	
 	return 0;
 }
 
