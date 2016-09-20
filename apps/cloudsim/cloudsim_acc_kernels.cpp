@@ -266,7 +266,7 @@ int main(int argc, char **argv){
 
 	/* Inicialização da matriz de entrada com a temperatura ambiente */
 	//#pragma omp parallel for private (i,j)
-    	//cout<<"Initializing cloud"<<endl;
+    //cout<<"Initializing cloud"<<endl;
 	for (i = 0; i < linha; i++){		
 		for (j = 0; j < coluna; j++){
 			inputGrid[i*coluna+j] = temperaturaAtmosferica;
@@ -275,7 +275,8 @@ int main(int argc, char **argv){
 	}
 		
 	/* Inicialização dos ventos Latitudinal(Wind_X) e Longitudinal(Wind_Y) */
-    	//cout<<"Initializing wind"<<endl;
+    //cout<<"Initializing wind"<<endl;
+    srand(1234);
 	for( i = 0; i < linha; i++ ){
 		for(j = 0; j < coluna; j++ ){			
 			wind_x[i*coluna+j] = (WIND_X_BASE - DISTURB) + (float)rand()/RAND_MAX * 2 * DISTURB;
@@ -284,16 +285,15 @@ int main(int argc, char **argv){
 	}
 
 	/* Inicialização de uma nuvem no centro da matriz de entrada */
-    	//cout<<"Generating initial cloud in center of inputGrid"<<endl;
+    //cout<<"Generating initial cloud in center of inputGrid"<<endl;
 	int y, x0 = linha/2, y0 = coluna/2;
-	srand(1);
 	for(i = x0 - raio_nuvem; i < x0 + raio_nuvem; i++){
 		 // Equação da circunferencia: (x0 - x)² + (y0 - y)² = r²
 		y = (int)((floor(sqrt(pow((float)raio_nuvem, 2.0) - pow(((float)x0 - (float)i), 2)) - y0) * -1));
 		for(int j = y0 + (y0 - y); j >= y; j--){
 			float value = limInfPO + (float)rand()/RAND_MAX * (limSupPO - limInfPO);
 			inputGrid[i*coluna+j] = value;
-			outputGrid[i*coluna+j] = value;
+			//outputGrid[i*coluna+j] = value;
 		}
 	}
 	
