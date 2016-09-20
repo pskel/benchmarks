@@ -25,7 +25,7 @@ using namespace std;
 #define TAM_VETOR_FILENAME  200
 
 void stencilKernel(float *input,float *output, int width, int height, int T_MAX,float *wind_x,float *wind_y,float deltaT){
-    #pragma acc data pcopyin(input[0:width*height],wind_x[0:width*height],wind_y[0:width*height]) pcopyout(output[0:width*height])
+    #pragma acc data copyin(input[0:width*height],wind_x[0:width*height],wind_y[0:width*height]) copyout(output[0:width*height])
     {
     for(int t=0;t<T_MAX;t++){
     #pragma acc kernels
@@ -290,5 +290,9 @@ int main(int argc, char **argv){
 		}
 		cout<<endl;
 	}
+	free(inputGrid);
+	free(outputGrid);
+	free(wind_x);
+	free(wind_y);
 	return 0;
 }
