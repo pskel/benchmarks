@@ -347,8 +347,12 @@ int main(int argc, char **argv){
 		//cloud.wind_x.deviceAlloc();
 		//cloud.wind_x.copyToDevice();
 		//cloud.wind_y.deviceAlloc();
-		//cloud.wind_y.copyToDevice();	
-		stencilCloud.runIterativeGPU(numero_iteracoes, timeTileSize,GPUBlockSizeX, GPUBlockSizeY);
+		//cloud.wind_y.copyToDevice();
+        #ifdef PSKEL_SHARED	
+            stencilCloud.runIterativeGPU(numero_iteracoes, timeTileSize,GPUBlockSizeX, GPUBlockSizeY);
+        #else
+            stencilCloud.runIterativeGPU(numero_iteracoes, GPUBlockSizeX, GPUBlockSizeY);
+        #endif
 	}
 	else{
 		//stencilCloud.runIterativePartition(numero_iteracoes, GPUTime, numCPUThreads,GPUBlockSizeX, GPUBlockSizeY);
