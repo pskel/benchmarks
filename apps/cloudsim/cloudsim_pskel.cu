@@ -29,29 +29,29 @@ using namespace PSkel;
 #define TAM_VETOR_FILENAME  200
 
 struct Cloud{	
-	//Args2D<float> wind_x, wind_y;
-	Array2D<float> wind_x;
-	Array2D<float> wind_y;
-	float deltaT;
+	//Args2D<double> wind_x, wind_y;
+	Array2D<double> wind_x;
+	Array2D<double> wind_y;
+	double deltaT;
 	
 	Cloud(){};
 	
 	Cloud(int linha, int coluna){		
-		//new (&wind_x) Args2D<float>(linha, coluna);
-		//new (&wind_y) Args2D<float>(linha, coluna);
-		new (&wind_x) Array2D<float>(linha, coluna);
-		new (&wind_y) Array2D<float>(linha, coluna);
+		//new (&wind_x) Args2D<double>(linha, coluna);
+		//new (&wind_y) Args2D<double>(linha, coluna);
+		new (&wind_x) Array2D<double>(linha, coluna);
+		new (&wind_y) Array2D<double>(linha, coluna);
 	}
 };
 
 namespace PSkel{	
-__parallel__ void stencilKernel(Array2D<float> input,Array2D<float> output,Mask2D<float> mask,Cloud cloud,size_t i, size_t j){
+__parallel__ void stencilKernel(Array2D<double> input,Array2D<double> output,Mask2D<double> mask,Cloud cloud,size_t i, size_t j){
 	int numNeighbor = 0.25f;
-	float sum;
-	float inValue = input(i,j);
+	double sum;
+	double inValue = input(i,j);
            
-        float xwind = cloud.wind_x(i,j);
-        float ywind = cloud.wind_y(i,j);
+        double xwind = cloud.wind_x(i,j);
+        double ywind = cloud.wind_y(i,j);
         int xfactor = (xwind>0)?1:-1;
         int yfactor = (ywind>0)?1:-1;
 	
@@ -59,17 +59,17 @@ __parallel__ void stencilKernel(Array2D<float> input,Array2D<float> output,Mask2
                 (inValue - input(i,j+1) ) + (inValue - input(i+1,j) );
        	//sum = 4 * inValue - ( input(i-1,j) + input(i+1,j) + input(i,j+1) + input(i,j-1) );
          
-        float temperaturaNeighborX = input(i,(j+xfactor));
-       	float temperaturaNeighborY = input((i+yfactor),j);
+        double temperaturaNeighborX = input(i,(j+xfactor));
+       	double temperaturaNeighborY = input((i+yfactor),j);
         
-        float componenteVentoY = yfactor * ywind;
-     	float componenteVentoX = xfactor * xwind;
+        double componenteVentoY = yfactor * ywind;
+     	double componenteVentoX = xfactor * xwind;
         
-        float temp_wind = (-componenteVentoX * ((inValue - temperaturaNeighborX)*10.0f)) -
+        double temp_wind = (-componenteVentoX * ((inValue - temperaturaNeighborX)*10.0f)) -
                           ( componenteVentoY * ((inValue - temperaturaNeighborY)*10.0f));
         	
 		/*
-		float temp_wind = 0.0f;
+		double temp_wind = 0.0f;
 		int height=input.getHeight();
         int width=input.getWidth();
         if ( (j == 0) && (i == 0) ) {
@@ -123,48 +123,48 @@ __parallel__ void stencilKernel(Array2D<float> input,Array2D<float> output,Mask2
                   (inValue - input(i+1,j) );
             numNeighbor = 4;
             
-            float xwind = cloud.wind_x(i,j);
-            float ywind = cloud.wind_y(i,j);
+            double xwind = cloud.wind_x(i,j);
+            double ywind = cloud.wind_y(i,j);
             int xfactor = (xwind>0)?1:-1;
             int yfactor = (ywind>0)?1:-1;
 
-            float temperaturaNeighborX = input(i,(j+xfactor));
-            float componenteVentoX = xfactor * xwind;
-            float temperaturaNeighborY = input((i+yfactor),j);
-            float componenteVentoY = yfactor * ywind;
+            double temperaturaNeighborX = input(i,(j+xfactor));
+            double componenteVentoX = xfactor * xwind;
+            double temperaturaNeighborY = input((i+yfactor),j);
+            double componenteVentoY = yfactor * ywind;
         
             temp_wind = (-componenteVentoX * ((inValue - temperaturaNeighborX)/CELL_LENGTH)) -
                         ( componenteVentoY * ((inValue - temperaturaNeighborY)/CELL_LENGTH));
             
         }*/
-        float temperatura_conducao = -K*(sum * numNeighbor) * cloud.deltaT;
-        float result = inValue + temperatura_conducao;
+        double temperatura_conducao = -K*(sum * numNeighbor) * cloud.deltaT;
+        double result = inValue + temperatura_conducao;
         output(i,j) = result + temp_wind * cloud.deltaT;
 
 		/*
         	for( int m = 0; m < mask.size ; m++ ){
-			float temperatura_vizinho = mask.get(m,input,i,j);
+			double temperatura_vizinho = mask.get(m,input,i,j);
 			int factor = (temperatura_vizinho==0)?0:1;
 			sum += factor*(inValue - temperatura_vizinho);
 			numNeighbor += factor;
 		}
 		
         		
-		float temperatura_conducao = -K*(sum / numNeighbor)*cloud.deltaT;
+		double temperatura_conducao = -K*(sum / numNeighbor)*cloud.deltaT;
 		
-		float result = inValue + temperatura_conducao;
+		double result = inValue + temperatura_conducao;
 		
-		float xwind = cloud.wind_x(i,j);
-		float ywind = cloud.wind_y(i,j);
+		double xwind = cloud.wind_x(i,j);
+		double ywind = cloud.wind_y(i,j);
 		int xfactor = (xwind>0)?3:1;
 		int yfactor = (ywind>0)?2:0;
 
-		float temperaturaNeighborX = mask.get(xfactor,input,i,j);
-		float componenteVentoX = (xfactor-2)*xwind;
-		float temperaturaNeighborY = mask.get(yfactor,input,i,j);
-		float componenteVentoY = (yfactor-1)*ywind;
+		double temperaturaNeighborX = mask.get(xfactor,input,i,j);
+		double componenteVentoX = (xfactor-2)*xwind;
+		double temperaturaNeighborY = mask.get(yfactor,input,i,j);
+		double componenteVentoY = (yfactor-1)*ywind;
 		
-		float temp_wind = (-componenteVentoX * ((inValue - temperaturaNeighborX)/CELL_LENGTH)) -(componenteVentoY * ((inValue - temperaturaNeighborY)/CELL_LENGTH));
+		double temp_wind = (-componenteVentoX * ((inValue - temperaturaNeighborX)/CELL_LENGTH)) -(componenteVentoY * ((inValue - temperaturaNeighborY)/CELL_LENGTH));
 		
 		output(i,j) = result + ((numNeighbor==4)?(temp_wind*cloud.deltaT):0.0f);
         */
@@ -172,48 +172,48 @@ __parallel__ void stencilKernel(Array2D<float> input,Array2D<float> output,Mask2
 }
 
 /* Convert Celsius to Kelvin */
-float Convert_Celsius_To_Kelvin(float number_celsius)
+double Convert_Celsius_To_Kelvin(double number_celsius)
 {
-	float number_kelvin;
+	double number_kelvin;
 	number_kelvin = number_celsius + 273.15f;
 	return number_kelvin;
 }
 
 /* Convert Pressure(hPa) to Pressure(mmHg) */
-float Convert_hPa_To_mmHg(float number_hpa)
+double Convert_hPa_To_mmHg(double number_hpa)
 {
-	float number_mmHg;
+	double number_mmHg;
 	number_mmHg = number_hpa * 0.750062f;
 
 	return number_mmHg;
 }
 
 /* Convert Pressure Millibars to mmHg */
-float Convert_milibars_To_mmHg(float number_milibars)
+double Convert_milibars_To_mmHg(double number_milibars)
 {
-	float number_mmHg;
+	double number_mmHg;
 	number_mmHg = number_milibars * 0.750062f;
 
 	return number_mmHg;
 }
 
 /* Calculate RPV */
-float CalculateRPV(float temperature_Kelvin, float pressure_mmHg)
+double CalculateRPV(double temperature_Kelvin, double pressure_mmHg)
 {
-	float realPressureVapor; //e
-	float PsychrometricConstant = 6.7f * powf(10,-4); //A
-	float PsychrometricDepression = 1.2f; //(t - tu) in ºC
-	float esu = pow(10, ((-2937.4f / temperature_Kelvin) - 4.9283f * log10(temperature_Kelvin) + 23.5470f)); //10 ^ (-2937,4 / t - 4,9283 log t + 23,5470)
+	double realPressureVapor; //e
+	double PsychrometricConstant = 6.7f * powf(10,-4); //A
+	double PsychrometricDepression = 1.2f; //(t - tu) in ºC
+	double esu = pow(10, ((-2937.4f / temperature_Kelvin) - 4.9283f * log10(temperature_Kelvin) + 23.5470f)); //10 ^ (-2937,4 / t - 4,9283 log t + 23,5470)
 	realPressureVapor = Convert_milibars_To_mmHg(esu) - (PsychrometricConstant * pressure_mmHg * PsychrometricDepression);
 
 	return realPressureVapor;
 }
 
 /* Calculate Dew Point */
-float CalculateDewPoint(float temperature_Kelvin, float pressure_mmHg)
+double CalculateDewPoint(double temperature_Kelvin, double pressure_mmHg)
 {
-	float dewPoint; //TD
-	float realPressureVapor = CalculateRPV(temperature_Kelvin, pressure_mmHg); //e
+	double dewPoint; //TD
+	double realPressureVapor = CalculateRPV(temperature_Kelvin, pressure_mmHg); //e
 	dewPoint = (186.4905f - 237.3f * log10(realPressureVapor)) / (log10(realPressureVapor) -8.2859f);
 
 	return dewPoint;
@@ -221,8 +221,8 @@ float CalculateDewPoint(float temperature_Kelvin, float pressure_mmHg)
 
 int main(int argc, char **argv){
 	int linha, coluna, i, j, timeTileSize,numero_iteracoes, raio_nuvem, menu_option, GPUBlockSizeX, GPUBlockSizeY, numCPUThreads;
-	float temperaturaAtmosferica, pressaoAtmosferica, pontoOrvalho, limInfPO, limSupPO, deltaT, GPUTime;
-	//float alturaNuvem;
+	double temperaturaAtmosferica, pressaoAtmosferica, pontoOrvalho, limInfPO, limSupPO, deltaT, GPUTime;
+	//double alturaNuvem;
     //int write_step;
 	if (argc != 10){
 		printf ("Wrong number of parameters.\n");
@@ -261,12 +261,12 @@ int main(int argc, char **argv){
 	//char dirMatrix_stat[TAM_VETOR_FILENAME];
 	//char dirMatrix_windX[TAM_VETOR_FILENAME];
 	//char dirMatrix_windY[TAM_VETOR_FILENAME];
-	//float start_time = 0;
-	//float end_time = 0;
+	//double start_time = 0;
+	//double end_time = 0;
 		
-	Array2D<float> inputGrid(coluna, linha);
-	Array2D<float> outputGrid(coluna, linha);
-	Mask2D<float> mask(4);
+	Array2D<double> inputGrid(coluna, linha);
+	Array2D<double> outputGrid(coluna, linha);
+	Mask2D<double> mask(4);
 	
 	mask.set(0,0,1);
 	mask.set(1,1,0);
@@ -290,8 +290,8 @@ int main(int argc, char **argv){
     	srand(1234);
 	for( i = 0; i < linha; i++ ){
 		for(j = 0; j < coluna; j++ ){			
-			cloud.wind_x(i,j) = (WIND_X_BASE - DISTURB) + (float)rand()/RAND_MAX * 2 * DISTURB;
-			cloud.wind_y(i,j) = (WIND_Y_BASE - DISTURB) + (float)rand()/RAND_MAX * 2 * DISTURB;		
+			cloud.wind_x(i,j) = (WIND_X_BASE - DISTURB) + (double)rand()/RAND_MAX * 2 * DISTURB;
+			cloud.wind_y(i,j) = (WIND_Y_BASE - DISTURB) + (double)rand()/RAND_MAX * 2 * DISTURB;		
 		}
 	}
 	
@@ -308,10 +308,10 @@ int main(int argc, char **argv){
 	int y, x0 = linha/2, y0 = coluna/2;
 	for(i = x0 - raio_nuvem; i < x0 + raio_nuvem; i++){
 		 // Equação da circunferencia: (x0 - x)² + (y0 - y)² = r²
-		y = (int)((floor(sqrt(pow((float)raio_nuvem, 2.0) - pow(((float)x0 - (float)i), 2)) - y0) * -1));
+		y = (int)((floor(sqrt(pow((double)raio_nuvem, 2.0) - pow(((double)x0 - (double)i), 2)) - y0) * -1));
 		for(int j = y0 + (y0 - y); j >= y; j--){
-			inputGrid(i,j) = limInfPO + (float)rand()/RAND_MAX * (limSupPO - limInfPO);
-			//outputGrid(i,j) = limInfPO + (float)rand()/RAND_MAX * (limSupPO - limInfPO);
+			inputGrid(i,j) = limInfPO + (double)rand()/RAND_MAX * (limSupPO - limInfPO);
+			//outputGrid(i,j) = limInfPO + (double)rand()/RAND_MAX * (limSupPO - limInfPO);
 		}
 	}
 	
@@ -323,7 +323,7 @@ int main(int argc, char **argv){
     	hr_timer_t timer;
 	hrt_start(&timer);
     
-	Stencil2D<Array2D<float>, Mask2D<float>, Cloud> stencilCloud(inputGrid, outputGrid, mask, cloud);
+	Stencil2D<Array2D<double>, Mask2D<double>, Cloud> stencilCloud(inputGrid, outputGrid, mask, cloud);
 	
 	if(GPUTime == 0.0){
 		//cout<<"Running Iterative CPU"<<endl;
