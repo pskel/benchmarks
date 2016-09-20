@@ -11,6 +11,7 @@
 //#define PSKEL_SHARED_MASK
 //#define PSKEL_OMP
 #define PSKEL_CUDA
+#define JACOBI_KERNEL
 //#define PSKEL_PAPI
 //#define PSKEL_PAPI_DEBUG
 
