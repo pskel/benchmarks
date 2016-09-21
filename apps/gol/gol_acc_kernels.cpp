@@ -13,7 +13,7 @@
 
 using namespace std;
 
-void stencilKernel(bool *input, bool *output, int width, int height, int T_MAX){
+void stencilKernel(float *input, float *output, int width, int height, int T_MAX){
     #pragma acc data copy(input[0:width*height]) create(output[0:width*height])
     {
 	for(int t=0;t<T_MAX/2;t++){
@@ -84,10 +84,10 @@ int main(int argc, char **argv){
 	int width;
 	int height;
 	int T_MAX;
-        int verbose;
+    int verbose;
 
-	bool *inputGrid;
-	bool *outputGrid;
+	float *inputGrid;
+	float *outputGrid;
 
 	if (argc != 5){
 		printf ("Wrong number of parameters.\n");
@@ -98,10 +98,10 @@ int main(int argc, char **argv){
 	width = atoi (argv[1]);
 	height = atoi (argv[2]);
 	T_MAX = atoi (argv[3]);
-    	verbose = atoi (argv[4]);
+    verbose = atoi (argv[4]);
 
-	inputGrid = (bool*) calloc(width*height,sizeof(bool));
-	outputGrid = (bool*) calloc(width*height,sizeof(bool));
+	inputGrid = (float*) calloc(width*height,sizeof(float));
+	outputGrid = (float*) calloc(width*height,sizeof(float));
 
 	srand(123456789);
 	for(int j=1;j<height-1;j++) {
