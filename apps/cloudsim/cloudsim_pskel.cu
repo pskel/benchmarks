@@ -46,27 +46,27 @@ struct Cloud{
 
 namespace PSkel{	
 __parallel__ void stencilKernel(Array2D<double> input,Array2D<double> output,Mask2D<double> mask,Cloud cloud,size_t i, size_t j){
-	int numNeighbor = 0.25f;
+	int numNeighbor = 4;
 	double sum;
 	double inValue = input(i,j);
            
-        double xwind = cloud.wind_x(i,j);
-        double ywind = cloud.wind_y(i,j);
-        int xfactor = (xwind>0)?1:-1;
-        int yfactor = (ywind>0)?1:-1;
-	
-        sum =   (inValue - input(i-1,j) ) + (inValue - input(i,j-1) ) +
-                (inValue - input(i,j+1) ) + (inValue - input(i+1,j) );
-       	//sum = 4 * inValue - ( input(i-1,j) + input(i+1,j) + input(i,j+1) + input(i,j-1) );
-         
-        double temperaturaNeighborX = input(i,(j+xfactor));
-       	double temperaturaNeighborY = input((i+yfactor),j);
+    double xwind = cloud.wind_x(i,j);
+    double ywind = cloud.wind_y(i,j);
+    int xfactor = (xwind>0)?1:-1;
+    int yfactor = (ywind>0)?1:-1;
+
+    sum =   (inValue - input(i-1,j) ) + (inValue - input(i,j-1) ) +
+            (inValue - input(i,j+1) ) + (inValue - input(i+1,j) );
+    //sum = 4 * inValue - ( input(i-1,j) + input(i+1,j) + input(i,j+1) + input(i,j-1) );
+     
+    double temperaturaNeighborX = input(i,(j+xfactor));
+    double temperaturaNeighborY = input((i+yfactor),j);
+    
+    double componenteVentoY = yfactor * ywind;
+    double componenteVentoX = xfactor * xwind;
         
-        double componenteVentoY = yfactor * ywind;
-     	double componenteVentoX = xfactor * xwind;
-        
-        double temp_wind = (-componenteVentoX * ((inValue - temperaturaNeighborX)*10.0f)) -
-                          ( componenteVentoY * ((inValue - temperaturaNeighborY)*10.0f));
+    double temp_wind = (-componenteVentoX * ((inValue - temperaturaNeighborX)/CELL_LENGTH)) -
+                       ( componenteVentoY * ((inValue - temperaturaNeighborY)/CELL_LENGTH));
         	
 		/*
 		double temp_wind = 0.0f;
@@ -137,6 +137,7 @@ __parallel__ void stencilKernel(Array2D<double> input,Array2D<double> output,Mas
                         ( componenteVentoY * ((inValue - temperaturaNeighborY)/CELL_LENGTH));
             
         }*/
+
         double temperatura_conducao = -K*(sum * numNeighbor) * cloud.deltaT;
         double result = inValue + temperatura_conducao;
         output(i,j) = result + temp_wind * cloud.deltaT;
