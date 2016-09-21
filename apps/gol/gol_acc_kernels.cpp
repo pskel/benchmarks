@@ -109,8 +109,18 @@ int main(int argc, char **argv){
 			inputGrid[j*width + i] = rand()%2;
 		}
 	}
-  
-        hr_timer_t timer;
+    
+    if(verbose){
+        cout<<"INPUT"<<endl;
+        for(int j=0;j<height;j++) {
+            for(int i=0;i<width;i++) {
+                cout<<inputGrid[j*width + i];
+            }
+            cout<<endl;
+        } 
+    }
+    
+    hr_timer_t timer;
 	hrt_start(&timer);
 	//#pragma pskel stencil dim2d(width, height) inout(inputGrid, outputGrid) iterations(T_MAX) device(cpu)
 	stencilKernel(inputGrid, outputGrid,width,height,T_MAX);
@@ -121,14 +131,14 @@ int main(int argc, char **argv){
 	if(verbose){		
 		//cout<<setprecision(6);
 		//cout<<fixed;
-		cout<<"INPUT"<<endl;
+		/*cout<<"INPUT"<<endl;
 		for(int i=0; i<width;i+=10){
             
 			cout<<"("<<i<<","<<i<<") = "<<inputGrid[i*width+i]<<"\t\t(";
             cout<<width-i<<","<<height-i<<") = "<<inputGrid[(height-i)*width+(width-i)]<<endl;
 		}
 		cout<<endl;
-		
+		*/
 		cout<<"OUTPUT"<<endl;
 		//for(int i=0; i<width/10;i+=10){
 		//	cout<<"("<<i<<","<<i<<") = "<<outputGrid[i*width+i]<<"\t\t("<<width-i<<","<<height-i<<") = "<<outputGrid[(height-i)*width+(width-i)]<<endl;
@@ -142,8 +152,7 @@ int main(int argc, char **argv){
 			cout<<endl;
 		}
 	}
-    
-        cout << "Exec_time\t" << hrt_elapsed_time(&timer) << endl;
+    cout << "Exec_time\t" << hrt_elapsed_time(&timer) << endl;
   
 	return 0;
 }
