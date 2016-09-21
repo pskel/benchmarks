@@ -46,7 +46,7 @@ struct Cloud{
 
 namespace PSkel{	
 __parallel__ void stencilKernel(Array2D<float> input,Array2D<float> output,Mask2D<float> mask,Cloud cloud,size_t i, size_t j){
-	int numNeighbor = 0.25f;
+	int numNeighbor = 4;
 	float sum;
 	float inValue = input(i,j);
            
@@ -65,8 +65,8 @@ __parallel__ void stencilKernel(Array2D<float> input,Array2D<float> output,Mask2
         float componenteVentoY = yfactor * ywind;
      	float componenteVentoX = xfactor * xwind;
         
-        float temp_wind = (-componenteVentoX * ((inValue - temperaturaNeighborX)*10.0f)) -
-                          ( componenteVentoY * ((inValue - temperaturaNeighborY)*10.0f));
+        float temp_wind = (-componenteVentoX * ((inValue - temperaturaNeighborX)/CELL_LENGTH)) -
+                          ( componenteVentoY * ((inValue - temperaturaNeighborY)/CELL_LENGTH));
         	
 		/*
 		float temp_wind = 0.0f;
@@ -137,7 +137,7 @@ __parallel__ void stencilKernel(Array2D<float> input,Array2D<float> output,Mask2
                         ( componenteVentoY * ((inValue - temperaturaNeighborY)/CELL_LENGTH));
             
         }*/
-        float temperatura_conducao = -K*(sum * numNeighbor) * cloud.deltaT;
+        float temperatura_conducao = -K*(sum / numNeighbor) * cloud.deltaT;
         float result = inValue + temperatura_conducao;
         output(i,j) = result + temp_wind * cloud.deltaT;
 

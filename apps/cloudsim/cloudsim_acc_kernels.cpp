@@ -286,6 +286,7 @@ int main(int argc, char **argv){
 
 	/* Inicialização de uma nuvem no centro da matriz de entrada */
     //cout<<"Generating initial cloud in center of inputGrid"<<endl;
+	srand(1);
 	int y, x0 = linha/2, y0 = coluna/2;
 	for(i = x0 - raio_nuvem; i < x0 + raio_nuvem; i++){
 		 // Equação da circunferencia: (x0 - x)² + (y0 - y)² = r²
