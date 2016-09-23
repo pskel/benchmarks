@@ -11,7 +11,7 @@
 //#define PSKEL_SHARED_MASK
 //#define PSKEL_OMP
 #define PSKEL_CUDA
-#define GOL_KERNEL
+//#define GOL_KERNEL
 //#define PSKEL_PAPI
 //#define PSKEL_PAPI_DEBUG
 
@@ -25,26 +25,27 @@ using namespace PSkel;
 namespace PSkel{
 	
 	
-__parallel__ void stencilKernel(Array2D<float> input, Array2D<float> output,
-                  Mask2D<float> mask, short args, size_t i, size_t j){
-    int neighbors =  input(i-1,j-1) + input(i-1,j) + input(i-1,j+1)  +
-                     input(i+1,j-1) + input(i+1,j) + input(i+1,j+1)  + 
-                     input(i,j-1)   + input(i,j+1) ; 
-
-    //int neighbors = mask.get(0,input,i,j) + mask.get(1,input,i,j) + mask.get(2,input,i,j) +
+__parallel__ void stencilKernel(Array2D<bool> input, Array2D<bool> output,
+                  Mask2D<bool> mask, short args, size_t i, size_t j){
+    
+    int neighbors =   input(i-1,j-1) + input(i-1,j) + input(i-1,j+1)  +
+                        input(i+1,j-1) + input(i+1,j) + input(i+1,j+1)  + 
+                        input(i,j-1)   + input(i,j+1) ;
+                        
+    //bool neighbors = mask.get(0,input,i,j) + mask.get(1,input,i,j) + mask.get(2,input,i,j) +
     //	              mask.get(3,input,i,j) + mask.get(4,input,i,j) + mask.get(5,input,i,j) +
     //		      mask.get(6,input,i,j) + mask.get(7,input,i,j);
 
                       
     
     
-    //int neighbors =  input(i-1,j-1) + input(i-1,j) + input(i-1,j+1)  +
+    //bool neighbors =  input(i-1,j-1) + input(i-1,j) + input(i-1,j+1)  +
     //                 input(i+1,j-1) + input(i+1,j) + input(i+1,j+1)  + 
     //                 input(i,j-1)   + input(i,j+1) ;
     /*
-    int neighbors = 0;
-    int height=input.getHeight();
-    int width=input.getWidth();
+    bool neighbors = 0;
+    bool height=input.getHeight();
+    bool width=input.getWidth();
     
     if ( (j == 0) && (i == 0) ) { //	Corner 1	
         neighbors = input(i+1,j) + input(i,j+1) + input (i+1,j+1);
@@ -101,9 +102,9 @@ int main(int argc, char **argv){
 	numCPUThreads = atoi(argv[8]);
 	verbose = atoi(argv[9]);
 	
-	Array2D<float> inputGrid(width, height);
-	Array2D<float> outputGrid(width, height);
-	Mask2D<float> mask(8);
+	Array2D<bool> inputGrid(width, height);
+	Array2D<bool> outputGrid(width, height);
+	Mask2D<bool> mask(8);
 	
 	mask.set(0,-1,-1);	mask.set(1,-1,0);	mask.set(2,-1,1);
 	mask.set(3,0,-1);						mask.set(4,0,1);
@@ -112,8 +113,8 @@ int main(int argc, char **argv){
 	//omp_set_num_threads(numCPUThreads);
 
     srand(123456789);
-    for(int h = 1; h < height-1; h++){		
-       	for(int w = 1; w < width-1; w++){
+    for(size_t h = 0; h < height; h++){		
+       	for(size_t w = 0; w < width; w++){
       		inputGrid(h,w) = (rand()%2);            
             //outputGrid(i,j) =  inputGrid(i,j);
 		}
@@ -129,13 +130,13 @@ int main(int argc, char **argv){
 	hr_timer_t timer;
 	hrt_start(&timer);
 	//wbTime_start(GPU, "Doing GPU Computation (memory + compute)");
-	Stencil2D<Array2D<float>, Mask2D<float>, short> stencil(inputGrid, outputGrid, mask, 0);
+	Stencil2D<Array2D<bool>, Mask2D<bool>, short> stencil(inputGrid, outputGrid, mask, 0);
 	
 	
 	if(GPUTime == 0.0){
 		//jacobi.runIterativeCPU(T_MAX, numCPUThreads);
 		//#ifdef PSKEL_PAPI
-		//	for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
+		//	for(unsigned bool i=0;i<NUM_GROUPS_CPU;i++){
 		//		//cout << "Running iteration " << i << endl;
 		//		stencil.runIterativeCPU(T_MAX, numCPUThreads, i);	
 		//	}
@@ -156,7 +157,11 @@ int main(int argc, char **argv){
 		#ifdef PSKEL_PAPI
         PSkelPAPI::papi_start(PSkelPAPI::NVML,0);
         #endif
+        #ifdef PSKEL_SHARED
 		stencil.runIterativeGPU(T_MAX,timeTileSize,GPUBlockSizeX, GPUBlockSizeY);
+        #else
+        stencil.runIterativeGPU(T_MAX,GPUBlockSizeX, GPUBlockSizeY);
+        #endif
 		#ifdef PSKEL_PAPI
         PSkelPAPI::papi_stop(PSkelPAPI::NVML,0);
         #endif
@@ -166,7 +171,7 @@ int main(int argc, char **argv){
 		//stencil.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSizeX, GPUBlockSizeY);
 		/*
         #ifdef PSKEL_PAPI
-			for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
+			for(unsigned bool i=0;i<NUM_GROUPS_CPU;i++){
 				stencil.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSizeX,i);
 			}
 		#else
@@ -193,28 +198,28 @@ int main(int argc, char **argv){
 		//cout<<setprecision(6);
 		//cout<<fixed;
 		cout<<"INPUT"<<endl;
-		/*for(int i=0; i<width;i+=10){
+		/*for(bool i=0; i<width;i+=10){
             
 			cout<<"("<<i<<","<<i<<") = "<<inputGrid(i,i)<<"\t\t(";
             cout<<width-i<<","<<height-i<<") = "<<inputGrid(height-i,width-i)<<endl;
 		}
 		cout<<endl;
         */
-        for(int h = 0; h < height; h++){		
-			for(int w = 0; w < width; w++){
+        for(size_t h = 0; h < height; h++){		
+			for(size_t w = 0; w < width; w++){
 				cout<<inputGrid(h,w);
 			}
 			cout<<endl;
 		}
 		
 		cout<<"OUTPUT"<<endl;
-		//for(int i=0; i<width/10;i+=10){
+		//for(bool i=0; i<width/10;i+=10){
 		//	cout<<"("<<i<<","<<i<<") = "<<outputGrid[i*width+i]<<"\t\t("<<width-i<<","<<height-i<<") = "<<outputGrid[(height-i)*width+(width-i)]<<endl;
 		//}
 		//cout<<endl;
 		
-		for(int h = 0; h < height; ++h){		
-			for(int w = 0; w < width; ++w){
+		for(size_t h = 0; h < height; ++h){		
+			for(size_t w = 0; w < width; ++w){
 				cout<<outputGrid(h,w);
 			}
 			cout<<endl;
