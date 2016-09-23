@@ -31,29 +31,35 @@ void stencilKernel(float *input,float *output, int width, int height, int T_MAX,
     #pragma acc kernels
     {
     #pragma acc loop independent vector(16) 
-	for(int j=1;j<height-1;j++){
+	for(int j=0;j<height;j++){
         #pragma acc loop independent vector(16) 
-	    for(int i=1;i<width-1;i++){
-            int numNeighbor = 0.25f;
-            //float sum = 0.0f;
-            float inValue = input[j*width+i];
-            //float temp_wind = 0.0f;
-				
-            float sum = (inValue - input[(j-1)*width+i]) + (inValue - input[j*width+(i-1)]) +
-                        (inValue - input[j*width+(i+1)]) + (inValue - input[(j+1)*width+i]);
-                
+	    for(int i=0;i<width;i++){
+            int n1=1,n2=1,n3=1,n4=1;
+            float N  = ((j-1)>=0)                ? input[(j-1)*width + (i  )] : --n1;
+            float W  = ((i-1)<width)             ? input[(j  )*width + (i-1)] : --n2;
+            float C  =                             input[(j  )*width + (i  )];
+            float E  = ((i+1)<width)             ? input[(j  )*width + (i+1)] : --n3;
+            float S  = ((j+1)<height)            ? input[(j+1)*width + (i  )] : --n4;
+            
+            float sum = 4*C - (N + W + E + S);
+            float numNeighbor = n1+n2+n3+n4;
             float xwind = wind_x[j*width+i];
             float ywind = wind_y[j*width+i];
             int xfactor = (xwind>0)?1:-1;
             int yfactor = (ywind>0)?1:-1;
 
-            float temperaturaNeighborX = input[(j+xfactor) * width + i];
+            float temperaturaNeighborX = (i+yfactor < width)  ? input[j*width + (i+xfactor)] : C;
+            float temperaturaNeighborY = (j+xfactor < height) ? input[(j+yfactor) * width + i] : C;
+            
             float componenteVentoX = xfactor * xwind;
-            float temperaturaNeighborY = input[j*width + (i+yfactor)];
             float componenteVentoY = yfactor * ywind;
         
-            float temp_wind = (-componenteVentoX * ((inValue - temperaturaNeighborX)*10.0f)) -
-                              ( componenteVentoY * ((inValue - temperaturaNeighborY)*10.0f));    
+            float temp_wind = (-componenteVentoX * ((C - temperaturaNeighborX)*10.0f)) -
+                              ( componenteVentoY * ((C - temperaturaNeighborY)*10.0f));    
+            
+            float temperatura_conducao = -K*(sum/numNeighbor) * deltaT;
+            float result = C + temperatura_conducao;
+            output[j*width+i] = result + temp_wind * deltaT;
             
             /* Corner 1
             if ( (j == 0) && (i == 0) ) {
@@ -122,9 +128,6 @@ void stencilKernel(float *input,float *output, int width, int height, int T_MAX,
                 
             }
             */
-            float temperatura_conducao = -K*(sum * numNeighbor) * deltaT;
-            float result = inValue + temperatura_conducao;
-            output[j*width+i] = result + temp_wind * deltaT;
         } //end for width
     }// end for height
     //swap(output,input);	
@@ -140,31 +143,33 @@ void stencilKernel(float *input,float *output, int width, int height, int T_MAX,
     }
     */
     #pragma acc loop independent vector(16) 
-	for(int j=1;j<height-1;j++){
+	for(int j=0;j<height;j++){
         #pragma acc loop independent vector(16) 
-	    for(int i=1;i<width-1;i++){
-            int numNeighbor = 0.25f;
-            //float sum = 0.0f;
-            float inValue = output[j*width+i];
-            //float temp_wind = 0.0f;
-				
-            float sum = (inValue - output[(j-1)*width+i]) + (inValue - output[j*width+(i-1)]) +
-                        (inValue - output[j*width+(i+1)]) + (inValue - output[(j+1)*width+i]);
-                
+	    for(int i=0;i<width;i++){
+            int n1=1,n2=1,n3=1,n4=1;
+            float N  = ((j-1)>=0)    ? output[(j-1)*width + (i  )] : (--n1);
+            float W  = ((i-1)<width) ? output[(j  )*width + (i-1)] : (--n2);
+            float C  =                 output[(j  )*width + (i  )];
+            float E  = ((i+1)<width) ? output[(j  )*width + (i+1)] : (--n3);
+            float S  = ((j+1)<height)? output[(j+1)*width + (i  )] : (--n4);
+            
+            float sum = 4*C - (N + W + E + S);
+            float numNeighbor = n1+n2+n3+n4;
             float xwind = wind_x[j*width+i];
             float ywind = wind_y[j*width+i];
             int xfactor = (xwind>0)?1:-1;
             int yfactor = (ywind>0)?1:-1;
 
-            float temperaturaNeighborX = output[(j+xfactor) * width + i];
+            float temperaturaNeighborX = (i+yfactor < width)  ? output[j*width + (i+xfactor)] : C;
+            float temperaturaNeighborY = (j+xfactor < height) ? output[(j+yfactor) * width + i] : C;
+            
             float componenteVentoX = xfactor * xwind;
-            float temperaturaNeighborY = output[j*width + (i+yfactor)];
             float componenteVentoY = yfactor * ywind;
         
-            float temp_wind = (-componenteVentoX * ((inValue - temperaturaNeighborX)*10.0f)) -
-                              ( componenteVentoY * ((inValue - temperaturaNeighborY)*10.0f));
-            float temperatura_conducao = -K*(sum * numNeighbor) * deltaT;
-            float result = inValue + temperatura_conducao;
+            float temp_wind = (-componenteVentoX * ((C - temperaturaNeighborX)*10.0f)) -
+                              ( componenteVentoY * ((C - temperaturaNeighborY)*10.0f));
+            float temperatura_conducao = -K*(sum/numNeighbor) * deltaT;
+            float result = C + temperatura_conducao;
             input[j*width+i] = result + temp_wind * deltaT;
         }
     }
