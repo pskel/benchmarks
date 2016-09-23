@@ -22,11 +22,14 @@ inline void stencilKernel(float* input, float* output, int width, int height, in
 	#pragma acc kernels //loop gang worker vector_length(32) num_workers(32)
 	{
 		#pragma acc loop independent vector(16) 
-		for (int y = 1; y < height -1; y++){
-			#pragma acc loop independent vector(16) 
-			for (int x = 1; x < width - 1; x++){
-				output[y*width+x] = 0.25f * (input[(y+1)*width + x] + input[(y-1)*width + x] +
-						             input[y*width + (x+1)] + input[y*width + (x-1)] - beta);
+		for (int y = 0; y < height; y++){
+			#pragma acc loop independent vector(16)
+			for (int x = 0; x < width; x++){
+                float N  = ((j-1)>=0)     ? input[(j-1)*width + (i  )] : 0.0f;
+                float W  = ((i-1)<width)  ? input[(j  )*width + (i-1)] : 0.0f;
+                float E  = ((i+1)<width)  ? input[(j  )*width + (i+1)] : 0.0f;
+                float S  = ((j+1)<height) ? input[(j+1)*width + (i  )] : 0.0f;
+                output[y*width+x] = 0.25f * (N + W + E + S - beta);
 			}
 		}  
 		
@@ -41,11 +44,14 @@ inline void stencilKernel(float* input, float* output, int width, int height, in
 			}
 		}*/
 		#pragma acc loop independent vector(16) 
-		for (int y = 1; y < height -1; y++){
+		for (int y = 0; y < height; y++){
 			#pragma acc loop independent vector(16) 
-			for (int x = 1; x < width - 1; x++){
-				input[y*width+x] = 0.25f * (output[(y+1)*width + x] + output[(y-1)*width + x] +
-						             output[y*width + (x+1)] + output[y*width + (x-1)] - beta);
+			for (int x = 0; x < width; x++){
+                float N  = ((j-1)>=0)     ? output[(j-1)*width + (i  )] : 0.0f;
+                float W  = ((i-1)<width)  ? output[(j  )*width + (i-1)] : 0.0f;
+                float E  = ((i+1)<width)  ? output[(j  )*width + (i+1)] : 0.0f;
+                float S  = ((j+1)<height) ? output[(j+1)*width + (i  )] : 0.0f;
+                input[y*width+x] = 0.25f * (N + W + E + S - beta);
 			}
 		}  
 		
