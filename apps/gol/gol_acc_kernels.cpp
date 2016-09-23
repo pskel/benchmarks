@@ -19,9 +19,9 @@ void stencilKernel(bool *input, bool *output, int width, int height, int T_MAX){
 	for(int t=0;t<T_MAX/2;t++){
         #pragma acc kernels
         {
-        #pragma acc loop independent vector(8)
+	#pragma acc loop independent vector(16)
 	for(int j=1;j<height-1;j++){
-	    #pragma acc loop independent vector(32)
+	    #pragma acc loop independent vector(16)
             for(int i=1;i<width-1;i++){
                 int neighbors = input[(j)*width + (i+1)] + input[(j)*width + (i-1)] +
                                 input[(j+1)*width + (i)] + input[(j-1)*width + (i)] +
@@ -50,9 +50,9 @@ void stencilKernel(bool *input, bool *output, int width, int height, int T_MAX){
 		}
 	}
         
-	#pragma acc loop independent vector(8)
+	#pragma acc loop independent vector(16)
 	for(int j=1;j<height-1;j++){
-	    #pragma acc loop independent vector(32)
+	    #pragma acc loop independent vector(16)
             for(int i=1;i<width-1;i++){
                 int neighbors = output[(j)*width + (i+1)] + output[(j)*width + (i-1)] +
                                 output[(j+1)*width + (i)] + output[(j-1)*width + (i)] +

@@ -16,8 +16,8 @@
 
 using namespace std;
 
-#define WIND_X_BASE	15
-#define WIND_Y_BASE	12
+#define WIND_X_BASE	15.0f
+#define WIND_Y_BASE	12.0f
 #define DISTURB		0.1f
 #define CELL_LENGTH	0.1f
 #define K           	0.0243f
@@ -30,9 +30,9 @@ void stencilKernel(float *input,float *output, int width, int height, int T_MAX,
     for(int t=0;t<T_MAX/2;t++){
     #pragma acc kernels
     {
-    #pragma acc loop independent vector(8) 
+    #pragma acc loop independent vector(16) 
 	for(int j=1;j<height-1;j++){
-        #pragma acc loop independent vector(32) 
+        #pragma acc loop independent vector(16) 
 	    for(int i=1;i<width-1;i++){
             int numNeighbor = 0.25f;
             //float sum = 0.0f;
@@ -139,9 +139,9 @@ void stencilKernel(float *input,float *output, int width, int height, int T_MAX,
     	}
     }
     */
-    #pragma acc loop independent vector(8) 
+    #pragma acc loop independent vector(16) 
 	for(int j=1;j<height-1;j++){
-        #pragma acc loop independent vector(32) 
+        #pragma acc loop independent vector(16) 
 	    for(int i=1;i<width-1;i++){
             int numNeighbor = 0.25f;
             //float sum = 0.0f;
@@ -266,7 +266,7 @@ int main(int argc, char **argv){
 
 	/* Inicialização da matriz de entrada com a temperatura ambiente */
 	//#pragma omp parallel for private (i,j)
-    //cout<<"Initializing cloud"<<endl;
+        //cout<<"Initializing cloud"<<endl;
 	for (i = 0; i < linha; i++){		
 		for (j = 0; j < coluna; j++){
 			inputGrid[i*coluna+j] = temperaturaAtmosferica;
@@ -275,8 +275,8 @@ int main(int argc, char **argv){
 	}
 		
 	/* Inicialização dos ventos Latitudinal(Wind_X) e Longitudinal(Wind_Y) */
-    //cout<<"Initializing wind"<<endl;
-    srand(1234);
+    	//cout<<"Initializing wind"<<endl;
+    	srand(1234);
 	for( i = 0; i < linha; i++ ){
 		for(j = 0; j < coluna; j++ ){			
 			wind_x[i*coluna+j] = (WIND_X_BASE - DISTURB) + (float)rand()/RAND_MAX * 2 * DISTURB;
@@ -285,7 +285,7 @@ int main(int argc, char **argv){
 	}
 
 	/* Inicialização de uma nuvem no centro da matriz de entrada */
-    //cout<<"Generating initial cloud in center of inputGrid"<<endl;
+    	//cout<<"Generating initial cloud in center of inputGrid"<<endl;
 	srand(1);
 	int y, x0 = linha/2, y0 = coluna/2;
 	for(i = x0 - raio_nuvem; i < x0 + raio_nuvem; i++){

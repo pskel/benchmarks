@@ -21,9 +21,9 @@ inline void stencilKernel(float* input, float* output, int width, int height, in
 	for (int t = 0; t < T_MAX/2; t++){
 	#pragma acc kernels //loop gang worker vector_length(32) num_workers(32)
 	{
-		#pragma acc loop independent vector(8) 
+		#pragma acc loop independent vector(16) 
 		for (int y = 1; y < height -1; y++){
-			#pragma acc loop independent vector(32) 
+			#pragma acc loop independent vector(16) 
 			for (int x = 1; x < width - 1; x++){
 				output[y*width+x] = 0.25f * (input[(y+1)*width + x] + input[(y-1)*width + x] +
 						             input[y*width + (x+1)] + input[y*width + (x-1)] - beta);
@@ -40,9 +40,9 @@ inline void stencilKernel(float* input, float* output, int width, int height, in
 				}
 			}
 		}*/
-		#pragma acc loop independent vector(8) 
+		#pragma acc loop independent vector(16) 
 		for (int y = 1; y < height -1; y++){
-			#pragma acc loop independent vector(32) 
+			#pragma acc loop independent vector(16) 
 			for (int x = 1; x < width - 1; x++){
 				input[y*width+x] = 0.25f * (output[(y+1)*width + x] + output[(y-1)*width + x] +
 						             output[y*width + (x+1)] + output[y*width + (x-1)] - beta);
@@ -77,7 +77,7 @@ int main(int argc, char **argv){
 	verbose = atoi (argv[4]);
 
 	alpha = 0.25/(float) width;
-    beta = 4.0f/(float) (height*height);
+    	beta = 4.0f/(float) (height*height);
 
 	inputGrid = (float*) calloc(width*height,sizeof(float));
 	outputGrid = (float*) calloc(width*height,sizeof(float));
@@ -116,7 +116,7 @@ int main(int argc, char **argv){
 		
 		for(size_t h = 0; h < height; h++){		
 			for(size_t w = 0; w < width; w++){
-				cout<<outputGrid[h*width + w]<<" ";
+				cout<<inputGrid[h*width + w]<<" ";
 			}
 			cout<<endl;
 		}

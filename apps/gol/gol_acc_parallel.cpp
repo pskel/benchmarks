@@ -18,13 +18,13 @@ using namespace PSkel;
 #endif
 
 using namespace std;
-inline void stencilKernel(int *input, int *output, int width, int height, int T_MAX){
+inline void stencilKernel(int* input, int* output, int width, int height, int T_MAX){
     #pragma acc data copyin(input[0:width*height]) copy(output[0:width*height])
     {
 	for(int t=0;t<T_MAX;t++){
-        #pragma acc parallel loop 
+        	#pragma acc parallel loop 
 		for(int j=1;j<height-1;j++){
-		#pragma acc loop independent
+		#pragma acc loop 
 		for(int i=1;i<width-1;i++){
                 
                 int neighbors = input[(j)*width + (i+1)] + input[(j)*width + (i-1)] +
@@ -101,8 +101,8 @@ inline void stencilKernel(int *input, int *output, int width, int height, int T_
 		}
         
         //swap
-        if(t>1 && t<T_MAX - 1){
-			#pragma acc parallel loop
+        if(T_MAX>1 && t<T_MAX - 1){
+			#pragma acc parallel loop 
 			for(int j=1;j<height-1;j++){
 				#pragma acc loop independent
 				for(int i=1;i<width-1;i++){

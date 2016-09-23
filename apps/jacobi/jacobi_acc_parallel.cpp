@@ -18,7 +18,7 @@ using namespace PSkel;
 #endif
 
 using namespace std;
-inline void stencilKernel(float* __restrict__ input, float* __restrict__ output, int width, int height, int T_MAX,float alpha, float beta){
+inline void stencilKernel(float* input, float* output, int width, int height, int T_MAX,float alpha, float beta){
 	#pragma acc data copyin(input[0:width*height]) copyout(output[0:width*height])
 	{
 	for (int t = 0; t < T_MAX; t++){
