@@ -20,6 +20,26 @@ void stencilKernel(bool *input, bool *output, int width, int height, int T_MAX){
         #pragma acc kernels
         {
         #pragma acc loop independent vector(16)
+        for(int j=0;j<height;j++){
+            #pragma acc loop independent vector(16)
+            for(int i=0;i<width;i++){
+                bool nw = ((j-1)>=0 && (i-1)>=0)    ? input[(j-1)*width + (i-1)] : 0;
+                bool n  = ((j-1)>=0)                ? input[(j-1)*width + (i  )] : 0;
+                bool ne = ((j-1)>=0 && (i+1)<width) ? input[(j-1)*width + (i+1)] : 0;
+                bool w  = ((i-1)<width)             ? input[(j  )*width + (i-1)] : 0;
+                //bool c  =                             input[(j  )*width + (i  )];
+                bool e  = ((i+1)<width)             ? input[(j  )*width + (i+1)] : 0;
+                bool sw = ((j+1)<height && (i-1)>=0)? input[(j+1)*width + (i-1)] : 0;
+                bool s  = ((j+1)<height)            ? input[(j+1)*width + (i  )] : 0;
+                bool se = ((j+1)>=0 && (i+1)<width) ? input[(j+1)*width + (i+1)] : 0;
+                
+                int sum = nw + n + ne + w + e + sw + s + se;
+                
+                output[j*width + i] = (sum == 3 || (sum == 2 && input[(j)*width + (i)]==1))?1:0;
+		}
+	}
+        
+	#pragma acc loop independent vector(16)
 	for(int j=0;j<height;j++){
 	    #pragma acc loop independent vector(16)
             for(int i=0;i<width;i++){
@@ -35,75 +55,22 @@ void stencilKernel(bool *input, bool *output, int width, int height, int T_MAX){
                 
                 int sum = nw + n + ne + w + e + sw + s + se;
                 
-                output[j*width + i] = (sum == 3 || (sum == 2 && input[(j)*width + (i)]==1))?1:0;
-                
-                /*
-                int neighbors = input[(j)*width + (i+1)] + input[(j)*width + (i-1)] +
-                                input[(j+1)*width + (i)] + input[(j-1)*width + (i)] +
-                                input[(j+1)*width + (i+1)] + input[(j-1)*width + (i-1)] +
-                                input[(j+1)*width + (i-1)] + input[(j-1)*width + (i+1)];
-                */
-                /*
-                int neighbors = 0;
-				for(int y=-1;y<=1;y++){
-					for(int x=-1;x<=1;x++){
-						if( x!=0 || y!=0 ){
-							neighbors += input[(j+y)*width + (i+x)];
-						}
-					}
-				}
-                */
-				
-                /*if(neighbors == 3 || (input[j*width + i] == 1 && neighbors == 2)){
-					output[j*width + i] = 1;
-				}
-				else{
-					output[j*width + i] = 0;
-				}
-                */
-		}
-	}
-        
-	#pragma acc loop independent vector(16)
-	for(int j=0;j<height;j++){
-	    #pragma acc loop independent vector(16)
-            for(int i=0;i<width;i++){
-                bool nw = ((j-1)>=0 && (i-1)>=0)    ? input[(j-1)*width + (i-1)] : 0;
-                bool n  = ((j-1)>=0)                ? input[(j-1)*width + (i  )] : 0;
-                bool ne = ((j-1)>=0 && (i+1)<width) ? input[(j-1)*width + (i+1)] : 0;
-                bool w  = ((i-1)<width)             ? input[(j  )*width + (i-1)] : 0;
-                bool c  =                             input[(j  )*width + (i  )];
-                bool e  = ((i+1)<width)             ? input[(j  )*width + (i+1)] : 0;
-                bool sw = ((j+1)<height && (i-1)>=0)? input[(j+1)*width + (i-1)] : 0;
-                bool s  = ((j+1)<height)            ? input[(j+1)*width + (i  )] : 0;
-                bool se = ((j+1)>=0 && (i+1)<width) ? input[(j+1)*width + (i+1)] : 0;
-                
-                int sum = nw + n + ne + w + e + sw + s + se;
-                
                 output[j*width + i] = (sum == 3 || (sum == 2 && input[(j)*width + (i) == 1))?1:0;
-                /*int neighbors = output[(j)*width + (i+1)] + output[(j)*width + (i-1)] +
-                                output[(j+1)*width + (i)] + output[(j-1)*width + (i)] +
-                                output[(j+1)*width + (i+1)] + output[(j-1)*width + (i-1)] +
-                                output[(j+1)*width + (i-1)] + output[(j-1)*width + (i+1)];
-                
-
-                input[j*width + i] = (neighbors == 3 || (output[j*width + i] == 1 && neighbors == 2))?1:0;	
-                */
 	    }
 	}
  
-	
-        //swap
-        /*if(T_MAX>1 & t<T_MAX - 1){
-		#pragma acc loop independent vector(8)
-		for(int j=0;j<height;j++){
-        		#pragma acc loop independent vector(32)
-			for(int i=0;i<width;i++){
-        			 input[j*width + i] = output[j*width + i];
-            		}
-        	}
+	/*
+    //swap
+    /*if(T_MAX>1 & t<T_MAX - 1){
+    #pragma acc loop independent vector(8)
+    for(int j=0;j<height;j++){
+            #pragma acc loop independent vector(32)
+            for(int i=0;i<width;i++){
+                 input[j*width + i] = output[j*width + i];
+                }
+        }
 	}*/
-        }// iterations
+    }// iterations
 	}//kernels
     }//acc data
 }//stencil kernel
