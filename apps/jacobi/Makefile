@@ -18,8 +18,8 @@ GA_LIB_PATH 	= /home/alyson/galib247/ga
 GA_SRC_PATH 	= /home/alyson/galib247/
 PAPI_LIB_PATH 	= /usr/local/lib
 PAPI_SRC_PATH 	= /usr/local/include
-HR_TIME			= ../../pskel/include
-LIBS			= -Xcompiler -fopenmp -lgomp -I${HR_TIME} -I${GA_SRC_PATH} -L${GA_LIB_PATH} -I${PAPI_SRC_PATH} -L${PAPI_LIB_PATH} -lga -lm 
+HR_TIME		= ../../pskel/include
+LIBS		= -Xcompiler -fopenmp -lgomp -I${HR_TIME} -I${GA_SRC_PATH} -L${GA_LIB_PATH} -I${PAPI_SRC_PATH} -L${PAPI_LIB_PATH} -lga -lm -I${TBB_SRC_PATH} -L${TBB_LIB_PATH} -ltbb
 ACC_LIBS		= -I${HR_TIME} -lrt -mp 
 SRC_NAME        = jacobi
 BIN_DIR         = ../../bin/
@@ -33,7 +33,7 @@ acc_parallel: ${SRC_NAME}_acc_parallel.cpp
 	${ACC} ${ACCFLAGS_T} -o  ${BIN_DIR}${SRC_NAME}_acc_parallel ${SRC_NAME}_acc_parallel.cpp ${ACC_LIBS}
 
 acc_papi: ${SRC_NAME}_acc_parallel.cpp
-	${ACC} ${ACCFLAGS_M} -o  ${BIN_DIR}${SRC_NAME}_acc_papi ${SRC_NAME}_acc_parallel.cpp ${ACC_LIBS} -I${PAPI_SRC_PATH} -L${PAPI_LIB_PATH} -lpapi -DPSKEL_PAPI
+	${ACC} ${ACCFLAGS_M} -o  ${BIN_DIR}${SRC_NAME}_acc_papi ${SRC_NAME}_acc_parallel.cpp ${ACC_LIBS} -I${PAPI_SRC_PATH} -L${PAPI_LIB_PATH} -lpapi -DPSKEL_PAPI -DTESLA
 	
 acc_multicore: ${SRC_NAME}_acc_kernels.cpp
 	${ACC} ${ACCFLAGS_M} -o  ${BIN_DIR}${SRC_NAME}_acc_multicore ${SRC_NAME}_acc_parallel.cpp ${ACC_LIBS}

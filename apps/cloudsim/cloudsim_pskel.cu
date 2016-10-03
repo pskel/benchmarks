@@ -1,7 +1,7 @@
-//#define PSKEL_OMP 1
+#define PSKEL_OMP 1
 //#define PSKEL_TBB 1
 #define PSKEL_CUDA 1
-#define CLOUDSIM_KERNEL
+//#define CLOUDSIM_KERNEL
 
 #include <stdio.h>
 #include <omp.h>
@@ -334,13 +334,14 @@ int main(int argc, char **argv){
 		//	stencilCloud.runIterativeCPU(numero_iteracoes, numCPUThreads);
             
         #ifdef PSKEL_PAPI
-            for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
+            //for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
+	    unsigned int i=5;
 			PSkelPAPI::papi_start(PSkelPAPI::CPU,i);
 		#endif
-			//stencilCloud.runIterativeCPU(numero_iteracoes, numCPUThreads);	
+			stencilCloud.runIterativeCPU(numero_iteracoes, numCPUThreads);	
 		#ifdef PSKEL_PAPI
 			PSkelPAPI::papi_stop(PSkelPAPI::CPU,i);
-            }
+            //}
 		#endif
 	}
 	else if(GPUTime == 1.0){

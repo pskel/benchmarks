@@ -9,7 +9,7 @@
 #include <fstream>
 
 //#define PSKEL_SHARED_MASK
-//#define PSKEL_OMP
+#define PSKEL_TBB
 #define PSKEL_CUDA
 #define JACOBI_KERNEL
 //#define PSKEL_PAPI
@@ -28,18 +28,25 @@ struct Arguments{
 
 namespace PSkel{
 
+/*
 __parallel__ void stencilKernel(float input[BLOCK_SIZE][BLOCK_SIZE],float output[BLOCK_SIZE][BLOCK_SIZE], Arguments args, size_t ty, size_t tx){					 
 	//size_t index = (tx-1+1)*10+(ty+1);
 	//printf("idx %d ",index);
 	//printf("val %f\n",shared[index]);
 	output[ty][tx] = 0.25f * (input[ty][tx-1] + input[ty][tx+1] + input[ty-1][tx] + input[ty+1][tx] - args.h);
 }
-
-__parallel__ void stencilKernel(Array2D<float> &input,Array2D<float> &output,Mask2D<float> &mask,Arguments &args, size_t i, size_t j){
+*/
+__parallel__ void stencilKernel(Array2D<float> input,Array2D<float> output,Mask2D<float> mask,Arguments args, size_t i, size_t j){
 	//output(i,j) = 0.25f * ( mask.get(0, input, i, j) + mask.get(1, input, i, j) +  
 	//			mask.get(2, input, i, j) + mask.get(3, input, i, j) - args.h );
 						 
-	output(i,j) = 0.25f * ( input(i-1,j) + (input(i,j-1) + input(i,j+1)) + input(i+1,j) - args.h);
+	float N = input(i,j+1);
+	float W = input(i-1,j);
+	float E = input(i+1,j);
+	float S = input(i,j-1);
+
+	output(i,j) = 0.25f * (N+W+E+S - args.h);
+	//output(i,j) = 0.25f * ( input(i-1,j) + (input(i,j-1) + input(i,j+1)) + input(i+1,j) - args.h);
     /*int width = input.getWidth(); 
     int height = input.getHeight();
     //	Corner 1	
@@ -161,15 +168,15 @@ int main(int argc, char **argv){
 		//#else
 			//cout<<"Running Iterative CPU"<<endl;
 		#ifdef PSKEL_PAPI
-            for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
-			PSkelPAPI::papi_start(PSkelPAPI::CPU,i);
+            //for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
+			PSkelPAPI::papi_start(PSkelPAPI::CPU,5);
 		#endif
 
-			//jacobi.runIterativeCPU(T_MAX, numCPUThreads);	
+			jacobi.runIterativeCPU(T_MAX, numCPUThreads);	
 
 		#ifdef PSKEL_PAPI
-			PSkelPAPI::papi_stop(PSkelPAPI::CPU,i);
-            }
+			PSkelPAPI::papi_stop(PSkelPAPI::CPU,5);
+            //}
 		#endif
 	}
 	else if(GPUTime == 1.0){
@@ -180,7 +187,7 @@ int main(int argc, char **argv){
 		#endif
 	}
 	else{
-		//jacobi.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSizeX, GPUBlockSizeY);
+		jacobi.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSizeX, GPUBlockSizeY);
 		/*
         #ifdef PSKEL_PAPI
 			for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
@@ -237,10 +244,14 @@ int main(int argc, char **argv){
 		
 		for(size_t h = 0; h < outputGrid.getHeight(); h++){		
 			for(size_t w = 0; w < outputGrid.getWidth(); w++){
-				cout<<outputGrid(h,w)<<" ";
+				cout<<outputGrid(h,w)<<"\t";
 			}
 			cout<<endl;
 		}
 	}
+	//~inputGrid();
+	//~outputGrid();
+	//~mask();
+	//~jacobi();
 	return 0;
 }

@@ -34,15 +34,14 @@ void stencilKernel(float *input,float *output, int width, int height, int T_MAX,
 	for(int j=0;j<height;j++){
         #pragma acc loop independent vector(16) 
 	    for(int i=0;i<width;i++){
-            int n1=1,n2=1,n3=1,n4=1;
-            float N  = ((j-1)>=0)                ? input[(j-1)*width + (i  )] : --n1;
-            float W  = ((i-1)<width)             ? input[(j  )*width + (i-1)] : --n2;
             float C  =                             input[(j  )*width + (i  )];
-            float E  = ((i+1)<width)             ? input[(j  )*width + (i+1)] : --n3;
-            float S  = ((j+1)<height)            ? input[(j+1)*width + (i  )] : --n4;
+            float N  = ((j-1)>=0)                ? input[(j-1)*width + (i  )] : C;
+            float W  = ((i-1)<width)             ? input[(j  )*width + (i-1)] : C;
+            float E  = ((i+1)<width)             ? input[(j  )*width + (i+1)] : C;
+            float S  = ((j+1)<height)            ? input[(j+1)*width + (i  )] : C;
             
             float sum = 4*C - (N + W + E + S);
-            float numNeighbor = n1+n2+n3+n4;
+            float numNeighbor = 4.0f;
             float xwind = wind_x[j*width+i];
             float ywind = wind_y[j*width+i];
             int xfactor = (xwind>0)?1:-1;
@@ -146,15 +145,14 @@ void stencilKernel(float *input,float *output, int width, int height, int T_MAX,
 	for(int j=0;j<height;j++){
         #pragma acc loop independent vector(16) 
 	    for(int i=0;i<width;i++){
-            int n1=1,n2=1,n3=1,n4=1;
-            float N  = ((j-1)>=0)    ? output[(j-1)*width + (i  )] : (--n1);
-            float W  = ((i-1)<width) ? output[(j  )*width + (i-1)] : (--n2);
             float C  =                 output[(j  )*width + (i  )];
-            float E  = ((i+1)<width) ? output[(j  )*width + (i+1)] : (--n3);
-            float S  = ((j+1)<height)? output[(j+1)*width + (i  )] : (--n4);
+            float N  = ((j-1)>=0)    ? output[(j-1)*width + (i  )] : C;
+            float W  = ((i-1)<width) ? output[(j  )*width + (i-1)] : C;
+            float E  = ((i+1)<width) ? output[(j  )*width + (i+1)] : C;
+            float S  = ((j+1)<height)? output[(j+1)*width + (i  )] : C;
             
             float sum = 4*C - (N + W + E + S);
-            float numNeighbor = n1+n2+n3+n4;
+	    float numNeighbor = 4.0f;
             float xwind = wind_x[j*width+i];
             float ywind = wind_y[j*width+i];
             int xfactor = (xwind>0)?1:-1;

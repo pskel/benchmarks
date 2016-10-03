@@ -9,7 +9,7 @@
 #include <fstream>
 
 //#define PSKEL_SHARED_MASK
-//#define PSKEL_OMP
+#define PSKEL_OMP
 #define PSKEL_CUDA
 //#define GOL_KERNEL
 //#define PSKEL_PAPI
@@ -30,7 +30,7 @@ __parallel__ void stencilKernel(Array2D<bool> input, Array2D<bool> output,
     int neighbors =  input(i-1,j-1) + input(i-1,j) + input(i-1,j+1)  +
                      input(i+1,j-1) + input(i+1,j) + input(i+1,j+1)  + 
                      input(i,j-1)   + input(i,j+1) ; 
-
+    //printf("%d,%d\n",i,j);
     //int neighbors = mask.get(0,input,i,j) + mask.get(1,input,i,j) + mask.get(2,input,i,j) +
 
     //	              mask.get(3,input,i,j) + mask.get(4,input,i,j) + mask.get(5,input,i,j) +
@@ -115,7 +115,7 @@ int main(int argc, char **argv){
     srand(123456789);
     for(size_t h = 0; h < height; h++){		
        	for(size_t w = 0; w < width; w++){
-      		inputGrid(h,w) = (rand()%2);            
+      		inputGrid(h,w) = (bool) (rand()%2);            
             //outputGrid(i,j) =  inputGrid(i,j);
 		}
 	}	
@@ -143,13 +143,13 @@ int main(int argc, char **argv){
 			//cout<<"Running Iterative CPU"<<endl;
 		
 		#ifdef PSKEL_PAPI
-		for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
-		PSkelPAPI::papi_start(PSkelPAPI::CPU,i);
+		//for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
+		PSkelPAPI::papi_start(PSkelPAPI::CPU,5);
 		#endif
-		//stencil.runIterativeCPU(T_MAX, numCPUThreads);	
+		stencil.runIterativeCPU(T_MAX, numCPUThreads);	
 		#ifdef PSKEL_PAPI
-		PSkelPAPI::papi_stop(PSkelPAPI::CPU,i);
-		}
+		PSkelPAPI::papi_stop(PSkelPAPI::CPU,5);
+		//}
 		#endif
 	}
 	else if(GPUTime == 1.0){
@@ -204,7 +204,7 @@ int main(int argc, char **argv){
 		}
 		cout<<endl;
         */
-        for(size_t h = 0; h < height; h++){		
+        	for(size_t h = 0; h < height; h++){		
 			for(size_t w = 0; w < width; w++){
 				cout<<inputGrid(h,w);
 			}
@@ -223,9 +223,9 @@ int main(int argc, char **argv){
 			}
 			cout<<endl;
 		}
-	}
+    }
     
     cout << "Exec_time\t" << hrt_elapsed_time(&timer) << endl;
     
-	return 0;
+    return 0;
 }

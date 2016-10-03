@@ -34,7 +34,7 @@ acc_parallel: ${SRC_NAME}_acc_parallel.cpp
 	${ACC} ${ACCFLAGS_T} -o  ${BIN_DIR}${SRC_NAME}_acc_parallel ${SRC_NAME}_acc_parallel.cpp ${ACC_LIBS}
 	
 acc_papi: ${SRC_NAME}_acc_parallel.cpp
-	${ACC} ${ACCFLAGS_M} -o  ${BIN_DIR}${SRC_NAME}_acc_papi ${SRC_NAME}_acc_parallel.cpp ${ACC_LIBS} -I${PAPI_SRC_PATH} -L${PAPI_LIB_PATH} -lpapi -DPSKEL_PAPI
+	${ACC} ${ACCFLAGS_M} -o  ${BIN_DIR}${SRC_NAME}_acc_papi ${SRC_NAME}_acc_parallel.cpp ${ACC_LIBS} -I${PAPI_SRC_PATH} -L${PAPI_LIB_PATH} -lpapi -DPSKEL_PAPI -DTESLA
 
 acc_multicore: ${SRC_NAME}_acc_kernels.cpp
 	${ACC} ${ACCFLAGS_M} -o  ${BIN_DIR}${SRC_NAME}_acc_multicore ${SRC_NAME}_acc_parallel.cpp ${ACC_LIBS}
