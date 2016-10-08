@@ -5,18 +5,22 @@ OUTPUT_FLAG=0
 OPTIMUS=""
 OUTPUT_DIR=""
 EXEC="gol"
-TEST_DIR="./tesla2"
+TEST_DIR="./tesla_papi"
 BIN_ACC_KERNELS="../bin/gol_acc_kernels"
 BIN_ACC_PARALLEL="../bin/gol_acc_parallel"
 BIN_ACC_MULTICORE="../bin/gol_acc_multicore"
 BIN_PSKEL="../bin/gol_pskel"
 BIN_PAPI="../bin/gol_papi"
+BIN_ACC_PAPI="../bin/gol_acc_papi"
 
 ######TESTES DE TEMPO###########
 #make acc_kernels -C ../apps/${EXEC}
 #make acc_parallel -C ../apps/${EXEC}
-#make acc_multicore -C ../apps/${EXEC}
-make papi -C ../apps/${EXEC}
+make acc_multicore -C ../apps/${EXEC}
+make pskel -C ../apps/${EXEC}
+make pskel_papi -C ../apps/${EXEC}
+make acc_papi -C ../apps/${EXEC}
+
 OUTPUT_DIR="${TEST_DIR}/${EXEC}"
 #mkdir ${OUTPUT_DIR}
 
@@ -24,13 +28,13 @@ OUTPUT_DIR="${TEST_DIR}/${EXEC}"
 VERBOSE=0
 GPU_PERCENT=0
 GPU_BLOCK_X=32
-GPU_BLOCK_Y=4
+GPU_BLOCK_Y=8
 CPU_THREADS=12
-ITERATIONS=50
-
+ITERATIONS=1
+INPUT_SIZE=512
 for INPUT_SIZE in 512 1024 2048 4096 8192
 do
-	for ITERATION in {1..3..1}
+	for ITERATION in {1..10..1}
 	do
 		echo $"Running with INPUT_SIZE = ${INPUT_SIZE}"
 		echo "ITERATION #${ITERATION}"
@@ -41,15 +45,24 @@ do
         	#${BIN_ACC_PARALLEL} ${INPUT_SIZE} ${INPUT_SIZE} ${ITERATIONS} ${VERBOSE} &>> ${OUTPUT_DIR}/${EXEC}_parallel_${INPUT_SIZE}_${ITERATIONS}.txt
 		#sleep 1
 
-		#${BIN_ACC_MULTICORE} ${INPUT_SIZE} ${INPUT_SIZE} ${ITERATIONS} ${VERBOSE} &>> ${OUTPUT_DIR}/${EXEC}_multicore_${INPUT_SIZE}_${ITERATIONS}.txt
-		#sleep 1
+		${BIN_ACC_MULTICORE} ${INPUT_SIZE} ${INPUT_SIZE} 50 ${VERBOSE} &>> ${OUTPUT_DIR}/${EXEC}_acccpu_${INPUT_SIZE}_${ITERATIONS}_12.txt
+		sleep 1
 
-		${BIN_PAPI} ${INPUT_SIZE} ${INPUT_SIZE} ${ITERATIONS} ${GPU_PERCENT} ${GPU_BLOCK_X} ${GPU_BLOCK_Y} ${CPU_THREADS} ${VERBOSE} &>> ${OUTPUT_DIR}/${EXEC}_papi_${INPUT_SIZE}_${ITERATIONS}.txt
+		${BIN_PSKEL} ${INPUT_SIZE} ${INPUT_SIZE} 50 ${GPU_PERCENT} ${GPU_BLOCK_X} ${GPU_BLOCK_Y} 12 ${VERBOSE} &>> ${OUTPUT_DIR}/${EXEC}_pskelcpu_${INPUT_SIZE}_${ITERATIONS}_12.txt
+		sleep 1
+
+		${BIN_PSKEL} ${INPUT_SIZE} ${INPUT_SIZE} 50 ${GPU_PERCENT} ${GPU_BLOCK_X} ${GPU_BLOCK_Y} 24 ${VERBOSE} &>> ${OUTPUT_DIR}/${EXEC}_pskelcpu_${INPUT_SIZE}_${ITERATIONS}_24.txt
 		sleep 1
 		
-		${BIN_PAPI} ${INPUT_SIZE} ${INPUT_SIZE} 1 0 ${GPU_BLOCK_X} ${GPU_BLOCK_Y} ${CPU_THREADS} ${VERBOSE} &>> ${OUTPUT_DIR}/${EXEC}_papi_${INPUT_SIZE}_1.txt
+		${BIN_PAPI} ${INPUT_SIZE} ${INPUT_SIZE} ${ITERATIONS} ${GPU_PERCENT}  ${GPU_BLOCK_X} ${GPU_BLOCK_Y} ${CPU_THREADS} ${VERBOSE} &>> ${OUTPUT_DIR}/${EXEC}_pskelpapi_${INPUT_SIZE}_${ITERATIONS}_${CPU_THREADS}.txt
+		sleep 1
+		
+		#Running with 24 theads
+		${BIN_PAPI} ${INPUT_SIZE} ${INPUT_SIZE} ${ITERATIONS} ${GPU_PERCENT}  ${GPU_BLOCK_X} ${GPU_BLOCK_Y} 24 ${VERBOSE} &>> ${OUTPUT_DIR}/${EXEC}_pskelpapi_${INPUT_SIZE}_${ITERATIONS}_24.txt
 		sleep 1
 
+		${BIN_ACC_PAPI} ${INPUT_SIZE} ${INPUT_SIZE} ${ITERATIONS} ${VERBOSE} &>> ${OUTPUT_DIR}/${EXEC}_accpapi_${INPUT_SIZE}_${ITERATIONS}_${CPU_NUM_THREADS}.txt
+		sleep 1	
 	done
 done
 

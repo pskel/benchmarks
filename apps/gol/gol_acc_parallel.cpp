@@ -8,26 +8,29 @@
 #include <iostream>
 #include <cstdlib>
 #include <stdlib.h>
-
-#include "hr_time.h"
 #include <omp.h>
-//#include <openacc.h>
+#include <openacc.h>
+#include "hr_time.h"
+
+#ifdef PSKEL_PAPI
+#include "PSkelPAPI.h"
+using namespace PSkel;
+#endif
 
 using namespace std;
-
-void stencilKernel(int *input, int *output, int width, int height, int T_MAX){
+inline void stencilKernel(int* input, int* output, int width, int height, int T_MAX){
     #pragma acc data copyin(input[0:width*height]) copy(output[0:width*height])
     {
 	for(int t=0;t<T_MAX;t++){
-        #pragma acc parallel loop independent
-		for(int j=0;j<height;j++){
-            #pragma acc loop
-			for(int i=0;i<width;i++){
+        	#pragma acc parallel loop 
+		for(int j=1;j<height-1;j++){
+		#pragma acc loop 
+		for(int i=1;i<width-1;i++){
                 
-                //int neighbors = input[(j)*width + (i+1)] + input[(j)*width + (i-1)] +
-                //                input[(j+1)*width + (i)] + input[(j-1)*width + (i)] +
-                //                input[(j+1)*width + (i+1)] + input[(j-1)*width + (i-1)] +
-                //                input[(j+1)*width + (i-1)] + input[(j-1)*width + (i+1)];
+                int neighbors = input[(j)*width + (i+1)] + input[(j)*width + (i-1)] +
+                                input[(j+1)*width + (i)] + input[(j-1)*width + (i)] +
+                                input[(j+1)*width + (i+1)] + input[(j-1)*width + (i-1)] +
+                                input[(j+1)*width + (i-1)] + input[(j-1)*width + (i+1)];
                 
                 /*int neighbors = 0;
 				for(int y=-1;y<=1;y++){
@@ -38,7 +41,7 @@ void stencilKernel(int *input, int *output, int width, int height, int T_MAX){
 					}
 				}
                 */
-				int neighbors = 0;
+		/*		int neighbors = 0;
 				if ( (j == 0) && (i == 0) ) { //	Corner 1	
 					neighbors = input[(j)*width + (i+1)] + input[(j+1)*width + (i)] + input[(j+1)*width + (i+1)];
 								//input(i+1,j) + input(i,j+1) + input (i+1,j+1);
@@ -83,7 +86,8 @@ void stencilKernel(int *input, int *output, int width, int height, int T_MAX){
 								//input(i+1,j+1) + input(i,j-1)   + input(i,j+1) ;
 				}
 
-                
+                */
+		
                 output[j*width + i] = (neighbors == 3 || (input[j*width + i] == 1 && neighbors == 2))?1:0;
 				
                 /*if(neighbors == 3 || (input[j*width + i] == 1 && neighbors == 2)){
@@ -97,11 +101,11 @@ void stencilKernel(int *input, int *output, int width, int height, int T_MAX){
 		}
         
         //swap
-        if(t>1 && t<T_MAX - 1){
-			#pragma acc parallel loop independent
-			for(int j=0;j<height;j++){
+        if(T_MAX>1 && t<T_MAX - 1){
+			#pragma acc parallel loop 
+			for(int j=1;j<height-1;j++){
 				#pragma acc loop independent
-				for(int i=0;i<width;i++){
+				for(int i=1;i<width-1;i++){
 					input[j*width + i] = output[j*width + i];
 				}
 			}
@@ -114,7 +118,7 @@ int main(int argc, char **argv){
 	int width;
 	int height;
 	int T_MAX;
-    int verbose;
+    	int verbose;
 
 	int *inputGrid;
 	int *outputGrid;
@@ -128,12 +132,12 @@ int main(int argc, char **argv){
 	width = atoi (argv[1]);
 	height = atoi (argv[2]);
 	T_MAX = atoi (argv[3]);
-    verbose = atoi (argv[4]);
+    	verbose = atoi (argv[4]);
 
 	inputGrid = (int*) calloc(width*height,sizeof(int));
 	outputGrid = (int*) calloc(width*height,sizeof(int));
 
-	srand(123456789);
+	srand(1234);
 	//#pragma omp parallel for
 	for(int j=1;j<height-1;j++) {
 		for(int i=1;i<width-1;i++) {
@@ -141,14 +145,26 @@ int main(int argc, char **argv){
 		}
 	}
   
-    hr_timer_t timer;
+    	hr_timer_t timer;
 	hrt_start(&timer);
-	//#pragma pskel stencil dim2d(width, height) inout(inputGrid, outputGrid) iterations(T_MAX) device(cpu)
-	stencilKernel(inputGrid, outputGrid,width,height,T_MAX);
+	
+	#ifdef PSKEL_PAPI
+	PSkelPAPI::init(PSkelPAPI::CPU);
+	for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
+		PSkelPAPI::papi_start(PSkelPAPI::CPU,i);
+	#endif
+    //#pragma pskel stencil dim2d(width, height) inout(inputGrid, outputGrid) iterations(T_MAX) device(cpu)
+	
+    stencilKernel(inputGrid, outputGrid,width,height,T_MAX);
+	
+    #ifdef PSKEL_PAPI
+		PSkelPAPI::papi_stop(PSkelPAPI::CPU,i);
+	}
+	#endif
     
     
 	hrt_stop(&timer);
-	
+
 	if(verbose){		
 		//cout<<setprecision(6);
 		//cout<<fixed;
@@ -173,8 +189,13 @@ int main(int argc, char **argv){
 			cout<<endl;
 		}
 	}
-    
-    cout << "Exec_time\t" << hrt_elapsed_time(&timer) << endl;
+   	
+	#ifdef PSKEL_PAPI
+	PSkelPAPI::print_profile_values(PSkelPAPI::CPU);
+	PSkelPAPI::shutdown();
+	#endif
+	 
+    	cout << "Exec_time\t" << hrt_elapsed_time(&timer) << endl;
   
 	return 0;
 }

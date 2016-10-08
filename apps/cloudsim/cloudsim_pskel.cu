@@ -1,6 +1,7 @@
 #define PSKEL_OMP 1
 //#define PSKEL_TBB 1
 #define PSKEL_CUDA 1
+//#define CLOUDSIM_KERNEL
 
 #include <stdio.h>
 #include <omp.h>
@@ -23,8 +24,8 @@ using namespace PSkel;
 #define WIND_Y_BASE	12
 #define DISTURB		0.1f
 #define CELL_LENGTH	0.1f
-#define K           	0.0243f
-#define DELTAPO       	0.5f
+#define K           0.0243f
+#define DELTAPO     0.5f
 #define TAM_VETOR_FILENAME  200
 
 struct Cloud{	
@@ -44,84 +45,102 @@ struct Cloud{
 };
 
 namespace PSkel{	
-	__parallel__ void stencilKernel(Array2D<float> input,Array2D<float> output,Mask2D<float> mask,Cloud cloud,size_t i, size_t j){
-		int numNeighbor = 0;
-		float sum = 0.0f;
-		float inValue = input(i,j);
+__parallel__ void stencilKernel(Array2D<float> input,Array2D<float> output,Mask2D<float> mask,Cloud cloud,size_t i, size_t j){
+	int numNeighbor = 4;
+	float sum;
+	float inValue = input(i,j);
+           
+    float xwind = cloud.wind_x(i,j);
+    float ywind = cloud.wind_y(i,j);
+    int xfactor = (xwind>0)?1:-1;
+    int yfactor = (ywind>0)?1:-1;
+
+    sum =   (inValue - input(i-1,j) ) + (inValue - input(i,j-1) ) +
+            (inValue - input(i,j+1) ) + (inValue - input(i+1,j) );
+    //sum = 4 * inValue - ( input(i-1,j) + input(i+1,j) + input(i,j+1) + input(i,j-1) );
+     
+    float temperaturaNeighborX = input(i,(j+xfactor));
+    float temperaturaNeighborY = input((i+yfactor),j);
+    
+    float componenteVentoY = yfactor * ywind;
+    float componenteVentoX = xfactor * xwind;
+        
+    float temp_wind = (-componenteVentoX * ((inValue - temperaturaNeighborX)/CELL_LENGTH)) -
+                       ( componenteVentoY * ((inValue - temperaturaNeighborY)/CELL_LENGTH));
         	
-		//*
+		/*
 		float temp_wind = 0.0f;
 		int height=input.getHeight();
-        	int width=input.getWidth();
-        
-         	if ( (j == 0) && (i == 0) ) {
-                    sum = (inValue - input(i+1,j) ) +
-                          (inValue - input(i,j+1) );
-                    numNeighbor = 2;
-                }	//	Corner 2	
-                else if ((j == 0) && (i == width-1)) {
-                    sum = (inValue - input(i-1,j) ) +
-                          (inValue - input(i,j+1) );
-                    numNeighbor = 2;
-                }	//	Corner 3	
-                else if ((j == height-1) && (i == width-1)) {
-                    sum = (inValue - input(i-1,j) ) +
-                          (inValue - input(i,j-1) );
-                    numNeighbor = 2;
-                }	//	Corner 4	
-                else if ((j == height-1) && (i == 0)) {
-                    sum = (inValue - input(i,j-1) ) +
-                          (inValue - input(i+1,j) );
-                    numNeighbor = 2;
-                }	//	Edge 1	
-                else if (j == 0) {
-                    sum = (inValue - input(i-1,j) ) +
-                          (inValue - input(i+1,j) ) +
-                          (inValue - input(i,j+1) );
-                    numNeighbor = 3;
-                }	//	Edge 2	
-                else if (i == width-1) {
-                    sum = (inValue - input(i-1,j) ) +
-                          (inValue - input(i,j-1) ) +
-                          (inValue - input(i,j+1) );
-                    numNeighbor = 3;
-                }	//	Edge 3	
-                else if (j == height-1) {
-                    sum = (inValue - input(i-1,j) ) +
-                          (inValue - input(i,j-1) ) +
-                          (inValue - input(i+1,j) );
-                    numNeighbor = 3;
-                }	//	Edge 4	
-                else if (i == 0) {
-                    sum = (inValue - input(i,j-1) ) +
-                          (inValue - input(i,j+1) ) +
-                          (inValue - input(i+1,j) );
-                    numNeighbor = 3;
-                }	//	Inside the cloud  
-                else {
-                    sum = (inValue - input(i-1,j) ) +
-                          (inValue - input(i,j-1) ) +
-                          (inValue - input(i,j+1) ) +
-                          (inValue - input(i+1,j) );
-                    numNeighbor = 4;
-                    
-                    float xwind = cloud.wind_x(i,j);
-                    float ywind = cloud.wind_y(i,j);
-                    int xfactor = (xwind>0)?1:-1;
-                    int yfactor = (ywind>0)?1:-1;
+        int width=input.getWidth();
+        if ( (j == 0) && (i == 0) ) {
+            sum = (inValue - input(i+1,j) ) +
+                  (inValue - input(i,j+1) );
+            numNeighbor = 2;
+        }	//	Corner 2	
+        else if ((j == 0) && (i == width-1)) {
+            sum = (inValue - input(i-1,j) ) +
+                  (inValue - input(i,j+1) );
+            numNeighbor = 2;
+        }	//	Corner 3	
+        else if ((j == height-1) && (i == width-1)) {
+            sum = (inValue - input(i-1,j) ) +
+                  (inValue - input(i,j-1) );
+            numNeighbor = 2;
+        }	//	Corner 4	
+        else if ((j == height-1) && (i == 0)) {
+            sum = (inValue - input(i,j-1) ) +
+                  (inValue - input(i+1,j) );
+            numNeighbor = 2;
+        }	//	Edge 1	
+        else if (j == 0) {
+            sum = (inValue - input(i-1,j) ) +
+                  (inValue - input(i+1,j) ) +
+                  (inValue - input(i,j+1) );
+            numNeighbor = 3;
+        }	//	Edge 2	
+        else if (i == width-1) {
+            sum = (inValue - input(i-1,j) ) +
+                  (inValue - input(i,j-1) ) +
+                  (inValue - input(i,j+1) );
+            numNeighbor = 3;
+        }	//	Edge 3	
+        else if (j == height-1) {
+            sum = (inValue - input(i-1,j) ) +
+                  (inValue - input(i,j-1) ) +
+                  (inValue - input(i+1,j) );
+            numNeighbor = 3;
+        }	//	Edge 4	
+        else if (i == 0) {
+            sum = (inValue - input(i,j-1) ) +
+                  (inValue - input(i,j+1) ) +
+                  (inValue - input(i+1,j) );
+            numNeighbor = 3;
+        }	//	Inside the cloud  
+        else {
+            sum = (inValue - input(i-1,j) ) +
+                  (inValue - input(i,j-1) ) +
+                  (inValue - input(i,j+1) ) +
+                  (inValue - input(i+1,j) );
+            numNeighbor = 4;
+            
+            float xwind = cloud.wind_x(i,j);
+            float ywind = cloud.wind_y(i,j);
+            int xfactor = (xwind>0)?1:-1;
+            int yfactor = (ywind>0)?1:-1;
 
-                    float temperaturaNeighborX = input(i,(j+xfactor));
-                    float componenteVentoX = xfactor * xwind;
-                    float temperaturaNeighborY = input((i+yfactor),j);
-                    float componenteVentoY = yfactor * ywind;
-				
-                    temp_wind = (-componenteVentoX * ((inValue - temperaturaNeighborX)/CELL_LENGTH)) -
-                                ( componenteVentoY * ((inValue - temperaturaNeighborY)/CELL_LENGTH));
-                    
-                }
-				float temperatura_conducao = -K*(sum / numNeighbor) * cloud.deltaT;
-				float result = inValue + temperatura_conducao;
-				output(i,j) = result + temp_wind * cloud.deltaT;
+            float temperaturaNeighborX = input(i,(j+xfactor));
+            float componenteVentoX = xfactor * xwind;
+            float temperaturaNeighborY = input((i+yfactor),j);
+            float componenteVentoY = yfactor * ywind;
+        
+            temp_wind = (-componenteVentoX * ((inValue - temperaturaNeighborX)/CELL_LENGTH)) -
+                        ( componenteVentoY * ((inValue - temperaturaNeighborY)/CELL_LENGTH));
+            
+        }*/
+
+        float temperatura_conducao = -K*(sum * numNeighbor) * cloud.deltaT;
+        float result = inValue + temperatura_conducao;
+        output(i,j) = result + temp_wind * cloud.deltaT;
 
 		/*
         	for( int m = 0; m < mask.size ; m++ ){
@@ -202,14 +221,14 @@ float CalculateDewPoint(float temperature_Kelvin, float pressure_mmHg)
 }
 
 int main(int argc, char **argv){
-	int linha, coluna, i, j, numero_iteracoes, raio_nuvem, menu_option, GPUBlockSizeX, GPUBlockSizeY, numCPUThreads;
+	int linha, coluna, i, j, timeTileSize,numero_iteracoes, raio_nuvem, menu_option, GPUBlockSizeX, GPUBlockSizeY, numCPUThreads;
 	float temperaturaAtmosferica, pressaoAtmosferica, pontoOrvalho, limInfPO, limSupPO, deltaT, GPUTime;
 	//float alturaNuvem;
     //int write_step;
-	if (argc != 9){
+	if (argc != 10){
 		printf ("Wrong number of parameters.\n");
 		//printf ("Usage: cloudsim Numero_Iteraoes Linha Coluna Raio_Nuvem Temperatura_Atmosferica Altura_Nuvem Pressao_Atmosferica Delta_T GPUTIME GPUBLOCKS CPUTHREADS Menu_Option Write_Step\n");
-		printf ("Usage: cloudsim WIDTH HEIGHT ITERATIONS GPUTIME GPUBLOCK_X GPU_BLOCK_Y CPUTHREADS OUTPUT_WRITE_FLAG\n");
+		printf ("Usage: cloudsim WIDTH HEIGHT ITERATIONS TIME_TILE_SIZE GPUTIME GPUBLOCK_X GPU_BLOCK_Y CPUTHREADS OUTPUT_WRITE_FLAG\n");
 		exit (-1);
 	}
 	//20 -3 5.0 700.0 0.001 1.0 32 12 0 10
@@ -217,11 +236,12 @@ int main(int argc, char **argv){
 	coluna = atoi(argv[1]);
 	linha = atoi(argv[2]);
 	numero_iteracoes = atoi(argv[3]);
-	GPUTime = atof(argv[4]);
-	GPUBlockSizeX = atoi(argv[5]);
-    	GPUBlockSizeY = atoi(argv[6]);
-	numCPUThreads = atoi(argv[7]);
-	menu_option = atoi(argv[8]);
+	timeTileSize = atoi(argv[4]);
+	GPUTime = atof(argv[5]);
+	GPUBlockSizeX = atoi(argv[6]);
+	GPUBlockSizeY = atoi(argv[7]);
+	numCPUThreads = atoi(argv[8]);
+	menu_option = atoi(argv[9]);
 	
 	raio_nuvem = 20; 				//atoi(argv[4]);
 	temperaturaAtmosferica = -3.0f; 	//atof(argv[5]);
@@ -257,7 +277,7 @@ int main(int argc, char **argv){
 	Cloud cloud(linha,coluna);
 	cloud.deltaT = deltaT;
 	
-	omp_set_num_threads(numCPUThreads);
+	//omp_set_num_threads(numCPUThreads);
 
 	/* Inicialização da matriz de entrada com a temperatura ambiente */
 	//#pragma omp parallel for private (i,j)
@@ -268,6 +288,7 @@ int main(int argc, char **argv){
 		}
 	}	
 	/* Inicialização dos ventos Latitudinal(Wind_X) e Longitudinal(Wind_Y) */
+    	srand(1234);
 	for( i = 0; i < linha; i++ ){
 		for(j = 0; j < coluna; j++ ){			
 			cloud.wind_x(i,j) = (WIND_X_BASE - DISTURB) + (float)rand()/RAND_MAX * 2 * DISTURB;
@@ -284,8 +305,8 @@ int main(int argc, char **argv){
 	}
 					
 	/* Inicialização de uma nuvem no centro da matriz de entrada */
-	int y, x0 = linha/2, y0 = coluna/2;
 	srand(1);
+	int y, x0 = linha/2, y0 = coluna/2;
 	for(i = x0 - raio_nuvem; i < x0 + raio_nuvem; i++){
 		 // Equação da circunferencia: (x0 - x)² + (y0 - y)² = r²
 		y = (int)((floor(sqrt(pow((float)raio_nuvem, 2.0) - pow(((float)x0 - (float)i), 2)) - y0) * -1));
@@ -295,36 +316,64 @@ int main(int argc, char **argv){
 		}
 	}
 	
-	Stencil2D<Array2D<float>, Mask2D<float>, Cloud> stencilCloud(inputGrid, outputGrid, mask, cloud);
-	
-	hr_timer_t timer;
+    #ifdef PSKEL_PAPI
+		if(GPUTime < 1.0)
+			PSkelPAPI::init(PSkelPAPI::CPU);
+	#endif
+    
+    	hr_timer_t timer;
 	hrt_start(&timer);
+    
+	Stencil2D<Array2D<float>, Mask2D<float>, Cloud> stencilCloud(inputGrid, outputGrid, mask, cloud);
 	
 	if(GPUTime == 0.0){
 		//cout<<"Running Iterative CPU"<<endl;
-		if(numCPUThreads == 1)
-			stencilCloud.runSequential();
-		else
-			stencilCloud.runIterativeCPU(numero_iteracoes, numCPUThreads);
+		//if(numCPUThreads == 1)
+		//	stencilCloud.runSequential();
+		//else
+		//	stencilCloud.runIterativeCPU(numero_iteracoes, numCPUThreads);
+            
+        #ifdef PSKEL_PAPI
+            //for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
+	    unsigned int i=5;
+			PSkelPAPI::papi_start(PSkelPAPI::CPU,i);
+		#endif
+			stencilCloud.runIterativeCPU(numero_iteracoes, numCPUThreads);	
+		#ifdef PSKEL_PAPI
+			PSkelPAPI::papi_stop(PSkelPAPI::CPU,i);
+            //}
+		#endif
 	}
 	else if(GPUTime == 1.0){
 		//Forcing copy
 		//cloud.wind_x.deviceAlloc();
 		//cloud.wind_x.copyToDevice();
 		//cloud.wind_y.deviceAlloc();
-		//cloud.wind_y.copyToDevice();	
-		stencilCloud.runIterativeGPU(numero_iteracoes, GPUBlockSizeX, GPUBlockSizeY);
+		//cloud.wind_y.copyToDevice();
+        #ifdef PSKEL_SHARED	
+            stencilCloud.runIterativeGPU(numero_iteracoes, timeTileSize,GPUBlockSizeX, GPUBlockSizeY);
+        #else
+            stencilCloud.runIterativeGPU(numero_iteracoes, GPUBlockSizeX, GPUBlockSizeY);
+        #endif
 	}
 	else{
-		stencilCloud.runIterativePartition(numero_iteracoes, GPUTime, numCPUThreads,GPUBlockSizeX, GPUBlockSizeY);
+		//stencilCloud.runIterativePartition(numero_iteracoes, GPUTime, numCPUThreads,GPUBlockSizeX, GPUBlockSizeY);
 	}
 	
 	hrt_stop(&timer);
-	cout << "Exec_time\t" << hrt_elapsed_time(&timer) << endl;
-	
-	if(menu_option == 1){		
-		cout.precision(12);
+    
+	if(menu_option == 1){
+		cout.precision(6);
+		cout<<std::fixed;
 		cout<<"INPUT"<<endl;
+		for( i = 0; i < linha; i++ ){
+                	for(j = 0; j < coluna; j++ ){
+				cout<<inputGrid(i,j)<<"\t";
+			}
+			cout<<endl;
+		}
+	
+	/*
 		for(int i=10; i<coluna;i+=10){
 			cout<<"("<<i<<","<<i<<") = "<<inputGrid(i,i)<<"\t\t("<<coluna-i<<","<<linha-i<<") = "<<inputGrid(coluna-i,linha-i)<<endl;
 		}
@@ -335,7 +384,23 @@ int main(int argc, char **argv){
 			cout<<"("<<i<<","<<i<<") = "<<outputGrid(i,i)<<"\t\t("<<coluna-i<<","<<linha-i<<") = "<<outputGrid(coluna-i,linha-i)<<endl;
 		}
 		cout<<endl;
+		*/
+		cout<<"OUTPUT"<<endl;
+		for(int h = 0; h < linha; ++h){		
+			for(int w = 0; w < coluna; ++w){
+				cout<<outputGrid(h,w)<<"\t";
+			}
+			cout<<endl;
+		}
 	}
+	#ifdef PSKEL_PAPI
+		if(GPUTime < 1.0){
+			PSkelPAPI::print_profile_values(PSkelPAPI::CPU);
+			PSkelPAPI::shutdown();
+		}
+	#endif
+	cout << "Exec_time\t" << hrt_elapsed_time(&timer) << endl;
+	
 	return 0;
 }
 

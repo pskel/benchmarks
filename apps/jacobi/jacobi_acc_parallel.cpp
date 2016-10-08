@@ -10,79 +10,89 @@
 #include <stdlib.h>
 #include <omp.h>
 #include <openacc.h>
-
 #include "hr_time.h"
 
-using namespace std;
+#ifdef PSKEL_PAPI
+#include "PSkelPAPI.h"
+using namespace PSkel;
+#endif
 
-inline void stencilKernel(float* __restrict__ input, float* __restrict__ output, int width, int height, int T_MAX,float alpha, float beta){
+using namespace std;
+inline void stencilKernel(float* input, float* output, int width, int height, int T_MAX,float alpha, float beta){
 	#pragma acc data copyin(input[0:width*height]) copyout(output[0:width*height])
 	{
 	for (int t = 0; t < T_MAX; t++){
-
-	#pragma acc parallel loop  
-	for (int y = 1; y < height - 1; y++){
-		for (int x = 0; x < width; x++){
-				/*	Corner 1	*/
-                if ( (y == 0) && (x == 0) ) {
+       #pragma acc parallel loop  
+		for (int y = 1; y < height-1; y++){
+			#pragma acc loop independent
+			for (int x = 1; x < width-1; x++){
+				output[y*width+x] = 0.25f * (input[(y+1)*width + x] +
+                                            input[(y-1)*width + x] +
+											input[y*width + (x+1)] +
+											input[y*width + (x-1)] - beta);
+                                                
+                /*
+                //	Corner 1
+               if ( (y == 0) && (x == 0) ) {
                     output[y*width+x] = 0.25f * (input[(y+1)*width + x] + 
 												 input[y*width + (x+1)]
 												 - beta);
-                }	/*	Corner 2	*/
+                }	//	Corner 2	//
                 else if ((y == 0) && (x == width-1)) {
 					output[y*width+x] = 0.25f * (input[(y+1)*width + x] +
 												input[(y-1)*width + x]
 												- beta);
-                }	/*	Corner 3	*/
+                }	//	Corner 3	
                 else if ((y == height-1) && (x == width-1)) {
                     output[y*width+x] = 0.25f * (input[(y-1)*width + x] +
 												input[y*width + (x-1)]
 												- beta);
-                }	/*	Corner 4	*/
+                }	//	Corner 4	
                 else if ((y == height-1) && (x == 0)) {
                     output[y*width+x] = 0.25f * (input[(y)*width + (x+1)] +
 												input[(y-1)*width + x]
 												- beta);
-                }	/*	Edge 1	*/
+                }	//	Edge 1	
                 else if (y == 0) {
                     output[y*width+x] = 0.25f * (input[(y)*width + (x-1)] +
 												 input[(y)*width +(x+1)] +
 												 input[(y+1)*width +(x)]
 												- beta);
-                }	/*	Edge 2	*/
+                }	//	Edge 2	
                 else if (x == width-1) {
                     output[y*width+x] = 0.25f * (input[(y)*width + (x-1)] +
 												 input[(y-1)*width +(x)] +
 												 input[(y+1)*width +(x)]
 												- beta);
-                }	/*	Edge 3	*/
+                }	//	Edge 3	
                 else if (y == height-1) {
                     output[y*width+x] = 0.25f * (input[(y)*width + (x-1)] +
 												 input[(y)*width +(x+1)] +
 												 input[(y-1)*width +(x)]
 												- beta);
-                }	/*	Edge 4	*/
+                }	//	Edge 4	
                 else if (x == 0) {
                     output[y*width+x] = 0.25f * (input[(y-1)*width + (x)] +
 												 input[(y)*width +(x+1)] +
 												 input[(y+1)*width +(x)]
 												- beta);
-                }	/*	Inside the grid  */
+                }	//	inside the grid  
                 else {
 					output[y*width+x] = 0.25f * (input[(y+1)*width + x] +
 												input[(y-1)*width + x] +
 												input[y*width + (x+1)] +
 												input[y*width + (x-1)] - beta);
-		}
-		}
-		} 
-		
+			}
+                */
+			}
+        }
 		//swap data
-		if(t>1 & t<T_MAX - 1){	 
-			#pragma acc parallel loop independent 
-			for (int y = 1; y < height - 1; y++){
-				for (int x = 1; x < width - 1; x++){
-					input[y*width+x] = output[y*width+x];
+		if(t>1 & t<T_MAX - 1){
+	    #pragma acc parallel loop 
+            for (int y = 1; y < height-1; y++){
+                #pragma acc loop independent
+		for (int x = 1; x < width-1; x++){
+				input[y*width+x] = output[y*width+x];
 				}}}
 	}//end iterations
 	}//end pragma enter data
@@ -109,8 +119,8 @@ int main(int argc, char **argv){
 	T_MAX = atoi (argv[3]);
 	verbose = atoi (argv[4]);
 
-	alpha = 0.25/(float) width;
-    	beta = 4.0f/(float) (height*height);
+	alpha = 0.25/(float) (width);
+    beta = 4.0f/(float) (height*height);
 
 	inputGrid = (float*) malloc(width*height*sizeof(float));
 	outputGrid = (float*) malloc(width*height*sizeof(float));
@@ -125,10 +135,26 @@ int main(int argc, char **argv){
   
 	hr_timer_t timer;
 	hrt_start(&timer);
-	//#pragma pskel stencil dim2d(width,height) inout(inputGrid, outputGrid) iterations(T_MAX) device(cpu)
-	stencilKernel(inputGrid, outputGrid,width,height,T_MAX,alpha,beta);
 	
+	#ifdef PSKEL_PAPI
+	PSkelPAPI::init(PSkelPAPI::CPU);
+	for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
+		PSkelPAPI::papi_start(PSkelPAPI::CPU,i);
+	#endif
+    
+    //#pragma pskel stencil dim2d(width,height) inout(inputGrid, outputGrid) iterations(T_MAX) device(cpu)
+    stencilKernel(inputGrid, outputGrid,width,height,T_MAX,alpha,beta);
+	
+    #ifdef PSKEL_PAPI
+		PSkelPAPI::papi_stop(PSkelPAPI::CPU,i);
+	}
+	#endif
 	hrt_stop(&timer);
+    
+    #ifdef PSKEL_PAPI
+	PSkelPAPI::print_profile_values(PSkelPAPI::CPU);
+	PSkelPAPI::shutdown();
+	#endif
 	
 	cout << "Exec_time\t" << hrt_elapsed_time(&timer) << endl;
 	

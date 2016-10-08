@@ -4,10 +4,11 @@ ACC		= /opt/pgi/linux86-64/2016/bin/pgc++
 PSKEL_SRC	= python ../pskelccv2.py 
 OPTIMUS         = optirun #remover este valor se não estiver em um sistema OPTIMUS (notebook)
 CUDA_LIB_PATH   = /usr/local/cuda-5.5/lib64
-CUDAFLAGS       = -O3 -arch=sm_21 -m64 -lineinfo -Xcompiler -ftree-vectorize -Xcompiler -march=native -Xcompiler -mtune=native -Xcompiler -O3 
-CUDAFLAGS_T     = -O3 -arch=sm_35 -m64 -lineinfo -Xcompiler -ftree-vectorize -Xcompiler -march=native -Xcompiler -mtune=native -Xcompiler -O3 
+CUDAFLAGS   = -O3 ${GENCODE} -m64 -lineinfo -Xcompiler -ftree-vectorize -Xcompiler -march=native -Xcompiler -mtune=native -Xcompiler -O3 
+CUDAFLAGS_T = -O3 ${GENCODE} -m64 -lineinfo -Xcompiler -ftree-vectorize -Xcompiler -march=native -Xcompiler -mtune=native -Xcompiler -O3
+PTX		= -Xptxas -v --keep --keep-dir nvcc 
 ACCFLAGS	= -O3 -ta=tesla -tp=sandybridge -Minfo=accel
-ACCFLAGS_T	= -O3 -ta=tesla,managed -tp=sandybridge -Minfo=accel
+ACCFLAGS_T	= -O3 -ta=tesla -tp=sandybridge -Minfo=accel
 ACCFLAGS_M	= -O3 -ta=multicore -tp=sandybridge -Minfo=accel
 CXXFLAGS	= -O3 -w
 GENCODE		= -gencode arch=compute_20,code=sm_20 -gencode arch=compute_30,code=sm_30 -gencode arch=compute_35,code=\"sm_35,compute_35\"
@@ -32,6 +33,9 @@ serial: ${SRC_NAME}_serial.cpp
 acc_parallel: ${SRC_NAME}_acc_parallel.cpp
 	${ACC} ${ACCFLAGS_T} -o  ${BIN_DIR}${SRC_NAME}_acc_parallel ${SRC_NAME}_acc_parallel.cpp ${ACC_LIBS}
 	
+acc_papi: ${SRC_NAME}_acc_parallel.cpp
+	${ACC} ${ACCFLAGS_M} -o  ${BIN_DIR}${SRC_NAME}_acc_papi ${SRC_NAME}_acc_parallel.cpp ${ACC_LIBS} -I${PAPI_SRC_PATH} -L${PAPI_LIB_PATH} -lpapi -DPSKEL_PAPI -DTESLA
+
 acc_multicore: ${SRC_NAME}_acc_kernels.cpp
 	${ACC} ${ACCFLAGS_M} -o  ${BIN_DIR}${SRC_NAME}_acc_multicore ${SRC_NAME}_acc_parallel.cpp ${ACC_LIBS}
 	
@@ -39,7 +43,13 @@ acc_kernels: ${SRC_NAME}_acc_kernels.cpp
 	${ACC} ${ACCFLAGS} -o  ${BIN_DIR}${SRC_NAME}_acc_kernels ${SRC_NAME}_acc_kernels.cpp ${ACC_LIBS}
 
 pskel: ${SRC_NAME}_pskel.cu
-	${CUDAC} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel ${SRC_NAME}_pskel.cu ${LIBS}
+	${CUDAC} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel ${SRC_NAME}_pskel.cu ${LIBS} -Xptxas -v --keep --keep-dir nvcc
+
+pskel_shared: ${SRC_NAME}_pskel.cu
+	${CUDAC} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_shared ${SRC_NAME}_pskel.cu ${LIBS} -Xptxas -v --keep --keep-dir nvcc -DPSKEL_SHARED
+	
+pskel_shared_debug: ${SRC_NAME}_pskel.cu
+	${CUDAC} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_shared ${SRC_NAME}_pskel.cu ${LIBS} -Xptxas -v --keep --keep-dir nvcc -DPSKEL_SHARED -DPSKEL_DEBUG
 
 pskel_managed: ${SRC_NAME}_pskel.cu
 	${CUDAC} ${CUDAFLAGS_T} -o ${BIN_DIR}${SRC_NAME}_pskel ${SRC_NAME}_pskel.cu ${LIBS}
@@ -53,6 +63,12 @@ papi: ${SRC_NAME}_pskel.cu
 	
 papi_debug:${SRC_NAME}_pskel.cu
 	${CUDAC} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_PAPI -DPSKEL_PAPI_DEBUG
+
+papi_tesla: ${SRC_NAME}_pskel.cu
+	${CUDAC} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi ${SRC_NAME}_pskel.cu ${LIBS} -I${PAPI_SRC_PATH} -L${PAPI_LIB_PATH} -lpapi -DPSKEL_PAPI -DTESLA
+	
+papi_debug_tesla: ${SRC_NAME}_pskel.cu
+	${CUDAC} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi ${SRC_NAME}_pskel.cu ${LIBS} -I${PAPI_SRC_PATH} -L${PAPI_LIB_PATH} -lpapi -DPSKEL_PAPI -DPSKEL_PAPI_DEBUG -DTESLA	
 
 papi_quadro: ${SRC_NAME}.cu
 	${CUDAC} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME} ${SRC_NAME}.cu ${LIBS} -DPSKEL_PAPI -DQUADRO

@@ -11,10 +11,14 @@
 #include <sys/stat.h>
 #include <algorithm>
 #include <string.h>
-
 #include <omp.h>
 #include <openacc.h>
 #include "hr_time.h"
+
+#ifdef PSKEL_PAPI
+#include "PSkelPAPI.h"
+using namespace PSkel;
+#endif
 
 using namespace std;
 
@@ -26,64 +30,80 @@ using namespace std;
 #define DELTAPO       	0.5f
 #define TAM_VETOR_FILENAME  200
 
-void stencilKernel(float* __restrict__ input,float* __restrict__ output, int width, int height, int T_MAX,float* __restrict__ wind_x,float* __restrict__ wind_y,float deltaT){
-	#pragma acc data copyin(input[0:width*height],wind_x[0:width*height],wind_y[0:width*height]) copyout(output[0:width*height])
-    	{
+void stencilKernel(float* input,float* output, int width, int height, int T_MAX,float* wind_x,float* wind_y,float deltaT){
+    #pragma acc data copyin(input[0:width*height],wind_x[0:width*height],wind_y[0:width*height]) copyout(output[0:width*height])
+    {
 	for(int t=0;t<T_MAX;t++){
-		#pragma acc parallel loop
-		for(int j=0;j<height;j++){
-			#pragma acc loop
-			for(int i=0;i<width;i++){
-				int numNeighbor = 0;
-				float sum = 0.0f;
+		#pragma acc parallel loop 
+		for(int j=1;j<height-1;j++){
+			#pragma acc loop independent
+			for(int i=1;i<width-1;i++){
+				int numNeighbor = 0.25f;
+				//float sum = 0.0f;
 				float inValue = input[j*width+i];
-                float temp_wind = 0.0f;
+                //float temp_wind = 0.0f;
 				
-                /*	Corner 1	*/
+				float sum = (inValue - input[(j-1)*width+i]) + (inValue - input[j*width+(i-1)]) +
+                      			(inValue - input[j*width+(i+1)]) + (inValue - input[(j+1)*width+i]);
+                    
+				float xwind = wind_x[j*width+i];
+				float ywind = wind_y[j*width+i];
+				int xfactor = (xwind>0)?1:-1;
+				int yfactor = (ywind>0)?1:-1;
+
+				float temperaturaNeighborX = input[(j+xfactor) * width + i];
+				float componenteVentoX = xfactor * xwind;
+				float temperaturaNeighborY = input[j*width + (i+yfactor)];
+				float componenteVentoY = yfactor * ywind;
+			
+				float temp_wind = (-componenteVentoX * ((inValue - temperaturaNeighborX)*10.0f)) -
+							( componenteVentoY * ((inValue - temperaturaNeighborY)*10.0f));
+				
+                /*	Corner 1	
                 if ( (j == 0) && (i == 0) ) {
                     sum = (inValue - input[j*width+(i+1)]) +
                           (inValue - input[(j+1)*width+i]);
                     numNeighbor = 2;
-                }	/*	Corner 2	*/
+                }	//	Corner 2	
                 else if ((j == 0) && (i == width-1)) {
                     sum = (inValue - input[j*width+(i-1)]) +
                           (inValue - input[(j+1)*width+i]);
                     numNeighbor = 2;
-                }	/*	Corner 3	*/
+                }	//	Corner 3	
                 else if ((j == height-1) && (i == width-1)) {
                     sum = (inValue - input[j*width+(i-1)]) +
                           (inValue - input[(j-1)*width+i]);
                     numNeighbor = 2;
-                }	/*	Corner 4	*/
+                }	//	Corner 4	
                 else if ((j == height-1) && (i == 0)) {
                     sum = (inValue - input[j*width+(i+1)]) +
                           (inValue - input[(j-1)*width+i]);
                     numNeighbor = 2;
-                }	/*	Edge 1	*/
+                }	//	Edge 1	
                 else if (j == 0) {
                     sum = (inValue - input[j*width+(i-1)]) +
                           (inValue - input[j*width+(i+1)]) +
                           (inValue - input[(j+1)*width+i]);
                     numNeighbor = 3;
-                }	/*	Edge 2	*/
+                }	//	Edge 2	
                 else if (i == width-1) {
                     sum = (inValue - input[j*width+(i-1)]) +
                           (inValue - input[(j-1)*width+i]) +
                           (inValue - input[(j+1)*width+i]);
                     numNeighbor = 3;
-                }	/*	Edge 3	*/
+                }	//	Edge 3	
                 else if (j == height-1) {
                     sum = (inValue - input[j*width+(i-1)]) +
                           (inValue - input[j*width+(i+1)]) +
                           (inValue - input[(j-1)*width+i]);
                     numNeighbor = 3;
-                }	/*	Edge 4	*/
+                }	//	Edge 4	
                 else if (i == 0) {
                     sum = (inValue - input[(j-1)*width+i]) +
                           (inValue - input[j*width+(i+1)]) +
                           (inValue - input[(j+1)*width+i]);
                     numNeighbor = 3;
-                }	/*	Inside the cloud  */
+                }	//	Inside the cloud  
                 else {
                     sum = (inValue - input[(j-1)*width+i]) +
                           (inValue - input[j*width+(i-1)]) +
@@ -105,7 +125,8 @@ void stencilKernel(float* __restrict__ input,float* __restrict__ output, int wid
                                 ( componenteVentoY * ((inValue - temperaturaNeighborY)/CELL_LENGTH));
                     
                 }
-				float temperatura_conducao = -K*(sum / numNeighbor) * deltaT;
+                */
+				float temperatura_conducao = -K*(sum * numNeighbor) * deltaT;
 				float result = inValue + temperatura_conducao;
 				output[j*width+i] = result + temp_wind * deltaT;
 			}
@@ -217,7 +238,7 @@ int main(int argc, char **argv){
 	//omp_set_num_threads(numCPUThreads);
 
 	/* Inicialização da matriz de entrada com a temperatura ambiente */
-	#pragma omp parallel for private (i,j)   	
+	//#pragma omp parallel for private (i,j)   	
 	for (i = 0; i < linha; i++){		
 		for (j = 0; j < coluna; j++){
 			inputGrid[i*coluna+j] = temperaturaAtmosferica;
@@ -227,6 +248,7 @@ int main(int argc, char **argv){
 		
 	/* Inicialização dos ventos Latitudinal(Wind_X) e Longitudinal(Wind_Y) */
     	//cout<<"Initializing wind"<<endl;
+    srand(1234);
 	for( i = 0; i < linha; i++ ){
 		for(j = 0; j < coluna; j++ ){			
 			wind_x[i*coluna+j] = (WIND_X_BASE - DISTURB) + (float)rand()/RAND_MAX * 2 * DISTURB;
@@ -237,9 +259,8 @@ int main(int argc, char **argv){
 	/* Inicialização de uma nuvem no centro da matriz de entrada */
     	//cout<<"Generating initial cloud in center of inputGrid"<<endl;
 	int y, x0 = linha/2, y0 = coluna/2;
-	srand(1);
 	for(i = x0 - raio_nuvem; i < x0 + raio_nuvem; i++){
-		 // Equação da circunferencia: (x0 - x)² + (y0 - y)² = r²
+		/* Equação da circunferencia: (x0 - x)² + (y0 - y)² = r² */
 		y = (int)((floor(sqrt(pow((float)raio_nuvem, 2.0) - pow(((float)x0 - (float)i), 2)) - y0) * -1));
 		for(int j = y0 + (y0 - y); j >= y; j--){
 			float value = limInfPO + (float)rand()/RAND_MAX * (limSupPO - limInfPO);
@@ -248,14 +269,32 @@ int main(int argc, char **argv){
 		}
 	}
 	
-    	//cout<<"Starting simulation..."<<endl;
+	//cout<<"Starting simulation..."<<endl;
+    
 	hr_timer_t timer;
 	hrt_start(&timer);
+	
+	#ifdef PSKEL_PAPI
+	PSkelPAPI::init(PSkelPAPI::CPU);
+	for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
+		PSkelPAPI::papi_start(PSkelPAPI::CPU,i);
+	#endif
 	
 	//#pragma pskel stencil dim2d(coluna,linha) inout(inputGrid, outputGrid) iterations(T_MAX) device(cpu)
 	stencilKernel(inputGrid, outputGrid, coluna, linha, T_MAX, wind_x, wind_y, deltaT);
 	
+	#ifdef PSKEL_PAPI
+		PSkelPAPI::papi_stop(PSkelPAPI::CPU,i);
+	}
+	#endif
+	
 	hrt_stop(&timer);
+	
+	#ifdef PSKEL_PAPI
+	PSkelPAPI::print_profile_values(PSkelPAPI::CPU);
+	PSkelPAPI::shutdown();
+	#endif
+	
 	cout << "Exec_time\t" << hrt_elapsed_time(&timer) << endl;
 	
 	if(menu_option == 1){		
