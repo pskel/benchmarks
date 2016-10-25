@@ -1,6 +1,6 @@
-#define PSKEL_OMP 1
+#define PSKEL_OMP 
 //#define PSKEL_TBB 1
-#define PSKEL_CUDA 1
+#define PSKEL_CUDA 
 //#define CLOUDSIM_KERNEL
 
 #include <stdio.h>
@@ -45,28 +45,29 @@ struct Cloud{
 };
 
 namespace PSkel{	
-__parallel__ void stencilKernel(Array2D<float> input,Array2D<float> output,Mask2D<float> mask,Cloud cloud,size_t i, size_t j){
-	int numNeighbor = 4;
+__parallel__ void stencilKernel(Array2D<float> input,Array2D<float> output,Mask2D<bool> mask,Cloud cloud,size_t i, size_t j){
+	int numNeighbor = 0.25f;
 	float sum;
-	float inValue = input(i,j);
-           
-    float xwind = cloud.wind_x(i,j);
-    float ywind = cloud.wind_y(i,j);
-    int xfactor = (xwind>0)?1:-1;
-    int yfactor = (ywind>0)?1:-1;
-
-    sum =   (inValue - input(i-1,j) ) + (inValue - input(i,j-1) ) +
-            (inValue - input(i,j+1) ) + (inValue - input(i+1,j) );
-    //sum = 4 * inValue - ( input(i-1,j) + input(i+1,j) + input(i,j+1) + input(i,j-1) );
-     
-    float temperaturaNeighborX = input(i,(j+xfactor));
-    float temperaturaNeighborY = input((i+yfactor),j);
+   
+    	float xwind = cloud.wind_x(i,j);
+   	int xfactor = (xwind>0)?1:-1;
+     	float componenteVentoX = xfactor * xwind;
     
-    float componenteVentoY = yfactor * ywind;
-    float componenteVentoX = xfactor * xwind;
+    	float ywind = cloud.wind_y(i,j);
+   	int yfactor = (ywind>0)?1:-1;
+    	float componenteVentoY = yfactor * ywind;
+ 
+	float inValue = input(i,j);
         
-    float temp_wind = (-componenteVentoX * ((inValue - temperaturaNeighborX)/CELL_LENGTH)) -
-                       ( componenteVentoY * ((inValue - temperaturaNeighborY)/CELL_LENGTH));
+    	//sum =   (inValue - input(i-1,j) ) + (inValue - input(i,j-1) ) + (inValue - input(i,j+1) ) + (inValue - input(i+1,j) );
+    	sum = 4 * inValue - ( input(i,j-1) + input(i-1,j) + input(i+1,j) + input(i,j+1) );
+     
+    	float temperaturaNeighborX = input(i,(j+xfactor));
+    	float temperaturaNeighborY = input((i+yfactor),j);
+    
+      
+    	float temp_wind = (-componenteVentoX * ((inValue - temperaturaNeighborX)*10.0f)) -
+                          ( componenteVentoY * ((inValue - temperaturaNeighborY)*10.0f));
         	
 		/*
 		float temp_wind = 0.0f;
@@ -258,7 +259,7 @@ int main(int argc, char **argv){
 	limSupPO = pontoOrvalho + DELTAPO;
 	//char maindir[30];
 	//char dirname[TAM_VETOR_FILENAME];
-	//char dirMatrix_temp[TAM_VETOR_FILENAME];
+	//chr dirMatrix_temp[TAM_VETOR_FILENAME];
 	//char dirMatrix_stat[TAM_VETOR_FILENAME];
 	//char dirMatrix_windX[TAM_VETOR_FILENAME];
 	//char dirMatrix_windY[TAM_VETOR_FILENAME];
@@ -267,7 +268,7 @@ int main(int argc, char **argv){
 		
 	Array2D<float> inputGrid(coluna, linha);
 	Array2D<float> outputGrid(coluna, linha);
-	Mask2D<float> mask(4);
+	Mask2D<bool> mask(4);
 	
 	mask.set(0,0,1);
 	mask.set(1,1,0);
@@ -324,7 +325,7 @@ int main(int argc, char **argv){
     	hr_timer_t timer;
 	hrt_start(&timer);
     
-	Stencil2D<Array2D<float>, Mask2D<float>, Cloud> stencilCloud(inputGrid, outputGrid, mask, cloud);
+	Stencil2D<Array2D<float>, Mask2D<bool>, Cloud> stencilCloud(inputGrid, outputGrid, mask, cloud);
 	
 	if(GPUTime == 0.0){
 		//cout<<"Running Iterative CPU"<<endl;
@@ -335,6 +336,7 @@ int main(int argc, char **argv){
             
         #ifdef PSKEL_PAPI
             //for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
+
 	    unsigned int i=5;
 			PSkelPAPI::papi_start(PSkelPAPI::CPU,i);
 		#endif
@@ -357,7 +359,7 @@ int main(int argc, char **argv){
         #endif
 	}
 	else{
-		//stencilCloud.runIterativePartition(numero_iteracoes, GPUTime, numCPUThreads,GPUBlockSizeX, GPUBlockSizeY);
+		stencilCloud.runIterativePartition(numero_iteracoes, GPUTime, numCPUThreads,GPUBlockSizeX, GPUBlockSizeY);
 	}
 	
 	hrt_stop(&timer);
