@@ -9,9 +9,9 @@
 #include <fstream>
 
 //#define PSKEL_SHARED_MASK
-#define PSKEL_TBB
+#define PSKEL_OMP
 #define PSKEL_CUDA
-//#define GOL_KERNEL
+#define GOL_KERNEL
 //#define PSKEL_PAPI
 //#define PSKEL_PAPI_DEBUG
 
@@ -27,9 +27,22 @@ namespace PSkel{
 	
 __parallel__ void stencilKernel(Array2D<bool> input, Array2D<bool> output,
                   Mask2D<bool> mask, bool args, size_t i, size_t j){
-    int neighbors =  input(i-1,j-1) + input(i-1,j) + input(i-1,j+1)  +
+    	int neighbors =  input(i-1,j-1) + input(i-1,j) + input(i-1,j+1)  +
                      input(i+1,j-1) + input(i+1,j) + input(i+1,j+1)  + 
                      input(i,j-1)   + input(i,j+1) ; 
+    
+	/*
+	int NW=input(i-1,j-1);
+	int N = input(i,j-1);
+	int NE=input(i+1,j-1);
+        int W = input(i-1,j);
+        int E = input(i+1,j); 
+	int SW=input(i-1,j+1);
+       	int S = input(i,j+1);
+	int SE=input(i+1,j+1);
+
+	int neighbors = NW+N+NE+W+E+SW+S+SE;
+	*/
     //printf("%d,%d\n",i,j);
     //int neighbors = mask.get(0,input,i,j) + mask.get(1,input,i,j) + mask.get(2,input,i,j) +
 
@@ -77,7 +90,7 @@ __parallel__ void stencilKernel(Array2D<bool> input, Array2D<bool> output,
                      input(i,j-1)   + input(i,j+1) ;
     }
     */ 
-    output(i,j) = (neighbors == 3 || (input(i,j) == 1 && neighbors == 2))?1:0;
+	output(i,j) = ((neighbors == 3) || (input(i,j) && neighbors == 2))?1:0;
         
     }
 }
@@ -115,7 +128,7 @@ int main(int argc, char **argv){
     srand(123456789);
     for(size_t h = 0; h < height; h++){		
        	for(size_t w = 0; w < width; w++){
-      		inputGrid(h,w) = (bool) (rand()%2);            
+      		inputGrid(h,w) = (rand()%2);            
             //outputGrid(i,j) =  inputGrid(i,j);
 		}
 	}	
@@ -167,7 +180,7 @@ int main(int argc, char **argv){
 
 	}
 	else{
-		//stencil.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSizeX, GPUBlockSizeY);
+		stencil.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSizeX, GPUBlockSizeY);
 		/*
         #ifdef PSKEL_PAPI
 			for(unsigned bool i=0;i<NUM_GROUPS_CPU;i++){
