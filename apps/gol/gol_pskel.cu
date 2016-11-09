@@ -9,11 +9,25 @@
 #include <fstream>
 
 //#define PSKEL_SHARED_MASK
-#define PSKEL_OMP
 #define PSKEL_CUDA
 //#define GOL_KERNEL
 //#define PSKEL_PAPI
 //#define PSKEL_PAPI_DEBUG
+#ifndef PSKEL_OMP
+        #ifndef PSKEL_TBB
+                #define PSKEL_OMP
+                #undef PSKEL_TBB
+        #endif
+#else
+#ifndef PSKEL_TBB
+        #ifndef PSKEL_OMP
+                #define PSKEL_TBB
+                #undef PSKEL_OMP
+        #endif
+#endif
+#endif
+
+
 
 #include "PSkel.h"
 #include "hr_time.h"
@@ -95,7 +109,7 @@ int main(int argc, char **argv){
 	width = atoi (argv[1]);
 	height = atoi (argv[2]);
 	T_MAX = atoi(argv[3]);
-    timeTileSize = atoi(argv[4]);
+    	timeTileSize = atoi(argv[4]);
 	GPUTime = atof(argv[5]);
 	GPUBlockSizeX = atoi(argv[6]);
 	GPUBlockSizeY = atoi(argv[7]);
@@ -112,19 +126,20 @@ int main(int argc, char **argv){
 		
 	//omp_set_num_threads(numCPUThreads);
 
-    srand(123456789);
-    for(size_t h = 0; h < height; h++){		
-       	for(size_t w = 0; w < width; w++){
-      		inputGrid(h,w) = (bool) (rand()%2);            
-            //outputGrid(i,j) =  inputGrid(i,j);
+	srand(123456789);
+	#pragma omp parallel for
+    	for(size_t h = 0; h < height; h++){		
+       		for(size_t w = 0; w < width; w++){
+      			inputGrid(h,w) = (bool) (rand()%2);            
+            		//outputGrid(i,j) =  inputGrid(i,j);
 		}
 	}	
 	
 	#ifdef PSKEL_PAPI
-		if(GPUTime < 1.0)
-			PSkelPAPI::init(PSkelPAPI::CPU);
-		else 
-			PSkelPAPI::init(PSkelPAPI::NVML);
+	if(GPUTime < 1.0)
+		PSkelPAPI::init(PSkelPAPI::CPU);
+	else 
+		PSkelPAPI::init(PSkelPAPI::NVML);
 	#endif	
 	
 	hr_timer_t timer;
@@ -167,7 +182,7 @@ int main(int argc, char **argv){
 
 	}
 	else{
-		//stencil.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSizeX, GPUBlockSizeY);
+		stencil.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSizeX, GPUBlockSizeY);
 		/*
         #ifdef PSKEL_PAPI
 			for(unsigned bool i=0;i<NUM_GROUPS_CPU;i++){
