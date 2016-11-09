@@ -138,16 +138,16 @@ int main(int argc, char **argv){
 	
 	#ifdef PSKEL_PAPI
 	PSkelPAPI::init(PSkelPAPI::CPU);
-	for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
-		PSkelPAPI::papi_start(PSkelPAPI::CPU,i);
+	//for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
+		PSkelPAPI::papi_start(PSkelPAPI::CPU,5);
 	#endif
     
     //#pragma pskel stencil dim2d(width,height) inout(inputGrid, outputGrid) iterations(T_MAX) device(cpu)
     stencilKernel(inputGrid, outputGrid,width,height,T_MAX,alpha,beta);
 	
     #ifdef PSKEL_PAPI
-		PSkelPAPI::papi_stop(PSkelPAPI::CPU,i);
-	}
+		PSkelPAPI::papi_stop(PSkelPAPI::CPU,5);
+	//}
 	#endif
 	hrt_stop(&timer);
     

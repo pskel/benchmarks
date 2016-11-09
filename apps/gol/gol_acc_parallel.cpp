@@ -18,7 +18,7 @@ using namespace PSkel;
 #endif
 
 using namespace std;
-inline void stencilKernel(int* input, int* output, int width, int height, int T_MAX){
+inline void stencilKernel(bool* input, bool* output, int width, int height, int T_MAX){
     #pragma acc data copyin(input[0:width*height]) copy(output[0:width*height])
     {
 	for(int t=0;t<T_MAX;t++){
@@ -26,7 +26,7 @@ inline void stencilKernel(int* input, int* output, int width, int height, int T_
 		for(int j=1;j<height-1;j++){
 		#pragma acc loop 
 		for(int i=1;i<width-1;i++){
-                
+                //#pragma mem prefetch input[j*width]
                 int neighbors = input[(j)*width + (i+1)] + input[(j)*width + (i-1)] +
                                 input[(j+1)*width + (i)] + input[(j-1)*width + (i)] +
                                 input[(j+1)*width + (i+1)] + input[(j-1)*width + (i-1)] +
@@ -120,8 +120,8 @@ int main(int argc, char **argv){
 	int T_MAX;
     	int verbose;
 
-	int *inputGrid;
-	int *outputGrid;
+	bool *inputGrid;
+	bool *outputGrid;
 
 	if (argc != 5){
 		printf ("Wrong number of parameters.\n");
@@ -134,8 +134,8 @@ int main(int argc, char **argv){
 	T_MAX = atoi (argv[3]);
     	verbose = atoi (argv[4]);
 
-	inputGrid = (int*) calloc(width*height,sizeof(int));
-	outputGrid = (int*) calloc(width*height,sizeof(int));
+	inputGrid = (bool*) calloc(width*height,sizeof(bool));
+	outputGrid = (bool*) calloc(width*height,sizeof(bool));
 
 	srand(1234);
 	//#pragma omp parallel for
@@ -150,16 +150,16 @@ int main(int argc, char **argv){
 	
 	#ifdef PSKEL_PAPI
 	PSkelPAPI::init(PSkelPAPI::CPU);
-	for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
-		PSkelPAPI::papi_start(PSkelPAPI::CPU,i);
+	//for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
+		PSkelPAPI::papi_start(PSkelPAPI::CPU,5);
 	#endif
     //#pragma pskel stencil dim2d(width, height) inout(inputGrid, outputGrid) iterations(T_MAX) device(cpu)
 	
     stencilKernel(inputGrid, outputGrid,width,height,T_MAX);
 	
     #ifdef PSKEL_PAPI
-		PSkelPAPI::papi_stop(PSkelPAPI::CPU,i);
-	}
+		PSkelPAPI::papi_stop(PSkelPAPI::CPU,5);
+	//}
 	#endif
     
     
