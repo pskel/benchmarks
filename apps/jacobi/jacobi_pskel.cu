@@ -9,9 +9,24 @@
 #include <fstream>
 
 //#define PSKEL_SHARED_MASK
-#define PSKEL_TBB
+#ifndef PSKEL_OMP
+	#ifndef PSKEL_TBB
+		#define PSKEL_OMP
+		#undef PSKEL_TBB
+	#endif
+#else 
+#ifndef PSKEL_TBB
+	#ifndef PSKEL_OMP
+		#define PSKEL_TBB
+		#undef PSKEL_OMP
+	#endif
+#endif
+#endif
+
+
+//#define TBB_USE_PERFORMANCE_WARNINGS 1
 #define PSKEL_CUDA
-#define JACOBI_KERNEL
+//#define JACOBI_KERNEL
 //#define PSKEL_PAPI
 //#define PSKEL_PAPI_DEBUG
 
@@ -36,7 +51,7 @@ __parallel__ void stencilKernel(float input[BLOCK_SIZE][BLOCK_SIZE],float output
 	output[ty][tx] = 0.25f * (input[ty][tx-1] + input[ty][tx+1] + input[ty-1][tx] + input[ty+1][tx] - args.h);
 }
 */
-__parallel__ void stencilKernel(Array2D<float> input,Array2D<float> output,Mask2D<float> mask,Arguments args, size_t i, size_t j){
+__parallel__ void stencilKernel(const Array2D<float> &input, const Array2D<float> &output, const Mask2D<float> &mask, const Arguments &args, size_t i, size_t j){
 	//output(i,j) = 0.25f * ( mask.get(0, input, i, j) + mask.get(1, input, i, j) +  
 	//			mask.get(2, input, i, j) + mask.get(3, input, i, j) - args.h );
 						 
@@ -46,6 +61,8 @@ __parallel__ void stencilKernel(Array2D<float> input,Array2D<float> output,Mask2
 	float S = input(i,j-1);
 
 	output(i,j) = 0.25f * (N+W+E+S - args.h);
+	
+	//printf("%f\t",output(i,j));
 	//output(i,j) = 0.25f * ( input(i-1,j) + (input(i,j-1) + input(i,j+1)) + input(i+1,j) - args.h);
     /*int width = input.getWidth(); 
     int height = input.getHeight();
@@ -103,6 +120,8 @@ int main(int argc, char **argv){
 	GPUBlockSizeY = atoi(argv[7]);
 	numCPUThreads = atoi(argv[8]);
 	int writeToFile = atoi(argv[9]);
+
+	tbb::task_scheduler_init init(numCPUThreads);
 	
 	Array2D<float> inputGrid(x_max, y_max);
 	Array2D<float> outputGrid(x_max, y_max);
@@ -120,16 +139,65 @@ int main(int argc, char **argv){
 	args.h = 4.f / (float) (x_max*x_max);
 		
 	omp_set_num_threads(numCPUThreads);
-
+	size_t gpuHeight = ceil(inputGrid.getHeight()*GPUTime);
+	size_t cpuHeight = inputGrid.getHeight()-gpuHeight;	
 	/* initialize the first timesteps */
-	#pragma omp parallel for
-    	for(size_t h = 1; h < inputGrid.getHeight()-1; h++){		
-		for(size_t w = 1; w < inputGrid.getWidth()-1; w++){
-			inputGrid(h,w) = 1.0 + w*0.1 + h*0.01;
-			outputGrid(h,w) = 0.0f;
+/*
+	#ifdef PSKEL_OMP
+	if(GPUTime == 0.0){
+		#pragma omp parallel num_threads(numCPUThreads)
+    		{
+		#pragma omp for
+		for(size_t h = 1; h < inputGrid.getHeight()-1; h++){	
+			for(size_t w = 1; w < inputGrid.getWidth()-1; w++){
+				inputGrid(h,w) = 1.0f + w*0.1 + h*0.01;
+				outputGrid(h,w) = 0.0f;
+			}
 		}
-	}	
+		}
+	}
+	else{ //NUMA first touch
+		//StencilTiling<Array2D<float>,Mask2D<float> > gpuTiling(inputGrid, outputGrid, mask);
+		#pragma omp parallel num_threads(numCPUThreads)
+    		{
+		if(omp_get_thread_num() == 0){
+			for(size_t h=0; h < gpuHeight; h++){
+				for(size_t w = 0; w < inputGrid.getWidth();w++){
+					inputGrid(h,w) = 1.0f; // + w*0.1 + h*0.01;
+				 	outputGrid(h,w) = 0.0f;
+				}
+			}
+		}
+		else{
+			size_t split = ceil(float(cpuHeight)/numCPUThreads);
+        		size_t  begin = split * omp_get_thread_num() + gpuHeight;
+        		size_t  end = split * (omp_get_thread_num() + 1) + gpuHeight;
+                	if(end > inputGrid.getHeight()){
+                		end = inputGrid.getHeight();
+                	}
 	
+			for(size_t h = begin; h < end; h++){           
+                      		for(size_t w = 0; w < inputGrid.getWidth(); w++){
+                                	inputGrid(h,w) = 1.0f; // + w*0.1 + h*0.01;
+                                	outputGrid(h,w) = 0.0f;
+                        	}
+                	}
+		}
+		}	
+	}
+	#else
+*/	
+	#pragma omp parallel
+	{
+	#pragma omp for 
+	for(size_t h = 0; h < y_max; h++){	
+		for(size_t w = 0; w < x_max; w++){
+			inputGrid(h,w) = 1.0f + w*0.1f + h*0.01f;
+			outputGrid(h,w) = 1.0f;
+		}
+	}
+	}
+//	#endif
 	hr_timer_t timer;
 	hrt_start(&timer);
     
@@ -180,13 +248,16 @@ int main(int argc, char **argv){
 		#endif
 	}
 	else if(GPUTime == 1.0){
+		#ifdef PSKEL_CUDA
 		#ifdef PSKEL_SHARED
 			jacobi.runIterativeGPU(T_MAX,pyramidHeight,GPUBlockSizeX, GPUBlockSizeY);
 		#else
 			jacobi.runIterativeGPU(T_MAX,GPUBlockSizeX, GPUBlockSizeY);
 		#endif
+		#endif
 	}
 	else{
+		#ifdef PSKEL_CUDA
 		jacobi.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSizeX, GPUBlockSizeY);
 		/*
         #ifdef PSKEL_PAPI
@@ -197,6 +268,7 @@ int main(int argc, char **argv){
 			jacobi.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSizeX);
 		#endif
         */
+		#endif
 	}
 	
 	
@@ -231,10 +303,16 @@ int main(int argc, char **argv){
 		cout<<setprecision(2);
 		cout<<fixed;
 		cout<<"INPUT"<<endl;
-		for(int i=0; i<y_max/10;i+=10){
-			cout<<"("<<i<<","<<i<<") = "<<inputGrid(i,i)<<"\t("<<x_max-i<<","<<y_max-i<<") = "<<inputGrid(x_max-i,y_max-i)<<endl;
+		for(size_t h = 0; h < inputGrid.getHeight(); h++){		
+			for(size_t w = 0; w < inputGrid.getWidth(); w++){
+				cout<<inputGrid(h,w)<<"\t";
+			}
+			cout<<endl;
 		}
-		cout<<endl;
+		//for(int i=0; i<y_max/10;i+=10){
+		//	cout<<"("<<i<<","<<i<<") = "<<inputGrid(i,i)<<"\t("<<x_max-i<<","<<y_max-i<<") = "<<inputGrid(x_max-i,y_max-i)<<endl;
+		//}
+		//cout<<endl;
 		
 		cout<<"OUTPUT"<<endl;
 		//for(int i=0; i<y_max/10;i+=10){
