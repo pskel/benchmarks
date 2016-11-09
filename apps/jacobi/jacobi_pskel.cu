@@ -1,4 +1,5 @@
 //#define PSKEL_LOGMODE 1
+<<<<<<< HEAD
 
 #include <stdio.h>
 #include <omp.h>
@@ -55,6 +56,7 @@ __parallel__ void stencilKernel(const Array2D<float> &input, const Array2D<float
 	//output(i,j) = 0.25f * ( mask.get(0, input, i, j) + mask.get(1, input, i, j) +  
 	//			mask.get(2, input, i, j) + mask.get(3, input, i, j) - args.h );
 						 
+	/*
 	float N = input(i,j+1);
 	float W = input(i-1,j);
 	float E = input(i+1,j);
@@ -64,9 +66,12 @@ __parallel__ void stencilKernel(const Array2D<float> &input, const Array2D<float
 	
 	//printf("%f\t",output(i,j));
 	//output(i,j) = 0.25f * ( input(i-1,j) + (input(i,j-1) + input(i,j+1)) + input(i+1,j) - args.h);
-    /*int width = input.getWidth(); 
+	*/
+	output(i,j) = 0.25f * ( input(i-1,j) + (input(i,j-1) + input(i,j+1)) + input(i+1,j) - args.h);
+   /*int width = input.getWidth(); 
     int height = input.getHeight();
     //	Corner 1	
+>>>>>>> 94366149f8c7501f5cd79b875bdd69b74eb59bc6
     if ( (j == 0) && (i == 0) ) {
          output(i,j) = 0.25f * (input(i+1,j) + input(i,j+1) - args.h);
     }	//	Corner 2	
@@ -75,27 +80,39 @@ __parallel__ void stencilKernel(const Array2D<float> &input, const Array2D<float
     }	//	Corner 3	
     else if ((j == height-1) && (i == width-1)) {
         output(i,j) = 0.25f * (input(i,j-1) + input(i-1,j) - args.h);
+<<<<<<< HEAD
+    }	//	Corner 4	
+=======
     }		Corner 4	
+>>>>>>> 94366149f8c7501f5cd79b875bdd69b74eb59bc6
     else if ((j == height-1) && (i == 0)) {
         output(i,j) = 0.25f * (input(i+1,j) + input(i,j-1) - args.h);
     }	//	Edge 1	
     else if (j == 0) {
         output(i,j) = 0.25f * (input(i-1,j) + input(i+1,j) + input(i,j+1) - args.h);
         //output[y*width+x] = 0.25f * (input[(y)*width + (x-1)] + input[(y)*width +(x+1)] + input[(y+1)*width +(x)]- args.h);
+<<<<<<< HEAD
+    }	// Edge 2	
+    else if (i == width-1) {
+        output(i,j) = 0.25f * (input(i-1,j) + input(i,j-1) + input(i,j+1) - args.h);
+        //output[y*width+x] = 0.25f * (input[(y)*width + (x-1)] + input[(y-1)*width +(x)] +input[(y+1)*width +(x)] - args.h);
+=======
     }	//	Edge 2	
     else if (i == width-1) {
         output(i,j) = 0.25f * (input(i-1,j) + input(i,j-1) + input(i,j+1) - args.h);
+>>>>>>> 94366149f8c7501f5cd79b875bdd69b74eb59bc6
     }	//	Edge 3	
     else if (j == height-1) {
         output(i,j) = 0.25f * (input(i-1,j) + input(i+1,j) + input(i,j-1) - args.h);
     }	//	Edge 4	
     else if (i == 0) {
         output(i,j) = 0.25f * (input(i,j-1) + input(i+1,j) + input(i,j+1) - args.h);
-    }	//	Inside the grid
+   }	//	Inside the grid  
     else {
         output(i,j) = 0.25f * (input(i,j-1) + input(i+1,j) + input(i-1,j) + input(i,j+1) - args.h);
     }    
     */
+  
 }
 
 }
@@ -125,14 +142,14 @@ int main(int argc, char **argv){
 	
 	Array2D<float> inputGrid(x_max, y_max);
 	Array2D<float> outputGrid(x_max, y_max);
-	int n[4][2] = {{0,1},{-1,0},{1,0},{-1,0}};
-	Mask2D<float> mask(4,n);	
-	//Mask2D<float> mask(4);
+	//int n[4][2] = {{0,1},{-1,0},{1,0},{-1,0}};
+	//Mask2D<float> mask(4,n);	
+	Mask2D<float> mask(4);
 	
-	//mask.set(0,0,-1,0);
-	//mask.set(1,0,1,0);
-	//mask.set(2,1,0,0);
-	//mask.set(3,-1,0,0);
+	mask.set(0,0,-1,0);
+	mask.set(1,0,1,0);
+	mask.set(2,1,0,0);
+	mask.set(3,-1,0,0);
 	
 	Arguments args;
 	//args.h = 1.f / (float) x_max;

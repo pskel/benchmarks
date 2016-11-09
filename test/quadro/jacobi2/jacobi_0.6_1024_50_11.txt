@@ -1,0 +1,69 @@
+==20039== NVPROF is profiling process 20039, command: ../bin/jacobi_pskel 1024 1024 50 2 0.6 16 16 11 0
+CPU_time	0.0441417
+GPU_time	0.0309711
+Total_time	0.0501422
+Exec_time	0.510736
+==20039== Profiling application: ../bin/jacobi_pskel 1024 1024 50 2 0.6 16 16 11 0
+==20039== Profiling result:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+ 90.88%  24.897ms        50  497.93us  487.43us  509.46us  void PSkel::stencilTilingCU<float, float, Arguments>(PSkel::Array2D<float>, float, PSkel::Mask2D<float>, Arguments, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long)
+  4.98%  1.3646ms         1  1.3646ms  1.3646ms  1.3646ms  [CUDA memcpy DtoH]
+  3.62%  990.34us         3  330.11us     960ns  988.26us  [CUDA memcpy HtoD]
+  0.52%  143.60us         2  71.799us  71.544us  72.055us  [CUDA memset]
+
+==20039== API calls:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+ 72.13%  80.160ms         4  20.040ms  13.867us  79.768ms  cudaMalloc
+ 22.60%  25.115ms        50  502.31us  491.22us  519.42us  cudaDeviceSynchronize
+  3.87%  4.2964ms         4  1.0741ms  8.8670us  2.8426ms  cudaMemcpy
+  0.58%  650.14us        50  13.002us  10.491us  29.353us  cudaLaunch
+  0.34%  373.00us         4  93.250us  12.114us  176.81us  cudaFree
+  0.23%  250.24us        83  3.0140us     180ns  109.67us  cuDeviceGetAttribute
+  0.12%  134.89us       550     245ns     212ns  1.6990us  cudaSetupArgument
+  0.04%  48.404us         2  24.202us  17.715us  30.689us  cudaMemset
+  0.03%  32.797us         1  32.797us  32.797us  32.797us  cuDeviceTotalMem
+  0.03%  28.579us         1  28.579us  28.579us  28.579us  cuDeviceGetName
+  0.02%  26.650us        50     533ns     401ns  1.6250us  cudaConfigureCall
+  0.02%  19.618us        50     392ns     319ns  2.2140us  cudaPeekAtLastError
+  0.00%  2.7300us         2  1.3650us     428ns  2.3020us  cuDeviceGetCount
+  0.00%     711ns         2     355ns     232ns     479ns  cuDeviceGet
+CPU_time	0.04232
+GPU_time	0.0237622
+Total_time	0.0496436
+Exec_time	0.352627
+CPU_time	0.0464307
+GPU_time	0.0249366
+Total_time	0.0537248
+Exec_time	0.357023
+CPU_time	0.0537635
+GPU_time	0.0232903
+Total_time	0.061098
+Exec_time	0.366415
+CPU_time	0.04257
+GPU_time	0.0238491
+Total_time	0.049922
+Exec_time	0.355586
+CPU_time	0.0523364
+GPU_time	0.023867
+Total_time	0.0597507
+Exec_time	0.364754
+CPU_time	0.0610408
+GPU_time	0.024239
+Total_time	0.0684507
+Exec_time	0.372674
+CPU_time	0.0474746
+GPU_time	0.0239363
+Total_time	0.0548998
+Exec_time	0.360153
+CPU_time	0.0499358
+GPU_time	0.0245165
+Total_time	0.0573511
+Exec_time	0.36266
+CPU_time	0.0424893
+GPU_time	0.0238013
+Total_time	0.0498617
+Exec_time	0.354109
+CPU_time	0.0427658
+GPU_time	0.0237338
+Total_time	0.05012
+Exec_time	0.350303

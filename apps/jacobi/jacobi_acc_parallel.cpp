@@ -22,7 +22,7 @@ inline void stencilKernel(float* input, float* output, int width, int height, in
 	#pragma acc data copyin(input[0:width*height]) copyout(output[0:width*height])
 	{
 	for (int t = 0; t < T_MAX; t++){
-        #pragma acc parallel loop  
+       #pragma acc parallel loop  
 		for (int y = 1; y < height-1; y++){
 			#pragma acc loop independent
 			for (int x = 1; x < width-1; x++){
@@ -33,7 +33,7 @@ inline void stencilKernel(float* input, float* output, int width, int height, in
                                                 
                 /*
                 //	Corner 1
-                if ( (y == 0) && (x == 0) ) {
+               if ( (y == 0) && (x == 0) ) {
                     output[y*width+x] = 0.25f * (input[(y+1)*width + x] + 
 												 input[y*width + (x+1)]
 												 - beta);
@@ -82,7 +82,7 @@ inline void stencilKernel(float* input, float* output, int width, int height, in
 												input[(y-1)*width + x] +
 												input[y*width + (x+1)] +
 												input[y*width + (x-1)] - beta);
-				}
+			}
                 */
 			}
         }
@@ -92,7 +92,7 @@ inline void stencilKernel(float* input, float* output, int width, int height, in
             for (int y = 1; y < height-1; y++){
                 #pragma acc loop independent
 		for (int x = 1; x < width-1; x++){
-					input[y*width+x] = output[y*width+x];
+				input[y*width+x] = output[y*width+x];
 				}}}
 	}//end iterations
 	}//end pragma enter data

@@ -1,0 +1,47 @@
+==12674== NVPROF is profiling process 12674, command: ../bin/jacobi_pskel 4096 4096 50 2 1 16 16 11 0
+GPU_time	0.598521
+Exec_time	1.0608
+==12674== Profiling application: ../bin/jacobi_pskel 4096 4096 50 2 1 16 16 11 0
+==12674== Profiling result:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+ 90.48%  540.07ms        50  10.801ms  10.774ms  10.829ms  void PSkel::stencilTilingCU<float, float, Arguments>(PSkel::Array2D<float>, float, PSkel::Mask2D<float>, Arguments, unsigned long, unsigned long, unsigned long, unsigned long)
+  4.53%  27.019ms         3  9.0062ms     928ns  27.017ms  [CUDA memcpy HtoD]
+  4.43%  26.429ms         1  26.429ms  26.429ms  26.429ms  [CUDA memcpy DtoH]
+  0.57%  3.3775ms         2  1.6888ms  1.6879ms  1.6896ms  [CUDA memset]
+
+==12674== API calls:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+ 79.60%  540.36ms        50  10.807ms  10.778ms  10.914ms  cudaDeviceSynchronize
+ 11.75%  79.761ms         4  19.940ms  9.4670us  79.385ms  cudaMalloc
+  8.43%  57.243ms         4  14.311ms  9.0260us  27.252ms  cudaMemcpy
+  0.09%  598.46us        50  11.969us  10.633us  50.241us  cudaLaunch
+  0.06%  394.46us         4  98.615us  12.867us  176.74us  cudaFree
+  0.04%  243.50us        83  2.9330us     183ns  103.59us  cuDeviceGetAttribute
+  0.02%  109.25us       400     273ns     205ns  9.2530us  cudaSetupArgument
+  0.01%  42.045us         2  21.022us  17.769us  24.276us  cudaMemset
+  0.00%  33.359us         1  33.359us  33.359us  33.359us  cuDeviceTotalMem
+  0.00%  31.444us         1  31.444us  31.444us  31.444us  cuDeviceGetName
+  0.00%  23.607us        50     472ns     368ns  3.3760us  cudaConfigureCall
+  0.00%  19.515us        50     390ns     322ns  2.1740us  cudaPeekAtLastError
+  0.00%  2.8210us         2  1.4100us     537ns  2.2840us  cuDeviceGetCount
+  0.00%     752ns         2     376ns     294ns     458ns  cuDeviceGet
+GPU_time	0.459463
+Exec_time	0.762541
+GPU_time	0.459539
+Exec_time	0.764646
+GPU_time	0.460277
+Exec_time	0.764144
+GPU_time	0.458988
+Exec_time	0.762941
+GPU_time	0.466528
+Exec_time	0.76941
+GPU_time	0.470668
+Exec_time	0.77571
+GPU_time	0.460216
+Exec_time	0.765375
+GPU_time	0.459979
+Exec_time	0.7659
+GPU_time	0.465773
+Exec_time	0.770639
+GPU_time	0.465888
+Exec_time	0.768573
