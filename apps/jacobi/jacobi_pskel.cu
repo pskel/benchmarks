@@ -1,5 +1,4 @@
 //#define PSKEL_LOGMODE 1
-<<<<<<< HEAD
 
 #include <stdio.h>
 #include <omp.h>
