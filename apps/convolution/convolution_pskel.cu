@@ -1,19 +1,5 @@
-//#define PSKEL_TBB
+#define PSKEL_OMP
 #define PSKEL_CUDA
-
-#ifndef PSKEL_OMP
-	#ifndef PSKEL_TBB
-		#define PSKEL_OMP
-		#undef PSKEL_TBB
-	#endif
-#else 
-#ifndef PSKEL_TBB
-	#ifndef PSKEL_OMP
-		#define PSKEL_TBB
-		#undef PSKEL_OMP
-	#endif
-#endif
-#endif
 
 #include <stdio.h>
 #include <iostream>
@@ -42,7 +28,12 @@ namespace PSkel{
 		}
 		output(i,j)= accum;
 		*/
-		/*output(i,j) = mask.get(0,input,i,j) * mask.getWeight(0) +
+
+		output(i,j) = input(i-1,j-1) * 0.33 + input(i,j-1) * 0.33 + input(i+1,j-1) *0.33  +
+                              input(i-1,j)   * 0.33 + input(i,j)   * 0.33 + input(i+1,j)   * 0.33 +
+                              input(i-1,j+1) * 0.33 + input(i,j+1) * 0.33 + input(i+1,j+1) * 0.33;
+ 		/*
+		output(i,j) = mask.get(0,input,i,j) * mask.getWeight(0) +
 					  mask.get(1,input,i,j) * mask.getWeight(1) +
 					  mask.get(2,input,i,j) * mask.getWeight(2) +
 					  mask.get(3,input,i,j) * mask.getWeight(3) +
@@ -68,10 +59,6 @@ namespace PSkel{
 					  mask.get(23,input,i,j) * mask.getWeight(23) +
 					  mask.get(24,input,i,j) * mask.getWeight(24); 
 		*/
-		output(i,j) = input(i-1,j-1) * 0.33 + input(i-1,j) * 0.33 + input(i-1,j+1) *0.33  +
-                     	      input(i,j-1)   * 0.33 + input(i,j)   * 0.33 + input(i,j+1)   * 0.33 +
-			      input(i+1,j-1) * 0.33 + input(i+1,j) * 0.33 + input(i+1,j+1) * 0.33;
-                    			      
 	}
 }//end namespace
 
@@ -83,12 +70,12 @@ int main(int argc, char **argv){
 		
 	Mask2D<float> mask(25);
 	float GPUTime;
-	int GPUBlockSize, numCPUThreads,x_max,y_max;
+	int GPUBlockSizeX, GPUBlockSizeY, numCPUThreads,timeTileSize,x_max,y_max;
 	
-	if (argc != 8){
+	if (argc != 10){
 		printf ("Wrong number of parameters.\n");
 		//printf ("Usage: convolution INPUT_IMAGE ITERATIONS GPUTIME GPUBLOCKS CPUTHREADS OUTPUT_WRITE_FLAG\n");
-		printf ("Usage: convolution WIDTH HEIGHT ITERATIONS GPUTIME GPUBLOCKS CPUTHREADS OUTPUT_WRITE_FLAG\n");
+		printf ("Usage: convolution WIDTH HEIGHT ITERATIONS TIME_TILE_SIZE GPUTIME GPUBLOCKX GPUBLOCKY CPUTHREADS OUTPUT_WRITE_FLAG\n");
 		printf ("You entered: ");
 		for(int i=0; i< argc;i++){
 			printf("%s ",argv[i]);
@@ -100,10 +87,12 @@ int main(int argc, char **argv){
 	x_max = atoi(argv[1]);
 	y_max = atoi(argv[2]);
 	int T_MAX = atoi(argv[3]);
-	GPUTime = atof(argv[4]);
-	GPUBlockSize = atoi(argv[5]);
-	numCPUThreads = atoi(argv[6]);
-	int writeToFile = atoi(argv[7]);
+	timeTileSize = atoi(argv[4]);
+	GPUTime = atof(argv[5]);
+	GPUBlockSizeX = atoi(argv[6]);
+	GPUBlockSizeX = atoi(argv[7]);
+	numCPUThreads = atoi(argv[8]);
+	int writeToFile = atoi(argv[9]);
 	
 	Array2D<float> inputGrid(x_max, y_max);
 	Array2D<float> outputGrid(x_max, y_max);	
@@ -114,7 +103,7 @@ int main(int argc, char **argv){
 	mask.set(15,-2,-1,0.0);	mask.set(16,-1,-1,0.0);	mask.set(17,0,-1,0.1);	mask.set(18,1,-1,0.0);	mask.set(19,2,-1,0.0);
 	mask.set(20,-2,-2,0.0);	mask.set(21,-1,-2,0.0);	mask.set(22,0,-2,0.0);	mask.set(23,1,-2,0.0);	mask.set(24,2,-2,0.0);
 	
-	#pragma omp parallel
+	#pragma omp parallel num_threads(numCPUThreads)
 	{
 		srand(1234 ^ omp_get_thread_num());
 		#pragma omp for
@@ -140,10 +129,10 @@ int main(int argc, char **argv){
 		stencil.runIterativeCPU(T_MAX, numCPUThreads);
 	}
 	else if(GPUTime == 1.0){
-		stencil.runIterativeGPU(T_MAX, GPUBlockSize);
+		stencil.runIterativeGPU(T_MAX, GPUBlockSizeX, GPUBlockSizeY);
 	}
 	else{
-		stencil.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSize);
+		stencil.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSizeX,GPUBlockSizeY);
 	}
 	
 	hrt_stop(&timer);

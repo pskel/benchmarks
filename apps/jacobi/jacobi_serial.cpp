@@ -56,9 +56,8 @@ public:
 		//update(input,output,begin,end,width);
 		
  		for (size_t y = r.begin(); y != r.end(); y++){
-			for (size_t x = 0; x < width; x++){
-				output[y*width+x] = 0.25f * input[y*width+x]; //(input[(y+1)*width + x] + input[(y-1)*width + x] + input[y*width + (x+1)] + input[y*width + (x-1)] );
-			
+			for (size_t x = 1; x < width-1; x++){
+				output[y*width+x] = 0.25f * (input[(y+1)*width + x] + input[(y-1)*width + x] + input[y*width + (x+1)] + input[y*width + (x-1)] );
 			}
 	}
 	}
@@ -100,24 +99,27 @@ int main(int argc, char **argv){
 	int width;
 	int height;
 	int T_MAX;
+	int nthreads;
 
 	float *inputGrid;
 	float *outputGrid;
 	float alpha,beta;
 
-	if (argc != 4){
+	if (argc != 5){
 		printf ("Wrong number of parameters.\n");
-		printf ("Usage: jacobi WIDTH HEIGHT ITERATIONS\n");
+		printf ("Usage: jacobi WIDTH HEIGHT ITERATIONS NTHREADS\n");
 		exit (-1);
 	}
 
 	width = atoi (argv[1]);
 	height = atoi (argv[2]);
 	T_MAX = atoi (argv[3]);
-
+	nthreads = atoi (argv[4]);
 	alpha = 0.25/(float) width;
     	beta = 1.0/(float) height;
 
+	tbb::task_scheduler_init init(nthreads); // (tbb::task_scheduler_init::automatic);
+	
 	inputGrid = (float*) malloc(width*height*sizeof(float));
 	outputGrid = (float*) malloc(width*height*sizeof(float));
 
@@ -133,16 +135,15 @@ int main(int argc, char **argv){
 	hrt_start(&timer);
 
 	//stencilKernel(inputGrid, outputGrid,width,height,T_MAX,alpha,beta);
-	tbb::task_scheduler_init init(8); // (tbb::task_scheduler_init::automatic);
 	TBBStencil jacobi(inputGrid,outputGrid,width,height); 
     //TBBStencil::setValues(inputGrid, outputGrid, width, height);	
 	for(int it = 0; it < T_MAX; it++){
-		tbb::parallel_for(tbb::blocked_range<size_t>(0, height), jacobi);
-	//	TBBStencil::swap();	
-    }
-	//if(T_MAX%2==0){
-	//	TBBStencil::swap();
-	//}
+		tbb::parallel_for(tbb::blocked_range<size_t>(1, height-1), jacobi);
+		jacobi.swap();	
+    	}
+	if(T_MAX%2==0){
+		jacobi.swap();
+	}
 	hrt_stop(&timer);
 	cout << "Exec_time\t" << hrt_elapsed_time(&timer) << endl;  
 	return 0;
