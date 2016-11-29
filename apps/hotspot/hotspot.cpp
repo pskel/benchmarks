@@ -35,60 +35,60 @@ void single_iteration(double *result, double *temp, double *power, int row, int 
 	for (r = 0; r < row; r++) {
 		for (c = 0; c < col; c++) {
   			/*	Corner 1	*/
-			//if ( (r == 0) && (c == 0) ) {
-				//delta = (step / Cap) * (power[0] +
-						//(temp[1] - temp[0]) / Rx +
-						//(temp[col] - temp[0]) / Ry +
-						//(amb_temp - temp[0]) / Rz);
-			//}	/*	Corner 2	*/
-			//else if ((r == 0) && (c == col-1)) {
-				//delta = (step / Cap) * (power[c] +
-						//(temp[c-1] - temp[c]) / Rx +
-						//(temp[c+col] - temp[c]) / Ry +
-						//(amb_temp - temp[c]) / Rz);
-			//}	/*	Corner 3	*/
-			//else if ((r == row-1) && (c == col-1)) {
-				//delta = (step / Cap) * (power[r*col+c] + 
-						//(temp[r*col+c-1] - temp[r*col+c]) / Rx + 
-						//(temp[(r-1)*col+c] - temp[r*col+c]) / Ry + 
-						//(amb_temp - temp[r*col+c]) / Rz);					
-			//}	/*	Corner 4	*/
-			//else if ((r == row-1) && (c == 0)) {
-				//delta = (step / Cap) * (power[r*col] + 
-						//(temp[r*col+1] - temp[r*col]) / Rx + 
-						//(temp[(r-1)*col] - temp[r*col]) / Ry + 
-						//(amb_temp - temp[r*col]) / Rz);
-			//}	/*	Edge 1	*/
-			//else if (r == 0) {
-				//delta = (step / Cap) * (power[c] + 
-						//(temp[c+1] + temp[c-1] - 2.0*temp[c]) / Rx + 
-						//(temp[col+c] - temp[c]) / Ry + 
-						//(amb_temp - temp[c]) / Rz);
-			//}	/*	Edge 2	*/
-			//else if (c == col-1) {
-				//delta = (step / Cap) * (power[r*col+c] + 
-						//(temp[(r+1)*col+c] + temp[(r-1)*col+c] - 2.0*temp[r*col+c]) / Ry + 
-						//(temp[r*col+c-1] - temp[r*col+c]) / Rx + 
-						//(amb_temp - temp[r*col+c]) / Rz);
-			//}	/*	Edge 3	*/
-			//else if (r == row-1) {
-				//delta = (step / Cap) * (power[r*col+c] + 
-						//(temp[r*col+c+1] + temp[r*col+c-1] - 2.0*temp[r*col+c]) / Rx + 
-						//(temp[(r-1)*col+c] - temp[r*col+c]) / Ry + 
-						//(amb_temp - temp[r*col+c]) / Rz);
-			//}	/*	Edge 4	*/
-			//else if (c == 0) {
-				//delta = (step / Cap) * (power[r*col] + 
-						//(temp[(r+1)*col] + temp[(r-1)*col] - 2.0*temp[r*col]) / Ry + 
-						//(temp[r*col+1] - temp[r*col]) / Rx + 
-						//(amb_temp - temp[r*col]) / Rz);
-			//}	/*	Inside the chip	*/
-			//else {
-				//delta = (step / Cap) * (power[r*col+c] + 
-						//(temp[(r+1)*col+c] + temp[(r-1)*col+c] - 2.0*temp[r*col+c]) / Ry + 
-						//(temp[r*col+c+1] + temp[r*col+c-1] - 2.0*temp[r*col+c]) / Rx + 
-						//(amb_temp - temp[r*col+c]) / Rz);
-			//}
+			if ( (r == 0) && (c == 0) ) {
+				delta = (step / Cap) * (power[0] +
+						(temp[1] - temp[0]) / Rx +
+						(temp[col] - temp[0]) / Ry +
+						(amb_temp - temp[0]) / Rz);
+			}	/*	Corner 2	*/
+			else if ((r == 0) && (c == col-1)) {
+				delta = (step / Cap) * (power[c] +
+						(temp[c-1] - temp[c]) / Rx +
+						(temp[c+col] - temp[c]) / Ry +
+						(amb_temp - temp[c]) / Rz);
+			}	/*	Corner 3	*/
+			else if ((r == row-1) && (c == col-1)) {
+				delta = (step / Cap) * (power[r*col+c] + 
+						(temp[r*col+c-1] - temp[r*col+c]) / Rx + 
+						(temp[(r-1)*col+c] - temp[r*col+c]) / Ry + 
+						(amb_temp - temp[r*col+c]) / Rz);					
+			}	/*	Corner 4	*/
+			else if ((r == row-1) && (c == 0)) {
+				delta = (step / Cap) * (power[r*col] + 
+						(temp[r*col+1] - temp[r*col]) / Rx + 
+						(temp[(r-1)*col] - temp[r*col]) / Ry + 
+						(amb_temp - temp[r*col]) / Rz);
+			}	/*	Edge 1	*/
+			else if (r == 0) {
+				delta = (step / Cap) * (power[c] + 
+						(temp[c+1] + temp[c-1] - 2.0*temp[c]) / Rx + 
+						(temp[col+c] - temp[c]) / Ry + 
+						(amb_temp - temp[c]) / Rz);
+			}	/*	Edge 2	*/
+			else if (c == col-1) {
+				delta = (step / Cap) * (power[r*col+c] + 
+						(temp[(r+1)*col+c] + temp[(r-1)*col+c] - 2.0*temp[r*col+c]) / Ry + 
+						(temp[r*col+c-1] - temp[r*col+c]) / Rx + 
+						(amb_temp - temp[r*col+c]) / Rz);
+			}	/*	Edge 3	*/
+			else if (r == row-1) {
+				delta = (step / Cap) * (power[r*col+c] + 
+						(temp[r*col+c+1] + temp[r*col+c-1] - 2.0*temp[r*col+c]) / Rx + 
+						(temp[(r-1)*col+c] - temp[r*col+c]) / Ry + 
+						(amb_temp - temp[r*col+c]) / Rz);
+			}	/*	Edge 4	*/
+			else if (c == 0) {
+				delta = (step / Cap) * (power[r*col] + 
+						(temp[(r+1)*col] + temp[(r-1)*col] - 2.0*temp[r*col]) / Ry + 
+						(temp[r*col+1] - temp[r*col]) / Rx + 
+						(amb_temp - temp[r*col]) / Rz);
+			}	/*	Inside the chip	*/
+			else {
+				delta = (step / Cap) * (power[r*col+c] + 
+						(temp[(r+1)*col+c] + temp[(r-1)*col+c] - 2.0*temp[r*col+c]) / Ry + 
+						(temp[r*col+c+1] + temp[r*col+c-1] - 2.0*temp[r*col+c]) / Rx + 
+						(amb_temp - temp[r*col+c]) / Rz);
+			}
   			
 			/*	Update Temperatures	*/
 			result[r*col+c] = temp[r*col+c]+ delta;

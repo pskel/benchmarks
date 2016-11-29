@@ -10,7 +10,64 @@
 
 #include <omp.h>
 #include "hr_time.h"
+
+#include "tbb/task_scheduler_init.h"
+#include "tbb/blocked_range.h"
+#include "tbb/parallel_for.h"
+
 using namespace std;
+
+void update(float *input, float* output, size_t begin, size_t end, size_t width){
+	for (size_t y = begin; y < end; y++){
+		for (size_t x = 0; x < width; x++){
+		output[y*width+x] = 0.25f * (input[(y+1)*width + x] + input[(y-1)*width + x] +
+                                             input[y*width + (x+1)] + input[y*width + (x-1)] );
+		
+		}
+	}
+}
+
+
+class TBBStencil{
+private:
+	float *input;
+	float *output;
+	int width, height;
+public:	
+	TBBStencil (){}
+
+	TBBStencil(float *_input, float *_output, int _width, int _height){
+		input = _input;
+		output = _output;
+		width = _width;
+		height = _height;
+	}
+
+	void swap(){
+		float *temp;
+		temp = output;
+		output = input;
+		input = temp;		
+	}
+
+	void operator()(const tbb::blocked_range<size_t> &r)const{
+		//size_t begin = r.begin();
+		//size_t end = r.end();
+		//update(input,output,begin,end,width);
+		
+ 		for (size_t y = r.begin(); y != r.end(); y++){
+			for (size_t x = 0; x < width; x++){
+				output[y*width+x] = 0.25f * input[y*width+x]; //(input[(y+1)*width + x] + input[(y-1)*width + x] + input[y*width + (x+1)] + input[y*width + (x-1)] );
+			
+			}
+	}
+	}
+};
+
+//float* TBBStencil::input = NULL;
+//float* TBBStencil::output = NULL;
+//int TBBStencil::width = 0;
+//int TBBStencil::height = 0;
 
 void stencilKernel(float *input, float *output, int width, int height, int T_MAX,float alpha, float beta){
 	for (int t = 0; t < T_MAX; t++){
@@ -50,7 +107,7 @@ int main(int argc, char **argv){
 
 	if (argc != 4){
 		printf ("Wrong number of parameters.\n");
-		printf ("Usage: gol WIDTH HEIGHT ITERATIONS\n");
+		printf ("Usage: jacobi WIDTH HEIGHT ITERATIONS\n");
 		exit (-1);
 	}
 
@@ -71,12 +128,21 @@ int main(int argc, char **argv){
 		}
 	}
   
-	#pragma pskel stencil dim2d(width,height) inout(inputGrid, outputGrid) iterations(T_MAX) device(gpu)
+	//#pragma pskel stencil dim2d(width,height) inout(inputGrid, outputGrid) iterations(T_MAX) device(gpu)
 	hr_timer_t timer;
 	hrt_start(&timer);
 
-	stencilKernel(inputGrid, outputGrid,width,height,T_MAX,alpha,beta);
-	
+	//stencilKernel(inputGrid, outputGrid,width,height,T_MAX,alpha,beta);
+	tbb::task_scheduler_init init(8); // (tbb::task_scheduler_init::automatic);
+	TBBStencil jacobi(inputGrid,outputGrid,width,height); 
+    //TBBStencil::setValues(inputGrid, outputGrid, width, height);	
+	for(int it = 0; it < T_MAX; it++){
+		tbb::parallel_for(tbb::blocked_range<size_t>(0, height), jacobi);
+	//	TBBStencil::swap();	
+    }
+	//if(T_MAX%2==0){
+	//	TBBStencil::swap();
+	//}
 	hrt_stop(&timer);
 	cout << "Exec_time\t" << hrt_elapsed_time(&timer) << endl;  
 	return 0;

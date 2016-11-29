@@ -11,7 +11,7 @@
 //#define PSKEL_SHARED_MASK
 #define PSKEL_OMP
 #define PSKEL_CUDA
-#define JACOBI_KERNEL
+//#define JACOBI_KERNEL
 //#define PSKEL_PAPI
 //#define PSKEL_PAPI_DEBUG
 
@@ -187,6 +187,7 @@ int main(int argc, char **argv){
 			PSkelPAPI::papi_start(PSkelPAPI::CPU,5);
 		#endif
 
+            cout<<"oi"<<endl;
 			jacobi.runIterativeCPU(T_MAX, numCPUThreads);	
 
 		#ifdef PSKEL_PAPI
@@ -202,7 +203,7 @@ int main(int argc, char **argv){
 		#endif
 	}
 	else{
-		jacobi.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSizeX, GPUBlockSizeY);
+		//jacobi.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSizeX, GPUBlockSizeY);
 		/*
         #ifdef PSKEL_PAPI
 			for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
