@@ -91,7 +91,7 @@ __parallel__ void stencilKernel(Array2D<bool> input, Array2D<bool> output,
                      input(i,j-1)   + input(i,j+1) ;
     }
     */ 
-    output(i,j) = (neighbors == 3 || (input(i,j) == 1 && neighbors == 2))?1:0;
+    output(i,j) = (neighbors == 3 || (neighbors == 2 && input(i,j) == 1))?1:0;
         
     }
 }
@@ -126,15 +126,28 @@ int main(int argc, char **argv){
 		
 	//omp_set_num_threads(numCPUThreads);
 
-	srand(123456789);
-	#pragma omp parallel for
-    	for(size_t h = 0; h < height; h++){		
-       		for(size_t w = 0; w < width; w++){
-      			inputGrid(h,w) = (bool) (rand()%2);            
+	//srand(123456789);
+	#pragma omp parallel num_threads(numCPUThreads)
+	{
+	unsigned int seed = 25234 + 17 * omp_get_thread_num();
+    	for(int h = 0; h < height; h++){		
+       		for(int w = 0; w < width; w++){
+      			inputGrid(h,w) = (bool) (rand_r(&seed)%2) ;            
             		//outputGrid(i,j) =  inputGrid(i,j);
 		}
-	}	
-	
+	}
+	}
+
+	if(verbose){
+ 		cout<<"INPUT"<<endl;
+                for(size_t h = 0; h < height; h++){             
+                        for(size_t w = 0; w < width; w++){
+                                cout<<inputGrid(h,w);
+                        }
+                        cout<<endl;
+                }
+	}
+
 	#ifdef PSKEL_PAPI
 	if(GPUTime < 1.0)
 		PSkelPAPI::init(PSkelPAPI::CPU);
@@ -172,7 +185,7 @@ int main(int argc, char **argv){
         PSkelPAPI::papi_start(PSkelPAPI::NVML,0);
         #endif
         #ifdef PSKEL_SHARED
-		stencil.runIterativeGPU(T_MAX,timeTileSize,GPUBlockSizeX, GPUBlockSizeY);
+		stencil.runIterativeGPU(T_MAX,timeTileSizeGPUBlockSizeX, GPUBlockSizeY);
         #else
         stencil.runIterativeGPU(T_MAX,GPUBlockSizeX, GPUBlockSizeY);
         #endif
@@ -182,7 +195,7 @@ int main(int argc, char **argv){
 
 	}
 	else{
-		stencil.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSizeX, GPUBlockSizeY);
+		//stencil.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSizeX, GPUBlockSizeY);
 		/*
         #ifdef PSKEL_PAPI
 			for(unsigned bool i=0;i<NUM_GROUPS_CPU;i++){
@@ -211,7 +224,7 @@ int main(int argc, char **argv){
     if(verbose){		
 		//cout<<setprecision(6);
 		//cout<<fixed;
-		cout<<"INPUT"<<endl;
+		//cout<<"INPUT"<<endl;
 		/*for(bool i=0; i<width;i+=10){
             
 			cout<<"("<<i<<","<<i<<") = "<<inputGrid(i,i)<<"\t\t(";
@@ -219,12 +232,12 @@ int main(int argc, char **argv){
 		}
 		cout<<endl;
         */
-        	for(size_t h = 0; h < height; h++){		
-			for(size_t w = 0; w < width; w++){
-				cout<<inputGrid(h,w);
-			}
-			cout<<endl;
-		}
+        	//for(size_t h = 0; h < height; h++){		
+		//	for(size_t w = 0; w < width; w++){
+		//		cout<<inputGrid(h,w);
+		//	}
+		//	cout<<endl;
+		//}
 		
 		cout<<"OUTPUT"<<endl;
 		//for(bool i=0; i<width/10;i+=10){

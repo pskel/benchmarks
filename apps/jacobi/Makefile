@@ -50,6 +50,9 @@ pskel: ${SRC_NAME}_pskel.cu
 pskel_omp_gcc: ${SRC_NAME}_pskel.cu
 	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_omp_gcc ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP
 
+pskel_tbb_gcc: ${SRC_NAME}_pskel.cu
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_tbb_gcc ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_TBB
+
 pskel_omp_icc: ${SRC_NAME}_pskel.cu
 	 ${CUDAC} -ccbin=${ICC} ${ICC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_omp_icc ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP
 

@@ -137,8 +137,6 @@ int main(int argc, char **argv){
 	numCPUThreads = atoi(argv[8]);
 	int writeToFile = atoi(argv[9]);
 
-	tbb::task_scheduler_init init(numCPUThreads);
-	
 	Array2D<float> inputGrid(x_max, y_max);
 	Array2D<float> outputGrid(x_max, y_max);
 	//int n[4][2] = {{0,1},{-1,0},{1,0},{-1,0}};
