@@ -26,7 +26,7 @@
 #include <omp.h>
 #include "PSkel.h"
 #include "hr_time.h"
-#include "constant.cuh"
+//#include "constant.cuh"
 
 using namespace PSkel;
 using namespace std;
@@ -45,7 +45,7 @@ struct wbImage
 
     wbImage(int imageWidth = 0, int imageHeight = 0, int imageChannels = 0) :_imageWidth(imageWidth), _imageHeight(imageHeight), _imageChannels(imageChannels)
     {
-		new (&_gray) PSkel::Array2D<int>(_imageWidth,_imageHeight);
+		new (&_gray) PSkel::Array2D<int>(_imageHeight,_imageWidth);
     }
 };
 
@@ -93,7 +93,7 @@ wbImage wbImport(char* inputFile){
             fileInput.read(&tmp, 1);
             tmp = fileInput.peek();
         }
-
+	cout<<"Checkpoint 1"<<endl;
         //read dimensions (TODO add error checking)
         char widthStr[64], heightStr[64], numColorsStr[64], *p;
         p = widthStr;
@@ -103,21 +103,21 @@ wbImage wbImport(char* inputFile){
             }
             *p = '\0';
             image._imageWidth = atoi(widthStr);
-            //std::cout << "Width: " << image._imageWidth << std::endl;
+            std::cout << "Width: " << image._imageWidth << std::endl;
             p = heightStr;
             while(isdigit(*p = fileInput.get())) {
                 p++;
             }
             *p = '\0';
             image._imageHeight = atoi(heightStr);
-            //std::cout << "Height: " << image._imageHeight << std::endl;
+            std::cout << "Height: " << image._imageHeight << std::endl;
             p = numColorsStr;
             while(isdigit(*p = fileInput.get())) {
                 p++;
             }
             *p = '\0';
             int numColors = atoi(numColorsStr);
-            //std::cout << "Num colors: " << numColors << std::endl;
+            std::cout << "Num colors: " << numColors << std::endl;
             if (numColors != 255) {
                 std::cout << "the number of colors should be 255, but got " << numColors << std::endl;
                 exit(1);
@@ -129,17 +129,18 @@ wbImage wbImport(char* inputFile){
         int dataSize = image._imageWidth*image._imageHeight*image._imageChannels;
         unsigned char* data = new unsigned char[dataSize];
         fileInput.read((char*)data, dataSize);
-
-		new (&(image._gray)) PSkel::Array2D<int>(image._imageWidth,image._imageHeight);
+	cout<<"Checkpoint 2"<<endl;
+	new (&(image._gray)) PSkel::Array2D<int>(image._imageHeight,image._imageWidth);
 		
 		for (int y = 0; y < image._imageHeight; y++){
 			for (int x = 0; x < image._imageWidth; x++){
 					int r = (int)data[(y*image._imageWidth + x)*3 + 0];
 					int g = (int)data[(y*image._imageWidth + x)*3 + 1];
 					int b = (int)data[(y*image._imageWidth + x)*3 + 2];
-					image._gray(x,y) =  (int) (0.21*r + 0.71*g + 0.07*b);
+					image._gray(x,y) =  (int) (0.21f*r + 0.71f*g + 0.07f*b);
 			}
 		}
+	cout<<"Checkpoint 3"<<endl;
         fileInput.close();
     } else  {
          std::cout << "cannot open file " << inputFile;
@@ -200,27 +201,12 @@ void wbImage_save(wbImage& image, char* outputfile) {
 // FAST
 //*******************************************************************************************
 
-namespace PSkel{
-__parallel__ void stencilKernel(Array2D<int> input, Array2D<int> output, Mask2D<int> mask, int th,size_t i,size_t j){
-	//float accumBrighter;
-	//float accumDarker;
-	//int imagePixel;
-	
-	//int centralPixel = input(i,j);
-	//int p5 = input(i+3,j);
-	//int p9 = input(i,j+3);
-	//int p13 = input(i-3,j);
-	//int p1 = input(i,j-3);
+#include "fast_kernel.cuh"
 
-	//if((p1 >= (centralPixel + T) && p9 >= (centralPixel + T)) || (p1 <= (centralPixel - T) && p9 <= (centralPixel - T))){
-	//	if((p5 >= (centralPixel + T) && p13 >= (centralPixel + T)) || (p5 <= (centralPixel - T) && p13 <= (centralPixel - T))){
-	//		printf("May have corner at position [%d, %d]\n",i,j);
-	//	}
-	//}
-	//else{
-	//	return;
-	//}	
-	
+//namespace PSkel{
+//__parallel__ void stencilKernel(Array2D<int> input, Array2D<int> output, Mask2D<int> mask, int th,size_t i,size_t j){
+	/////////// BEGIN OPENCV IMPLEMENTATION /////////////////////////////////
+	/*
 	int v,d1,d2;
         uint C[4] = {0,0,0,0};
 
@@ -238,12 +224,12 @@ __parallel__ void stencilKernel(Array2D<int> input, Array2D<int> output, Mask2D<
         v     = static_cast<int>(input(i, j));
         C[1] |= static_cast<uint>(input(i, j + 3));
 
-	output(i,j) = v;
+	output(i,j) = input(i,j);
         //int d1 = diffType(v, C[1] & 0xff, threshold);
         //int d2 = diffType(v, C[3] & 0xff, threshold);
 
-	d1 = static_cast<int>(((C[1]&0xff)-v) < -th) + (static_cast<int>(((C[1]&0xff)-v) > th) << 1);
-	d2 = static_cast<int>(((C[3]&0xff)-v) < -th) + (static_cast<int>(((C[3]&0xff)-v) > th) << 1);
+	d1 = static_cast<int>(((C[1] & 0xff)-v) < -th) + (static_cast<int>(((C[1] & 0xff)-v) > th) << 1);
+	d2 = static_cast<int>(((C[3] & 0xff)-v) < -th) + (static_cast<int>(((C[3] & 0xff)-v) > th) << 1);
 	
 	
         if ((d1 | d2) == 0)
@@ -333,8 +319,9 @@ __parallel__ void stencilKernel(Array2D<int> input, Array2D<int> output, Mask2D<
 	d1 = static_cast<int>((((C[0]>>(1*8))&0xff)-v) < -th) + (static_cast<int>((((C[0]>>(1*8))&0xff)-v) > th) << 1);
         d2 = static_cast<int>((((C[2]>>(1*8))&0xff)-v) < -th) + (static_cast<int>((((C[2]>>(1*8))&0xff)-v) > th) << 1);
 
-        /*if ((d1 | d2) == 0)
-        	return;*/
+        // estava comentado
+	if ((d1 | d2) == 0)
+        	return;
 
         mask1 |= (d1 & 1) << 1;
         mask2 |= ((d1 & 2) >> 1) << 1;
@@ -343,13 +330,14 @@ __parallel__ void stencilKernel(Array2D<int> input, Array2D<int> output, Mask2D<
         mask2 |= ((d2 & 2) >> 1) << 9;
 
         //d1 = diffType(v, (C[0] >> (3 * 8)) & 0xff, th);
-        //d2 = diffType(v, (C[2] >> (3 * 8)) & 0xff, th);
+        //d2 e values of mods from Wailing Essences of Woe and above have been reduced, resulting in a notably lower value of all mods from higher-tier Woe essences.= diffType(v, (C[2] >> (3 * 8)) & 0xff, th);
 	d1 = static_cast<int>((((C[0]>>(3*8))&0xff)-v) < -th) + (static_cast<int>((((C[0]>>(3*8))&0xff)-v) > th) << 1);
         d2 = static_cast<int>((((C[2]>>(3*8))&0xff)-v) < -th) + (static_cast<int>((((C[2]>>(3*8))&0xff)-v) > th) << 1);
 
 
-       /*if ((d1 | d2) == 0)
-       		return;*/
+      	// estava comentado
+	if ((d1 | d2) == 0)
+       		return;
 
         mask1 |= (d1 & 1) << 3;
         mask2 |= ((d1 & 2) >> 1) << 3;
@@ -363,8 +351,9 @@ __parallel__ void stencilKernel(Array2D<int> input, Array2D<int> output, Mask2D<
         d2 = static_cast<int>((((C[3]>>(1*8))&0xff)-v) < -th) + (static_cast<int>((((C[3]>>(1*8))&0xff)-v) > th) << 1);
 
 
-        /*if ((d1 | d2) == 0)
-        	return;*/
+        // estava comentado
+	if ((d1 | d2) == 0)
+        	return;
 
         mask1 |= (d1 & 1) << 5;
         mask2 |= ((d1 & 2) >> 1) << 5;
@@ -402,10 +391,73 @@ __parallel__ void stencilKernel(Array2D<int> input, Array2D<int> output, Mask2D<
                    	(pmask2 > 8 && (c_table[(mask2 >> 3) - 63] & (1 << (mask2 & 7))));
 	
 	if(keypoint){
-		output(i,j) = 255;
+		output(i,j) = 300;
 	}
-
+	else{
+		output(i,j) = input(i,j);
+	}
+	////// END OPENCV IMPLEMENTATION ///////////////////////
+	*/
+	
+	//High Speed Test - Pixel 1,9,5 and 13 must be brigher or darker than central pixel
 	/*
+	int accumBrighter=0;
+	int accumDarker=0;
+	int imagePixel;
+	
+	int centralPixel = input(i,j);
+	int p5 = input(i+3,j);
+	int p9 = input(i,j+3);
+	int p13 = input(i-3,j);
+	int p1 = input(i,j-3);
+
+	int p2;
+
+	if(p1 >= (centralPixel + T)){
+		if(p9 >= (centralPixel + T)){
+	
+	if(p1 >= (centralPixel + T) && p9 >= (centralPixel + T)){
+		accumDarker+=2;
+		if(p5 >= (centralPixel + T)){
+			accumDarker++;
+		}
+		else if(p13 >= (centralPixel + T)){
+			accumDarker++;
+		}
+		else{
+			//not a corner
+			return;
+		}
+	}
+	else if(p1 <= (centralPixel - T) && p9 <= (centralPixel - T)){
+		accumBrigher+=2;
+		if(p5 <= (centralPixel - T)){
+			accumBrighter++;
+		}
+		else if(p13 >= (centralPixel - T)){
+			accumBrigher++;
+		}
+		else{
+			//not a corner
+			return;
+		}
+	}
+	*/
+
+
+	//	if((p5 >= (centralPixel + T) && p13 >= (centralPixel + T)) || (p5 <= (centralPixel - T) && p13 <= (centralPixel - T))){
+	//		printf("May have corner at position [%d, %d]\n",i,j);
+	//	}
+	//}
+	//else{
+	//	return;
+	//}
+
+	/*	
+	int centralPixel = input(i,j);
+	int p1 = input(i,j-3);
+	int p	
+
 	#define N 12
 	while (z<16){
 		accumBrighter = 0.0f;
@@ -470,8 +522,8 @@ not_a_corner:	z++;
                         output(i,j) = centralPixel;
                 }
         */
-	}			
-}//end namespace
+//	}			
+//}//end namespace
 
 
 
@@ -485,7 +537,7 @@ int main(int argc, char **argv){
 	
 	//wbImage inputImage;
 	//wbImage outputImage;
-	
+	int threshold = 20;
 	Mask2D<int> mask(28);
 	
 	float GPUTime;
@@ -495,6 +547,7 @@ int main(int argc, char **argv){
 		printf ("Wrong number of parameters.\n");
 		//printf ("Usage: fast INPUT_IMAGE THRESHOLD GPUTIME GPUBLOCKS CPUTHREADS OUTPUT_WRITE_FLAG\n");
 		printf ("Usage: fast WIDTH HEIGHT ITERATIONS TIME_TILE_SIZE GPUTIME GPUBLOCK_X GPUBLOCK_Y CPUTHREADS OUTPUT_WRITE_FLAG\n");
+		//printf ("Usage: fast INPUT_IMAGE ITERATIONS TIME_TILE_SIZE GPUTIME GPUBLOCK_X GPUBLOCK_Y CPUTHREADS OUTPUT_WRITE_FLAG\n");
 		printf ("You entered: ");
 		for(int i=0; i< argc;i++){
 			printf("%s ",argv[i]);
@@ -504,9 +557,24 @@ int main(int argc, char **argv){
 	}
 	
 	//inputImage = wbImport(argv[1]);
-	
 	int x_max = atoi(argv[1]);
 	int y_max = atoi(argv[2]);
+	
+	//int x_max = wbImage_getWidth(inputImage);
+	//int y_max = wbImage_getHeight(inputImage);
+	//outputImage = wbImage_new(wbImage_getWidth(inputImage), wbImage_getHeight(inputImage), wbImage_getChannels(inputImage));
+
+
+
+	/*
+	int T_MAX = atoi(argv[3]);
+	timeTileSize = atoi(argv[4]);
+	GPUTime = atof(argv[5]);
+	GPUBlockSizeX = atoi(argv[6]);
+	GPUBlockSizeY = atoi(argv[7]);
+	numCPUThreads = atoi(argv[8]);
+	int writeToFile = atoi(argv[9]);
+	*/
 	int T_MAX = atoi(argv[3]);
 	timeTileSize = atoi(argv[4]);
 	GPUTime = atof(argv[5]);
@@ -515,10 +583,7 @@ int main(int argc, char **argv){
 	numCPUThreads = atoi(argv[8]);
 	int writeToFile = atoi(argv[9]);
 	
-	//int x_max = wbImage_getWidth(inputImage);
-	//int y_max = wbImage_getHeight(inputImage);
-	
-	//outputImage = wbImage_new(wbImage_getWidth(inputImage), wbImage_getHeight(inputImage), wbImage_getChannels(inputImage));
+
 
 	//First 16 pixels
 	mask.set(0,-1,-3); 	mask.set(1,0,-3); 	mask.set(2,1,-3); 	mask.set(3,2,-2);	
@@ -539,20 +604,20 @@ int main(int argc, char **argv){
 	Array2D<int> input(x_max,y_max);
 	Array2D<int> output(x_max,y_max);
 	
-	#pragma omp parallel
+	#pragma omp parallel num_threads(numCPUThreads)
 	{
-		srand(1234 ^ omp_get_thread_num());
+		unsigned int seed = 1234 + 17 *  omp_get_thread_num();
 		#pragma omp for
 		for (int x = 0; x < x_max; x++){
 			for (int y = 0; y < y_max; y++){		
-				input(x,y) = rand()%255;
+				input(x,y) = rand_r(&seed) % 255;
 			}
 		}
 	}
 	
-	//Stencil2D<Array2D<int>, Mask2D<float>, int> gray(inputImage._gray, outputImage._gray, mask, threshold);
+	//Stencil2D<Array2D<int>, Mask2D<int>, int> gray(inputImage._gray, outputImage._gray, mask, threshold);
 	
-	Stencil2D<Array2D<int>, Mask2D<int>, int> gray(input, output, mask, 20);
+	Stencil2D<Array2D<int>, Mask2D<int>, int> gray(input, output, mask,threshold);
 	
 	//Runtime<Stencil2D<Array2D<int>, Mask2D<float>, int> > stencilG(&gray);
 	//stencilG.run(GPUTime, GPUBlockSize, numCPUThreads);
@@ -576,14 +641,14 @@ int main(int argc, char **argv){
 		#ifdef PSKEL_PAPI
 			for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
 				//cout << "Running iteration " << i << endl;
-				//gray.runIterativeCPU(T_MAX, numCPUThreads, i);	
+				gray.runIterativeCPU(T_MAX, numCPUThreads, i);	
 			}
 		#else
 			//cout<<"Running Iterative CPU"<<endl;
 			//if(numCPUThreads == 1)
 			//	gray.runSequential();
 			//else
-				//gray.runIterativeCPU(T_MAX, numCPUThreads);	
+				gray.runIterativeCPU(T_MAX, numCPUThreads);	
 		#endif
 	}
 	else if(GPUTime == 1.0){
@@ -592,13 +657,14 @@ int main(int argc, char **argv){
 	else{
 		//gray.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSize);
 
-		#ifdef PSKEL_PAPI
-			for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
-				//gray.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSizeX,GPUBlockSizeY,i);
-			}
-		#else
-	//		gray.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSizeX, GPUBlockSizeY);
-		#endif
+		//#ifdef PSKEL_PAPI
+		//	for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
+		//		gray.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSizeX,GPUBlockSizeY,i);
+		//	}
+		//#else
+			cout<<"partitioned"<<endl;
+			gray.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSizeX, GPUBlockSizeY);
+		//#endif
 	}
 	
 	hrt_stop(&timer);
@@ -613,29 +679,30 @@ int main(int argc, char **argv){
 	#endif
 	
 	if(writeToFile == 1){
-		/*stringstream outputFile;
-		outputFile << "output_" <<x_max << "_" << y_max << "_" << threshold << "_" << GPUTime << "_" << GPUBlockSize <<"_" << numCPUThreads << ".ppm";
-		string out = outputFile.str();
+		//stringstream outputFile;
+		//outputFile << "output_" <<x_max << "_" << y_max << "_" << T_MAX << threshold << "_" << GPUTime << "_" << GPUBlockSizeX << "_"<< GPUBlockSizeY <<"_" << numCPUThreads << ".ppm";
+		//string out = outputFile.str();
 	
-		wbImage_save(outputImage, (char*) out.c_str());
+		//wbImage_save(outputImage, (char*) out.c_str());
 
 		//double d3 = omp_get_wtime();
 		//cout<<"Tempo Save: "<<d3-d2<<endl;
-		*/
 		
+		/*
 		cout.precision(12);
 		cout<<"INPUT"<<endl;
 		for(int i=10; i<x_max;i+=10){
-			cout<<"("<<i<<","<<i<<") = "<<input(i,i)<<"\t\t("<<x_max-i<<","<<y_max-i<<") = "<<input(x_max-i,y_max-i)<<endl;
+			//cout<<"("<<i<<","<<i<<") = "<<input(i,i)<<"\t\t("<<x_max-i<<","<<y_max-i<<") = "<<input(x_max-i,y_max-i)<<endl;
 		}
 		cout<<endl;
 		
 		cout<<"OUTPUT"<<endl;
 		for(int i=10; i<y_max;i+=10){
-			cout<<"("<<i<<","<<i<<") = "; output(i,i)==300? cout<<"1": cout<<"0"; cout<< "\t\t";
-			cout<<"("<<y_max-i<<","<<y_max-i<<") = "; output(y_max-i,y_max-i)==300? cout<<"1" : cout<<"0"; cout<<endl;
+			//cout<<"("<<i<<","<<i<<") = "; output(i,i)==300? cout<<"1": cout<<"0"; cout<< "\t\t";
+			//cout<<"("<<y_max-i<<","<<y_max-i<<") = "; output(y_max-i,y_max-i)==300? cout<<"1" : cout<<"0"; cout<<endl;
 		}
 		cout<<endl;
+		*/
 	}
 	
 	return 0;
