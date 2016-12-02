@@ -23,13 +23,6 @@
 #endif
 #endif
 
-
-//#define TBB_USE_PERFORMANCE_WARNINGS 1
-#define PSKEL_CUDA
-//#define JACOBI_KERNEL
-//#define PSKEL_PAPI
-//#define PSKEL_PAPI_DEBUG
-
 #include "PSkel.h"
 #include "hr_time.h"
 //#include "wb.h"
@@ -254,6 +247,7 @@ int main(int argc, char **argv){
 			PSkelPAPI::papi_start(PSkelPAPI::CPU,5);
 		#endif
 
+            cout<<"oi"<<endl;
 			jacobi.runIterativeCPU(T_MAX, numCPUThreads);	
 
 		#ifdef PSKEL_PAPI

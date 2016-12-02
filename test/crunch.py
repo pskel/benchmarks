@@ -11,78 +11,82 @@ PRECISION = 6 # decimal places
 # keyword dictionary: for the profiling files
 kv_time = dict()
 
+kv_time['CPU_time'] = 'CPU_time'
+kv_time['GPU_time'] = 'GPU_time'
+kv_time['Total_time'] = 'Total_time'
 kv_time['Exec_time'] = 'Exec_time'
 
 kv_prof = dict()
 #PAPI VALUES
-kv_prof['PAPI_TOT_INS'] = 'PAPI_TOT_INS'
-kv_prof['PAPI_FP_INS'] = 'PAPI_FP_INS'
-kv_prof['PAPI_FDV_INS'] = 'PAPI_FDV_INS'
-kv_prof['PAPI_VEC_SP'] = 'PAPI_VEC_SP'
-kv_prof['PAPI_LD_INS'] = 'PAPI_LD_INS'
-kv_prof['PAPI_SR_INS'] = 'PAPI_SR_INS'
+#kv_prof['PAPI_TOT_INS'] = 'PAPI_TOT_INS'
+#kv_prof['PAPI_FP_INS'] = 'PAPI_FP_INS'
+#kv_prof['PAPI_FDV_INS'] = 'PAPI_FDV_INS'
+#kv_prof['PAPI_VEC_SP'] = 'PAPI_VEC_SP'
+#kv_prof['PAPI_LD_INS'] = 'PAPI_LD_INS'
+#kv_prof['PAPI_SR_INS'] = 'PAPI_SR_INS'
 
-kv_prof['PAPI_BR_INS'] = 'PAPI_BR_INS'
-kv_prof['PAPI_BR_CN'] = 'PAPI_BR_CN'
-kv_prof['PAPI_BR_TKN'] = 'PAPI_BR_TKN'
-kv_prof['PAPI_BR_MSP'] = 'PAPI_BR_MSP'
-kv_prof['PAPI_BR_PRC'] = 'PAPI_BR_PRC'
+#kv_prof['PAPI_BR_INS'] = 'PAPI_BR_INS'
+#kv_prof['PAPI_BR_CN'] = 'PAPI_BR_CN'
+#kv_prof['PAPI_BR_TKN'] = 'PAPI_BR_TKN'
+#kv_prof['PAPI_BR_MSP'] = 'PAPI_BR_MSP'
+#kv_prof['PAPI_BR_PRC'] = 'PAPI_BR_PRC'
 
-kv_prof['PAPI_L2_DCA'] = 'PAPI_L2_DCA'
-kv_prof['PAPI_L2_DCM'] = 'PAPI_L2_DCM'
-kv_prof['PAPI_L2_TCA']  = 'PAPI_L2_TCA'
-kv_prof['PAPI_L2_TCM']  = 'PAPI_L2_TCM'
+#kv_prof['PAPI_L2_DCA'] = 'PAPI_L2_DCA'
+#kv_prof['PAPI_L2_DCM'] = 'PAPI_L2_DCM'
+#kv_prof['PAPI_L2_TCA']  = 'PAPI_L2_TCA'
+#kv_prof['PAPI_L2_TCM']  = 'PAPI_L2_TCM'
 
-kv_prof['PAPI_L2_LDM'] = 'PAPI_L2_LDM'
-kv_prof['PAPI_L2_STM'] = 'PAPI_L2_STM'
+#kv_prof['PAPI_L2_LDM'] = 'PAPI_L2_LDM'
+#kv_prof['PAPI_L2_STM'] = 'PAPI_L2_STM'
 
-kv_prof['PAPI_L2_DCR'] = 'PAPI_L2_DCR'
-kv_prof['PAPI_L2_DCW']  = 'PAPI_L2_DCW'
-kv_prof['PAPI_L2_TCR']  = 'PAPI_L2_TCR'
-kv_prof['PAPI_L2_TCW'] = 'PAPI_L2_TCW'
+#kv_prof['PAPI_L2_DCR'] = 'PAPI_L2_DCR'
+#kv_prof['PAPI_L2_DCW']  = 'PAPI_L2_DCW'
+#kv_prof['PAPI_L2_TCR']  = 'PAPI_L2_TCR'
+#kv_prof['PAPI_L2_TCW'] = 'PAPI_L2_TCW'
 
-kv_prof['PAPI_L3_TCA']  = 'PAPI_L3_TCA'
-kv_prof['PAPI_L3_TCM']  = 'PAPI_L3_TCM'
-kv_prof['PAPI_L3_DCR']  = 'PAPI_L3_DCR'
-kv_prof['PAPI_L3_DCW'] = 'PAPI_L3_DCW'
-kv_prof['PAPI_L3_TCR'] = 'PAPI_L3_TCR'
-kv_prof['PAPI_L3_TCW'] = 'PAPI_L3_TCW'
-kv_prof['PAPI_L3_LDM'] = 'PAPI_L3_LDM'
+#kv_prof['PAPI_L3_TCA']  = 'PAPI_L3_TCA'
+#kv_prof['PAPI_L3_TCM']  = 'PAPI_L3_TCM'
 
-kv_prof['PAPI_TOT_CYC'] = 'PAPI_TOT_CYC'
-kv_prof['PAPI_RES_STL'] = 'PAPI_RES_STL'
-kv_prof['PAPI_STL_ICY'] = 'PAPI_STL_ICY'
-kv_prof['PAPI_REF_CYC'] = 'PAPI_REF_CYC'
-kv_prof['PAPI_FP_OPS'] = 'PAPI_FP_OPS'
+#kv_prof['PAPI_L3_DCR']  = 'PAPI_L3_DCR'
+#kv_prof['PAPI_L3_DCW'] = 'PAPI_L3_DCW'
+#kv_prof['PAPI_L3_TCR'] = 'PAPI_L3_TCR'
+#kv_prof['PAPI_L3_TCW'] = 'PAPI_L3_TCW'
+#kv_prof['PAPI_L3_LDM'] = 'PAPI_L3_LDM'
+
+#kv_prof['PAPI_TOT_CYC'] = 'PAPI_TOT_CYC'
+#kv_prof['PAPI_RES_STL'] = 'PAPI_RES_STL'
+#kv_prof['PAPI_STL_ICY'] = 'PAPI_STL_ICY'
+#kv_prof['PAPI_REF_CYC'] = 'PAPI_REF_CYC'
+#kv_prof['PAPI_FP_OPS'] = 'PAPI_FP_OPS'
 
 #PAPI PERCENTS
-kv_prof['FP_INS'] = 'FP_INS'
-kv_prof['FDV_INS'] = 'FDV_INS'
-kv_prof['VEC_SP'] = 'VEC_SP'
-kv_prof['LD_INS'] = 'LD_INS'
-kv_prof['SR_INS'] = 'SR_INS'
-kv_prof['BR_INS'] = 'BR_INS'
-kv_prof['BR_CN'] = 'BR_CN'
-kv_prof['BR_TKN'] = 'BR_TKN'
-kv_prof['BR_MSP'] = 'BR_MSP'
-kv_prof['L2_DCM'] = 'L2_DCM'
-kv_prof['L2_LDM'] = 'L2_LDM'
-kv_prof['L2_STM'] = 'L2_STM'
-kv_prof['L2_DCR'] = 'L2_DCR'
-kv_prof['L2_TCM']  = 'L2_TCM'
-kv_prof['L2_DCM']  = 'L2_DCM'
-kv_prof['L2_DCW']  = 'L2_DCW'
-kv_prof['L2_TCR']  = 'L2_TCR'
-kv_prof['L2_TCW'] = 'L2_TCW'
-kv_prof['L3_TCM']  = 'L3_TCM'
-kv_prof['L3_DCR']  = 'L3_DCR'
-kv_prof['L3_DCW'] = 'L3_DCW'
-kv_prof['L3_TCR'] = 'L3_TCR'
-kv_prof['L3_TCW'] = 'L3_TCW'
-kv_prof['INS_CYC'] = 'INS_CYC'
-kv_prof['STL_ICY'] = 'STL_ICY'
-kv_prof['REF_CYC'] = 'REF_CYC'
-kv_prof['FPO_CYC'] = 'FPO_CYC'
+#kv_prof['FP_INS'] = 'FP_INS'
+#kv_prof['FDV_INS'] = 'FDV_INS'
+#kv_prof['VEC_SP'] = 'VEC_SP'
+#kv_prof['LD_INS'] = 'LD_INS'
+#kv_prof['SR_INS'] = 'SR_INS'
+#kv_prof['BR_INS'] = 'BR_INS'
+#kv_prof['BR_CN'] = 'BR_CN'
+#kv_prof['BR_TKN'] = 'BR_TKN'
+#kv_prof['BR_MSP'] = 'BR_MSP'
+#kv_prof['L2_DCM'] = 'L2_DCM'
+#kv_prof['L2_LDM'] = 'L2_LDM'
+#kv_prof['L2_STM'] = 'L2_STM'
+#kv_prof['L2_DCR'] = 'L2_DCR'
+#kv_prof['L2_TCM']  = 'L2_TCM'
+#kv_prof['L2_DCM']  = 'L2_DCM'
+#kv_prof['L2_DCW']  = 'L2_DCW'
+#kv_prof['L2_TCR']  = 'L2_TCR'
+#kv_prof['L2_TCW'] = 'L2_TCW'
+#kv_prof['L3_TCM']  = 'L3_TCM'
+#kv_prof['L3_DCR']  = 'L3_DCR'
+#kv_prof['L3_DCW'] = 'L3_DCW'
+#kv_prof['L3_TCR'] = 'L3_TCR'
+#kv_prof['L3_TCW'] = 'L3_TCW'
+#kv_prof['INS_CYC'] = 'INS_CYC'
+#kv_prof['STL_ICY'] = 'STL_ICY'
+#kv_prof['REF_CYC'] = 'REF_CYC'
+#kv_prof['FPO_CYC'] = 'FPO_CYC'
 
 #GLOBAL MEMORY
 kv_prof['gld_requested_throughput'] = 'gld_requested_throughput'
@@ -114,8 +118,8 @@ kv_prof['l2_write_transactions'] = 'l2_write_transactions'
 kv_prof['l2_tex_read_transactions'] = 'l2_tex_read_transactions'
 kv_prof['l2_texture_read_hit_rate'] = 'l2_texture_read_hit_rate'
 kv_prof['l2_texture_read_throughput'] = 'l2_texture_read_throughput'
-#l2_atomic_throughput
-#l2_atomic_transactions
+kv_prof['l2_atomic_throughput'] = 'l2_atomic_throughput'
+kv_prof['l2_atomic_transactions'] = 'l2_atomic_transactions'
 
 #L2_L1
 kv_prof['l2_l1_read_hit_rate'] = 'l2_l1_read_hit_rate'
@@ -128,6 +132,18 @@ kv_prof['tex_cache_hit_rate'] = 'tex_cache_hit_rate'
 kv_prof['tex_cache_transactions'] = 'tex_cache_transactions'
 kv_prof['tex_cache_throughput'] = 'tex_cache_throughput'
 
+#SHARED
+kv_prof['shared_load_transactions'] = 'shared_load_transactions'
+kv_prof['shared_store_transactions'] = 'shared_store_transactions'
+kv_prof['l1_shared_load_transactions'] = 'l1_shared_load_transactions'
+kv_prof['l1_shared_store_transactions'] = 'l1_shared_store_transactions'
+kv_prof['shared_load_transactions_per_request'] = 'shared_load_transactions_per_request'
+kv_prof['shared_store_transactions_per_request'] = 'shared_store_transactions_per_request'
+kv_prof['shared_load_throughput'] = 'shared_load_throughput'
+kv_prof['shared_store_throughput'] = 'shared_store_throughput'
+#kv_prof['shared_replay_overhead'] = 'shared_replay_overhead'
+kv_prof['shared_load'] = 'shared_load'
+kv_prof['shared_store'] = 'shared_store'
 
 #FLOPS
 kv_prof['flop_count_sp'] = 'flop_count_sp'
@@ -199,7 +215,6 @@ kv_prof['gld_efficiency'] = 'gld_efficiency'
 kv_prof['gst_efficiency'] = 'gst_efficiency'
 kv_prof['shared_efficiency'] = 'shared_efficiency'
 kv_prof['nc_gld_efficiency'] = 'nc_gld_efficiency'
-
 
 #UTILIZATION
 kv_prof['sysmem_utilization'] = 'sysmem_utilization'
@@ -348,26 +363,23 @@ kv_prof['sm_cta_launched'] = 'sm_cta_launched'
 kv_prof['not_predicated_off_thread_inst_executed'] = 'not_predicated_off_thread_inst_executed'
 kv_prof['uncached_global_load_transaction'] = 'uncached_global_load_transaction'
 kv_prof['global_store_transaction'] = 'global_store_transaction'
-kv_prof['__l1_global_load_transactions'] =  'l1_global_load_transactions'
-kv_prof['__l1_global_store_transactions'] =  'l1_global_store_transactions'
+kv_prof['__l1_global_load_transactions'] =  '__l1_global_load_transactions'
+kv_prof['__l1_global_store_transactions'] =  '__l1_global_store_transactions'
  
 
 #kv_prof['inst_replay_overhead'] = 'inst_replay_overhead'
 #kv_prof['global_cache_replay_overhead'] = 'global_cache_replay_overhead'
 #local_load_transactions
 #local_store_transactions
-#shared_load_transactions
-#shared_store_transactions
-#local_load_transactions_per_request
-#local_store_transactions_per_request
-#shared_load_transactions_per_request
-#shared_store_transactions_per_request
 #local_load_throughput
 #local_store_throughput
-#shared_load_throughput
-#shared_store_throughput
-#shared_efficiency
-#shared_replay_overhead
+
+#local_load_transactions_per_request
+#local_store_transactions_per_request
+
+
+
+
 #global_cache_replay_overhead
 #local_replay_overhead
 #local_memory_overhead
@@ -378,8 +390,8 @@ kv_prof['__l1_global_store_transactions'] =  'l1_global_store_transactions'
 #global_cache_replay_overhead
 #shared_replay_overhead
 #local_memory_overhead
+
 #l2_atomic_throughput
-#l2_tex_read_transactions
 #l2_atomic_transactions
 #atomic_throughput
 
@@ -387,7 +399,7 @@ kv_prof['__l1_global_store_transactions'] =  'l1_global_store_transactions'
 #fixed_header = ['app','input','ite','pct_gpu','blk_gpu','thrd_cpu','mask_type','mask_radius','numAdd','numMult']
 
 # fixed header fields for apps
-fixed_header = ['app','api','input','ite','thrd_cpu']
+fixed_header = ['app','pct_gpu','input','ite','thrd_cpu']
 
 HEADER_FIXED_COLS = len(fixed_header)
 
@@ -405,7 +417,7 @@ for metric in kv_time:
 metrics_prof = list()
 for metric in kv_prof:
   metrics_prof.append(metric)
-  header.append(kv_prof[metric])
+#  header.append(kv_prof[metric])
 
 #sort the header by metric name
 header.sort()
@@ -540,9 +552,9 @@ prof_files.sort()
 
 # extract the results from the files
 results = list()
-for i in range(len(prof_files)):
+for i in range(len(time_files)):
   # extract configuration attributes from the file name
-  data = get_attr_from_filename(prof_files[i])
+  data = get_attr_from_filename(time_files[i])
 
   # from the "time" files, we want PS: also needs to take this for prof
   for metric in metrics_time:
@@ -550,8 +562,8 @@ for i in range(len(prof_files)):
 
   # for the "prof" files, we want all metrics
   #if data[3] > '0' :
-  for metric in metrics_prof:
-  	data += [ mean(extract_values(metric, prof_files[i])) ]
+  #for metric in metrics_prof:
+	#data += [ mean(extract_values(metric, prof_files[i])) ]
   #k += 1
 	
   # create a results row

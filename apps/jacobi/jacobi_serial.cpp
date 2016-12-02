@@ -58,7 +58,6 @@ public:
  		for (size_t y = r.begin(); y != r.end(); y++){
 			for (size_t x = 1; x < width-1; x++){
 				output[y*width+x] = 0.25f * (input[(y+1)*width + x] + input[(y-1)*width + x] + input[y*width + (x+1)] + input[y*width + (x-1)] );
-			
 			}
 	}
 	}

@@ -59,6 +59,8 @@ pskel_tbb_icc: ${SRC_NAME}_pskel.cu
 pskel_shared: ${SRC_NAME}_pskel.cu
 	${CUDAC} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_shared ${SRC_NAME}_pskel.cu ${LIBS} -Xptxas -v --keep --keep-dir nvcc -DPSKEL_SHARED
 
+pskel_shared_debug: ${SRC_NAME}_pskel.cu
+	${CUDAC} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_shared ${SRC_NAME}_pskel.cu ${LIBS} -Xptxas -v --keep --keep-dir nvcc -DPSKEL_SHARED -DDEBUG
 
 debug: ${SRC_NAME}_pskel.cu
 	${CUDAC} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel ${SRC_NAME}_pskel.cu ${LIBS} -DDEBUG
