@@ -9,6 +9,9 @@
 #include <fstream>
 
 //#define PSKEL_SHARED_MASK
+/*
+#define PSKEL_CUDA
+
 #ifndef PSKEL_OMP
 	#ifndef PSKEL_TBB
 		#define PSKEL_OMP
@@ -22,9 +25,11 @@
 	#endif
 #endif
 #endif
+*/
+#define PSKEL_CUDA
 
 #include "PSkel.h"
-#include "hr_time.h"
+//#include "hr_time.h"
 //#include "wb.h"
 
 using namespace std;
@@ -44,7 +49,7 @@ __parallel__ void stencilKernel(float input[BLOCK_SIZE][BLOCK_SIZE],float output
 	output[ty][tx] = 0.25f * (input[ty][tx-1] + input[ty][tx+1] + input[ty-1][tx] + input[ty+1][tx] - args.h);
 }
 */
-__parallel__ void stencilKernel(const Array2D<float> &input, const Array2D<float> &output, const Mask2D<float> &mask, const Arguments &args, size_t i, size_t j){
+__parallel__ void stencilKernel(Array2D<float> &input, Array2D<float> &output, const Mask2D<float> &mask, const Arguments &args, size_t i, size_t j){
 	//output(i,j) = 0.25f * ( mask.get(0, input, i, j) + mask.get(1, input, i, j) +  
 	//			mask.get(2, input, i, j) + mask.get(3, input, i, j) - args.h );
 						 
@@ -105,8 +110,7 @@ __parallel__ void stencilKernel(const Array2D<float> &input, const Array2D<float
     }    
     */
   
-}
-
+    }
 }
 
 
@@ -194,7 +198,7 @@ int main(int argc, char **argv){
 	}
 	#else
 */	
-	#pragma omp parallel
+	#pragma omp parallel num_threads(numCPUThreads)
 	{
 	#pragma omp for 
 	for(size_t h = 0; h < y_max; h++){	
@@ -205,8 +209,8 @@ int main(int argc, char **argv){
 	}
 	}
 //	#endif
-	hr_timer_t timer;
-	hrt_start(&timer);
+//	hr_timer_t timer;
+//	hrt_start(&timer);
     
 	//wbTime_start(GPU, "Doing GPU Computation (memory + compute)");
 	Stencil2D<Array2D<float>, Mask2D<float>, Arguments> jacobi(inputGrid, outputGrid, mask, args);
@@ -247,7 +251,7 @@ int main(int argc, char **argv){
 			PSkelPAPI::papi_start(PSkelPAPI::CPU,5);
 		#endif
 
-            cout<<"oi"<<endl;
+
 			jacobi.runIterativeCPU(T_MAX, numCPUThreads);	
 
 		#ifdef PSKEL_PAPI
@@ -281,7 +285,7 @@ int main(int argc, char **argv){
 	
 	
 	//wbTime_stop(GPU, "Doing GPU Computation (memory + compute)");
-	hrt_stop(&timer);
+	//hrt_stop(&timer);
 
 	#ifdef PSKEL_PAPI
 		if(GPUTime < 1.0){
@@ -290,7 +294,7 @@ int main(int argc, char **argv){
 		}
 	#endif
 	
-	cout << "Exec_time\t" << hrt_elapsed_time(&timer) << endl;
+	//cout << "Exec_time\t" << hrt_elapsed_time(&timer) << endl;
 
 	if(writeToFile == 1){
 		/*stringstream outputFile;
