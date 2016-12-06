@@ -589,12 +589,12 @@ int main(int argc, char **argv){
 	mask.set(0,-1,-3); 	mask.set(1,0,-3); 	mask.set(2,1,-3); 	mask.set(3,2,-2);	
 	mask.set(4,3,-1);	mask.set(5,3,0); 	mask.set(6,3,1); 	mask.set(7,2,2); 	
 	mask.set(8,1,3); 	mask.set(9,0,3);	mask.set(10,-1,3); 	mask.set(11,-2,2);  
-	mask.set(12,-3,1);  mask.set(13,-3,0);  mask.set(14,-3,-1);	mask.set(15,-2,-2);	
+	mask.set(12,-3,1);  	mask.set(13,-3,0);  	mask.set(14,-3,-1);	mask.set(15,-2,-2);	
 	
 	//Repeating
-	mask.set(16,-1,-3);	mask.set(17,0,-3);	mask.set(18,1,-3);	mask.set(19,2,-2);	
-	mask.set(20,3,-1);	mask.set(21,3,0);	mask.set(22,3,1);	mask.set(23,3,1);	         	
-	mask.set(24,2,2);   mask.set(25,1,3); 	mask.set(26,0,3);	mask.set(27,-1,3);
+	//mask.set(16,-1,-3);	mask.set(17,0,-3);	mask.set(18,1,-3);	mask.set(19,2,-2);	
+	//mask.set(20,3,-1);	mask.set(21,3,0);	mask.set(22,3,1);	mask.set(23,3,1);	         	
+	//mask.set(24,2,2);   mask.set(25,1,3); 	mask.set(26,0,3);	mask.set(27,-1,3);
 	
 	//double d1 = omp_get_wtime();
 	//std::cout<<"Tempo Input: "<<d1-d0<<std::endl;

@@ -4,7 +4,7 @@ using namespace PSkel;
 using namespace std;
 
 namespace PSkel{
-    __parallel__ void stencilKernel(Array2D<int> input, Array2D<int> output, Mask2D<int> mask, int th,size_t i,size_t j){
+    __parallel__ void stencilKernel(Array2D<int> &input, Array2D<int> &output, Mask2D<int> &mask, int th,size_t i,size_t j){
         int cb = input(i,j) + th;
         int c_b= input(i,j) - th;
 
