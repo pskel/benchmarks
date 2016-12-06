@@ -28,32 +28,27 @@
 #endif
 
 
-
 #include "PSkel.h"
-#include "hr_time.h"
+//#include "hr_time.h"
 //#include "wb.h"
 
 using namespace std;
 using namespace PSkel;
 
 namespace PSkel{
-	
-	
-__parallel__ void stencilKernel(Array2D<bool> input, Array2D<bool> output,
-                  Mask2D<bool> mask, bool args, size_t i, size_t j){
+__parallel__ void stencilKernel(Array2D<bool> &input, Array2D<bool> &output, Mask2D<bool> &mask, bool args, size_t i, size_t j){
     int neighbors =  input(i-1,j-1) + input(i-1,j) + input(i-1,j+1)  +
-                     input(i+1,j-1) + input(i+1,j) + input(i+1,j+1)  + 
-                     input(i,j-1)   + input(i,j+1) ; 
+                     input(i,j-1)   + input(i,j+1) + 
+		     input(i+1,j-1) + input(i+1,j) + input(i+1,j+1);
+                      
+    bool central = input(i,j);
     //printf("%d,%d\n",i,j);
     //int neighbors = mask.get(0,input,i,j) + mask.get(1,input,i,j) + mask.get(2,input,i,j) +
 
     //	              mask.get(3,input,i,j) + mask.get(4,input,i,j) + mask.get(5,input,i,j) +
     //		      mask.get(6,input,i,j) + mask.get(7,input,i,j);
-
-                      
     
-    
-    //bool neighbors =  input(i-1,j-1) + input(i-1,j) + input(i-1,j+1)  +
+    //int neighbors =  input(i-1,j-1) + input(i-1,j) + input(i-1,j+1)  +
     //                 input(i+1,j-1) + input(i+1,j) + input(i+1,j+1)  + 
     //                 input(i,j-1)   + input(i,j+1) ;
     /*
@@ -91,7 +86,7 @@ __parallel__ void stencilKernel(Array2D<bool> input, Array2D<bool> output,
                      input(i,j-1)   + input(i,j+1) ;
     }
     */ 
-    output(i,j) = (neighbors == 3 || (neighbors == 2 && input(i,j) == 1))?1:0;
+    output(i,j) = (neighbors == 3 || (neighbors == 2 && central))?1:0;
         
     }
 }
@@ -130,6 +125,7 @@ int main(int argc, char **argv){
 	#pragma omp parallel num_threads(numCPUThreads)
 	{
 	unsigned int seed = 25234 + 17 * omp_get_thread_num();
+	#pragma omp for
     	for(int h = 0; h < height; h++){		
        		for(int w = 0; w < width; w++){
       			inputGrid(h,w) = (bool) (rand_r(&seed)%2) ;            
@@ -155,8 +151,8 @@ int main(int argc, char **argv){
 		PSkelPAPI::init(PSkelPAPI::NVML);
 	#endif	
 	
-	hr_timer_t timer;
-	hrt_start(&timer);
+	//hr_timer_t timer;
+	//hrt_start(&timer);
 	//wbTime_start(GPU, "Doing GPU Computation (memory + compute)");
 	Stencil2D<Array2D<bool>, Mask2D<bool>, bool> stencil(inputGrid, outputGrid, mask, 0);
 	
@@ -185,9 +181,9 @@ int main(int argc, char **argv){
         PSkelPAPI::papi_start(PSkelPAPI::NVML,0);
         #endif
         #ifdef PSKEL_SHARED
-		stencil.runIterativeGPU(T_MAX,timeTileSizeGPUBlockSizeX, GPUBlockSizeY);
+		//stencil.runIterativeGPU(T_MAX,timeTileSizei,GPUBlockSizeX, GPUBlockSizeY);
         #else
-        stencil.runIterativeGPU(T_MAX,GPUBlockSizeX, GPUBlockSizeY);
+        	stencil.runIterativeGPU(T_MAX,GPUBlockSizeX, GPUBlockSizeY);
         #endif
 		#ifdef PSKEL_PAPI
         PSkelPAPI::papi_stop(PSkelPAPI::NVML,0);
@@ -195,9 +191,9 @@ int main(int argc, char **argv){
 
 	}
 	else{
-		//stencil.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSizeX, GPUBlockSizeY);
+		stencil.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSizeX, GPUBlockSizeY);
 		/*
-        #ifdef PSKEL_PAPI
+        	#ifdef PSKEL_PAPI
 			for(unsigned bool i=0;i<NUM_GROUPS_CPU;i++){
 				stencil.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSizeX,i);
 			}
@@ -209,7 +205,7 @@ int main(int argc, char **argv){
 	
 	
 	//wbTime_stop(GPU, "Doing GPU Computation (memory + compute)");
-	hrt_stop(&timer);
+	//hrt_stop(&timer);
 
 	#ifdef PSKEL_PAPI
 		if(GPUTime < 1.0){
@@ -253,7 +249,7 @@ int main(int argc, char **argv){
 		}
     }
     
-    cout << "Exec_time\t" << hrt_elapsed_time(&timer) << endl;
+    //cout << "Exec_time\t" << hrt_elapsed_time(&timer) << endl;
     
     return 0;
 }

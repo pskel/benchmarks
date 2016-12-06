@@ -22,7 +22,7 @@ GA_SRC_PATH 	= /home/alyson/galib247/
 PAPI_LIB_PATH 	= /usr/local/lib
 PAPI_SRC_PATH 	= /usr/local/include
 HR_TIME		= ../../pskel/include
-LIBS		= -I${HR_TIME} -I${GA_SRC_PATH} -L${GA_LIB_PATH} -I${PAPI_SRC_PATH} -L${PAPI_LIB_PATH} -lga -lm -I${TBB_SRC_PATH} -L${TBB_LIB_PATH} -ltbb -ltbbmalloc
+LIBS		= -I${HR_TIME} -I${GA_SRC_PATH} -L${GA_LIB_PATH} -lga -lm -I${TBB_SRC_PATH} -L${TBB_LIB_PATH} -ltbb -ltbbmalloc
 ACC_LIBS	= -I${HR_TIME} -lrt -mp 
 SRC_NAME        = gol
 BIN_DIR         = ../../bin/
@@ -49,6 +49,9 @@ pskel: ${SRC_NAME}_pskel.cu
 
 pskel_omp_gcc: ${SRC_NAME}_pskel.cu
 	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_omp_gcc ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP
+
+pskel_tbb_gcc: ${SRC_NAME}_pskel.cu
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_omp_gcc ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_TBB
 
 pskel_omp_icc: ${SRC_NAME}_pskel.cu
 	 ${CUDAC} -ccbin=${ICC} ${ICC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_omp_icc ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP
