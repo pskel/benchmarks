@@ -1,11 +1,24 @@
-#define PSKEL_OMP
-#define PSKEL_CUDA
-
 #include <stdio.h>
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <sstream>
+
+#ifndef PSKEL_OMP
+        #ifndef PSKEL_TBB
+                #define PSKEL_OMP
+                #undef PSKEL_TBB
+        #endif
+#else
+#ifndef PSKEL_TBB
+        #ifndef PSKEL_OMP
+                #define PSKEL_TBB
+                #undef PSKEL_OMP
+        #endif
+#endif
+#endif
+
+#define PSKEL_CUDA
 
 #include "PSkel.h"
 #include "hr_time.h"
@@ -21,7 +34,7 @@ using namespace PSkel;
 //*******************************************************************************************
 
 namespace PSkel{
-	__parallel__ void stencilKernel(Array2D<float> input, Array2D<float> output, Mask2D<float> mask, int null, size_t i,size_t j){
+	__parallel__ void stencilKernel(Array2D<float> &input, Array2D<float> &output, Mask2D<float> &mask, int null, size_t i, size_t j){
 		//float accum = 0.0f;
 		/*for(int n=0;n<mask.size;n++){
 			accum += mask.get(n,input,i,j) * mask.getWeight(n);
@@ -29,10 +42,21 @@ namespace PSkel{
 		output(i,j)= accum;
 		*/
 
-		output(i,j) = input(i-1,j-1) * 0.33 + input(i,j-1) * 0.33 + input(i+1,j-1) *0.33  +
-                              input(i-1,j)   * 0.33 + input(i,j)   * 0.33 + input(i+1,j)   * 0.33 +
-                              input(i-1,j+1) * 0.33 + input(i,j+1) * 0.33 + input(i+1,j+1) * 0.33;
- 		/*
+		/*
+		output(i,j) = input(i-2,j-2) * 0.33 + input(i-1,j-2) * 0.33 + input(i,j-2)   * 0.33 + input(i+1,j-2) * 0.33  + input(i+2,j-2) * 0.33 + 
+			      input(i-2,j-1) * 0.33 + input(i-1,j-1) * 0.33 + input(i,j-1)   * 0.33 + input(i+1,j-1) * 0.33  + input(i+2,j-1) * 0.33 + 
+                              input(i-2, j)  * 0.33 + input(i-1,j)   * 0.33 + input(i,j)     * 0.33 + input(i+1,j)   * 0.33  + input(i+2, j)  * 0.33 + 
+                              input(i-2,j+1) * 0.33 + input(i-1,j+1) * 0.33 + input(i,j+1)   * 0.33 + input(i+1,j+1) * 0.33  + input(i+2,j+1) * 0.33 +  
+ 		 	      input(i-2,j+2) * 0.33 + input(i-1,j+2) * 0.33 + input(i,j+2)   * 0.33 + input(i+1,j+2) * 0.33  + input(i+2,j+2) * 0.33; 
+		*/
+			
+		output(i,j) = input(i-2,j-2) * 0.33 + input(i-2,j-1) * 0.33 + input(i-2,j)   * 0.33 + input(i-2,j+1) * 0.33  + input(i-2,j+2) * 0.33 + 
+			      input(i-1,j-2) * 0.33 + input(i-1,j-1) * 0.33 + input(i-1,j)   * 0.33 + input(i-1,j+1) * 0.33  + input(i-1,j+2) * 0.33 + 
+                              input(i, j-2)  * 0.33 + input(i-1,j-1) * 0.33 + input(i,j)     * 0.33 + input(i,j+1)   * 0.33  + input(i,j+2)   * 0.33 + 
+                              input(i+1,j-2) * 0.33 + input(i+1,j-1) * 0.33 + input(i+1,j)   * 0.33 + input(i+1,j+1) * 0.33  + input(i+1,j+2) * 0.33 +  
+ 		 	      input(i+2,j-2) * 0.33 + input(i+2,j-1) * 0.33 + input(i+2,j)   * 0.33 + input(i+2,j+1) * 0.33  + input(i+2,j+2) * 0.33; 
+
+		/*
 		output(i,j) = mask.get(0,input,i,j) * mask.getWeight(0) +
 					  mask.get(1,input,i,j) * mask.getWeight(1) +
 					  mask.get(2,input,i,j) * mask.getWeight(2) +
@@ -75,7 +99,7 @@ int main(int argc, char **argv){
 	if (argc != 10){
 		printf ("Wrong number of parameters.\n");
 		//printf ("Usage: convolution INPUT_IMAGE ITERATIONS GPUTIME GPUBLOCKS CPUTHREADS OUTPUT_WRITE_FLAG\n");
-		printf ("Usage: convolution WIDTH HEIGHT ITERATIONS TIME_TILE_SIZE GPUTIME GPUBLOCKX GPUBLOCKY CPUTHREADS OUTPUT_WRITE_FLAG\n");
+		printf ("Usage: convolution WIDTH HEIGHT ITERATIONS TIME_TILE_SIZE GPUTIME GPUBLOCK_X GPUBLOCK_Y CPUTHREADS OUTPUT_WRITE_FLAG\n");
 		printf ("You entered: ");
 		for(int i=0; i< argc;i++){
 			printf("%s ",argv[i]);
@@ -90,7 +114,7 @@ int main(int argc, char **argv){
 	timeTileSize = atoi(argv[4]);
 	GPUTime = atof(argv[5]);
 	GPUBlockSizeX = atoi(argv[6]);
-	GPUBlockSizeX = atoi(argv[7]);
+	GPUBlockSizeY = atoi(argv[7]);
 	numCPUThreads = atoi(argv[8]);
 	int writeToFile = atoi(argv[9]);
 	
@@ -105,11 +129,11 @@ int main(int argc, char **argv){
 	
 	#pragma omp parallel num_threads(numCPUThreads)
 	{
-		srand(1234 ^ omp_get_thread_num());
+		unsigned int seed = 12345 + 17 *  omp_get_thread_num();
 		#pragma omp for
 		for (int x = 0; x < x_max; x++){
 			for (int y = 0; y < y_max; y++){		
-				inputGrid(x,y) = ((float)(rand() % 255))/255;
+				inputGrid(x,y) = ((float)(rand_r(&seed) % 255))/255;
 			}
 		}
 	}
