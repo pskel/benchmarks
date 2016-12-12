@@ -641,7 +641,9 @@ int main(int argc, char **argv){
 		#ifdef PSKEL_PAPI
 			for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
 				//cout << "Running iteration " << i << endl;
-				gray.runIterativeCPU(T_MAX, numCPUThreads, i);	
+				PSkelPAPI::papi_start(PSkelPAPI::CPU,i);
+				gray.runIterativeCPU(T_MAX, numCPUThreads);
+				PSkelPAPI::papi_stop(PSkelPAPI::CPU,i);
 			}
 		#else
 			//cout<<"Running Iterative CPU"<<endl;

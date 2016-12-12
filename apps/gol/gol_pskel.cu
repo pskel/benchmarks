@@ -37,11 +37,11 @@ using namespace PSkel;
 
 namespace PSkel{
 __parallel__ void stencilKernel(Array2D<bool> &input, Array2D<bool> &output, Mask2D<bool> &mask, bool args, size_t i, size_t j){
-    int neighbors =  input(i-1,j-1) + input(i-1,j) + input(i-1,j+1)  +
-                     input(i,j-1)   + input(i,j+1) + 
-		     input(i+1,j-1) + input(i+1,j) + input(i+1,j+1);
+    int neighbors =  (input(i-1,j-1) + input(i-1,j) + input(i-1,j+1))  +
+                     (input(i,j-1)   + input(i,j+1)) + 
+		     (input(i+1,j-1) + input(i+1,j) + input(i+1,j+1));
                       
-    bool central = input(i,j);
+    //bool central = input(i,j);
     //printf("%d,%d\n",i,j);
     //int neighbors = mask.get(0,input,i,j) + mask.get(1,input,i,j) + mask.get(2,input,i,j) +
 
@@ -86,7 +86,7 @@ __parallel__ void stencilKernel(Array2D<bool> &input, Array2D<bool> &output, Mas
                      input(i,j-1)   + input(i,j+1) ;
     }
     */ 
-    output(i,j) = (neighbors == 3 || (neighbors == 2 && central))?1:0;
+    output(i,j) = (neighbors == 3 || (neighbors == 2 && input(i,j)))?1:0;
         
     }
 }
@@ -167,13 +167,13 @@ int main(int argc, char **argv){
 			//cout<<"Running Iterative CPU"<<endl;
 		
 		#ifdef PSKEL_PAPI
-		//for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
-		PSkelPAPI::papi_start(PSkelPAPI::CPU,5);
+		for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
+		PSkelPAPI::papi_start(PSkelPAPI::CPU,i);
 		#endif
 		stencil.runIterativeCPU(T_MAX, numCPUThreads);	
 		#ifdef PSKEL_PAPI
-		PSkelPAPI::papi_stop(PSkelPAPI::CPU,5);
-		//}
+		PSkelPAPI::papi_stop(PSkelPAPI::CPU,i);
+		}
 		#endif
 	}
 	else if(GPUTime == 1.0){

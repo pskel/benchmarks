@@ -1,4 +1,4 @@
-ICC 		= /opt/intel/bin/icpc 
+IC 		= /opt/intel/bin/icpc 
 ICC_FLAGS	= -Xcompiler -O3 -Xcompiler -xhost -Xcompiler -openmp -Xcompiler -tbb  -Xcompiler -qopt-report2 -Xcompiler -qopt-report-file:stdout -Xcompiler -qopt-report-phase=vec
 GCC 		= /usr/local/bin/g++ 
 GCC_FLAGS	= -Xcompiler -O3 -Xcompiler -ftree-vectorize -Xcompiler -march=native -Xcompiler -mtune=native -Xcompiler -fopenmp
@@ -22,7 +22,7 @@ GA_SRC_PATH 	= /home/alyson/galib247/
 PAPI_LIB_PATH 	= /usr/local/lib
 PAPI_SRC_PATH 	= /usr/local/include
 HR_TIME		= ../../pskel/include
-LIBS		= -I${HR_TIME} -I${GA_SRC_PATH} -L${GA_LIB_PATH} -I${PAPI_SRC_PATH} -L${PAPI_LIB_PATH} -lga -lm -I${TBB_SRC_PATH} -L${TBB_LIB_PATH} -ltbb -ltbbmalloc -lrt
+LIBS		= -I${HR_TIME} -I${GA_SRC_PATH} -L${GA_LIB_PATH} -I${PAPI_SRC_PATH} -L${PAPI_LIB_PATH} -lga -lm -I${TBB_SRC_PATH} -L${TBB_LIB_PATH} -ltbb -ltbbmalloc -lrt -lpapi
 ACC_LIBS	= -I${HR_TIME} -lrt -mp 
 SRC_NAME        = fast
 BIN_DIR         = ../../bin/
@@ -69,6 +69,9 @@ pskel_managed: ${SRC_NAME}_pskel.cu
 src: ${SRC_NAME}_serial.cpp
 	${PSKEL_SRC} ${SRC_NAME}_serial.cpp ${SRC_NAME}_src2src.cu
 	${CUDAC} ${CUDAFLAGS} -ccbin=/usr/bin/g++ -o ${BIN_DIR}${SRC_NAME}_src2src ${SRC_NAME}_src2src.cu ${LIBS}
+
+papi_tesla_omp_gcc: ${SRC_NAME}_pskel.cu
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi_omp_gcc ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_PAPI -DTESLA -DXEON
 	
 papi: ${SRC_NAME}_pskel.cu
 	${CUDAC} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi ${SRC_NAME}_pskel.cu ${LIBS} -lpapi -DPSKEL_PAPI -DTIME

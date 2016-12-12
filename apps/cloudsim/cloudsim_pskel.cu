@@ -61,9 +61,9 @@ struct Cloud{
 
 namespace PSkel{	
 __parallel__ void stencilKernel(Array2D<float> input,Array2D<float> output,Mask2D<float> mask,Cloud cloud,size_t i, size_t j){
-	int numNeighbor = 4;
-	float sum;
-	float inValue = input(i,j);
+    int numNeighbor = 4;
+    float sum;
+    float inValue = input(i,j);
            
     float xwind = cloud.wind_x(i,j);
     float ywind = cloud.wind_y(i,j);
@@ -81,7 +81,7 @@ __parallel__ void stencilKernel(Array2D<float> input,Array2D<float> output,Mask2
     float componenteVentoX = xfactor * xwind;
         
     float temp_wind = (-componenteVentoX * ((inValue - temperaturaNeighborX)/CELL_LENGTH)) -
-                       ( componenteVentoY * ((inValue - temperaturaNeighborY)/CELL_LENGTH));
+                      ( componenteVentoY * ((inValue - temperaturaNeighborY)/CELL_LENGTH));
         	
 		/*
 		float temp_wind = 0.0f;
@@ -295,21 +295,22 @@ int main(int argc, char **argv){
 	//omp_set_num_threads(numCPUThreads);
 
 	/* Inicialização da matriz de entrada com a temperatura ambiente */
-	#pragma omp parallel for num_threads(numCPUThreads)
+	#pragma omp parallel num_threads(numCPUThreads)
+	{
+       	unsigned int seed = 1234 + 17 * omp_get_thread_num();
+		
+	#pragma omp for
 	for (size_t i = 0; i < linha; i++){		
 		for (size_t j = 0; j < coluna; j++){
 			inputGrid(i,j) = temperaturaAtmosferica;
 			//outputGrid(i,j) = temperaturaAtmosferica;
 		}
-	}	
+	}
+	
 	/* Inicialização dos ventos Latitudinal(Wind_X) e Longitudinal(Wind_Y) */
-    	//srand(1234);
-	#pragma omp parallel num_threads(numCPUThreads)
-	{
-	unsigned int seed = 1234 + 17* omp_get_thread_num();
-	#pragma omp for
-	for( i = 0; i < linha; i++ ){
-		for(j = 0; j < coluna; j++ ){			
+    	#pragma omp for
+	for(size_t i  = 0; i < linha; i++ ){
+		for(size_t j = 0; j < coluna; j++ ){			
 			cloud.wind_x(i,j) = (WIND_X_BASE - DISTURB) + (float)rand_r(&seed)/RAND_MAX * 2 * DISTURB;
 			cloud.wind_y(i,j) = (WIND_Y_BASE - DISTURB) + (float)rand_r(&seed)/RAND_MAX * 2 * DISTURB;		
 		}

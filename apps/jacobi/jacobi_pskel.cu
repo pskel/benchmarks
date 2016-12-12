@@ -247,16 +247,16 @@ int main(int argc, char **argv){
 		//#else
 			//cout<<"Running Iterative CPU"<<endl;
 		#ifdef PSKEL_PAPI
-            //for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
-			PSkelPAPI::papi_start(PSkelPAPI::CPU,5);
+            	for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
+			PSkelPAPI::papi_start(PSkelPAPI::CPU,i);
 		#endif
 
 
 			jacobi.runIterativeCPU(T_MAX, numCPUThreads);	
 
 		#ifdef PSKEL_PAPI
-			PSkelPAPI::papi_stop(PSkelPAPI::CPU,5);
-            //}
+			PSkelPAPI::papi_stop(PSkelPAPI::CPU,i);
+            	}
 		#endif
 	}
 	else if(GPUTime == 1.0){

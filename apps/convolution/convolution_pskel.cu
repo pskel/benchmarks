@@ -42,20 +42,21 @@ namespace PSkel{
 		output(i,j)= accum;
 		*/
 
-		/*
-		output(i,j) = input(i-2,j-2) * 0.33 + input(i-1,j-2) * 0.33 + input(i,j-2)   * 0.33 + input(i+1,j-2) * 0.33  + input(i+2,j-2) * 0.33 + 
-			      input(i-2,j-1) * 0.33 + input(i-1,j-1) * 0.33 + input(i,j-1)   * 0.33 + input(i+1,j-1) * 0.33  + input(i+2,j-1) * 0.33 + 
-                              input(i-2, j)  * 0.33 + input(i-1,j)   * 0.33 + input(i,j)     * 0.33 + input(i+1,j)   * 0.33  + input(i+2, j)  * 0.33 + 
-                              input(i-2,j+1) * 0.33 + input(i-1,j+1) * 0.33 + input(i,j+1)   * 0.33 + input(i+1,j+1) * 0.33  + input(i+2,j+1) * 0.33 +  
- 		 	      input(i-2,j+2) * 0.33 + input(i-1,j+2) * 0.33 + input(i,j+2)   * 0.33 + input(i+1,j+2) * 0.33  + input(i+2,j+2) * 0.33; 
-		*/
+		
+		float L1 = input(i-2,j-2) * 0.33 + input(i-1,j-2) * 0.33 + input(i,j-2)   * 0.33 + input(i+1,j-2) * 0.33  + input(i+2,j-2) * 0.33;
+		float L2 = input(i-2,j-1) * 0.33 + input(i-1,j-1) * 0.33 + input(i,j-1)   * 0.33 + input(i+1,j-1) * 0.33  + input(i+2,j-1) * 0.33; 
+                float L3 = input(i-2, j)  * 0.33 + input(i-1,j)   * 0.33 + input(i,j)     * 0.33 + input(i+1,j)   * 0.33  + input(i+2, j)  * 0.33; 
+                float L4 = input(i-2,j+1) * 0.33 + input(i-1,j+1) * 0.33 + input(i,j+1)   * 0.33 + input(i+1,j+1) * 0.33  + input(i+2,j+1) * 0.33;  
+ 		float L5 = input(i-2,j+2) * 0.33 + input(i-1,j+2) * 0.33 + input(i,j+2)   * 0.33 + input(i+1,j+2) * 0.33  + input(i+2,j+2) * 0.33; 
+		
+		output(i,j) = L1 + L2 + L3 + L4 + L5;
 			
-		output(i,j) = input(i-2,j-2) * 0.33 + input(i-2,j-1) * 0.33 + input(i-2,j)   * 0.33 + input(i-2,j+1) * 0.33  + input(i-2,j+2) * 0.33 + 
+		/*output(i,j) = input(i-2,j-2) * 0.33 + input(i-2,j-1) * 0.33 + input(i-2,j)   * 0.33 + input(i-2,j+1) * 0.33  + input(i-2,j+2) * 0.33 + 
 			      input(i-1,j-2) * 0.33 + input(i-1,j-1) * 0.33 + input(i-1,j)   * 0.33 + input(i-1,j+1) * 0.33  + input(i-1,j+2) * 0.33 + 
                               input(i, j-2)  * 0.33 + input(i-1,j-1) * 0.33 + input(i,j)     * 0.33 + input(i,j+1)   * 0.33  + input(i,j+2)   * 0.33 + 
                               input(i+1,j-2) * 0.33 + input(i+1,j-1) * 0.33 + input(i+1,j)   * 0.33 + input(i+1,j+1) * 0.33  + input(i+1,j+2) * 0.33 +  
  		 	      input(i+2,j-2) * 0.33 + input(i+2,j-1) * 0.33 + input(i+2,j)   * 0.33 + input(i+2,j+1) * 0.33  + input(i+2,j+2) * 0.33; 
-
+		*/
 		/*
 		output(i,j) = mask.get(0,input,i,j) * mask.getWeight(0) +
 					  mask.get(1,input,i,j) * mask.getWeight(1) +
@@ -137,7 +138,7 @@ int main(int argc, char **argv){
 			}
 		}
 	}
-	
+	cout<<"Data initialized"<<endl;	
 	Stencil2D<Array2D<float>, Mask2D<float>, int> stencil(inputGrid, outputGrid, mask, 0);
 	hr_timer_t timer;
 	
@@ -150,7 +151,15 @@ int main(int argc, char **argv){
 	hrt_start(&timer);
 	
 	if(GPUTime == 0.0){
-		stencil.runIterativeCPU(T_MAX, numCPUThreads);
+		#ifdef PSKEL_PAPI
+		for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
+			PSkelPAPI::papi_start(PSkelPAPI::CPU,i);
+		#endif
+			stencil.runIterativeCPU(T_MAX, numCPUThreads);
+		#ifdef PSKEL_PAPI
+			PSkelPAPI::papi_stop(PSkelPAPI::CPU,i);
+		}
+		#endif
 	}
 	else if(GPUTime == 1.0){
 		stencil.runIterativeGPU(T_MAX, GPUBlockSizeX, GPUBlockSizeY);
