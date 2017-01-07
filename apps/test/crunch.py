@@ -13,8 +13,8 @@ kv_time = dict()
 
 kv_time['CPU_time'] = 'CPU_time'
 kv_time['GPU_time'] = 'GPU_time'
-#kv_time['Total_time'] = 'Total_time'
-#kv_time['Exec_time'] = 'Exec_time'
+kv_time['Total_time'] = 'Total_time'
+kv_time['Exec_time'] = 'Exec_time'
 
 kv_prof = dict()
 #PAPI VALUES
@@ -396,10 +396,10 @@ kv_prof['__l1_global_store_transactions'] =  '__l1_global_store_transactions'
 #atomic_throughput
 
 # fixed header fields for synthetic
-#fixed_header = ['app','input','ite','pct_gpu','blk_gpu','thrd_cpu','mask_type','mask_radius','numAdd','numMult']
+fixed_header = ['app','input','ite','pct_gpu','thrd_cpu','mask_type','mask_radius','numAdd','numMult']
 
 # fixed header fields for apps
-fixed_header = ['app','pct_gpu','input','ite','thrd_cpu']
+#fixed_header = ['app','pct_gpu','input','ite','thrd_cpu']
 
 HEADER_FIXED_COLS = len(fixed_header)
 
@@ -449,7 +449,7 @@ def get_test_files():
   
   basedir = sys.argv[1]
   prof = basedir + '/prof'
-  time = basedir + '/time'
+  time = basedir + '/time2'
 
   for d in (basedir, prof):
     if not os.path.isdir(d):
@@ -552,18 +552,18 @@ prof_files.sort()
 
 # extract the results from the files
 results = list()
-for i in range(len(prof_files)):
+for i in range(len(time_files)):
   # extract configuration attributes from the file name
-  data = get_attr_from_filename(prof_files[i])
+  data = get_attr_from_filename(time_files[i])
 
   # from the "time" files, we want PS: also needs to take this for prof
-  #for metric in metrics_time:
-    #data += [ mean(extract_values(metric, time_files[i])) ]
+  for metric in metrics_time:
+    data += [ mean(extract_values(metric, time_files[i])) ]
 
   # for the "prof" files, we want all metrics
   #if data[3] > '0' :
-  for metric in metrics_prof:
-	data += [ mean(extract_values(metric, prof_files[i])) ]
+  #for metric in metrics_prof:
+	#data += [ mean(extract_values(metric, prof_files[i])) ]
   #k += 1
 	
   # create a results row
