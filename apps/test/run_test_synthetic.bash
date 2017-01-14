@@ -7,16 +7,20 @@ OUTPUT_DIR=""
 EXEC=$1
 TEST_DIR="./${EXEC}"
 BIN_DIR="../../bin"
-BIN_ACC_KERNELS="../bin/${EXEC}_acc_kernels"
-BIN_ACC_PARALLEL="../bin/${EXEC}_acc_parallel"
-BIN_ACC_MULTICORE="../bin/${EXEC}_acc_multicore"
-BIN_PSKEL="../bin/${EXEC}_pskel"
-BIN_PSKEL_PAPI="${BIN_DIR}/${EXEC}_papi_omp_gcc"
-BIN_PSKEL_OMP="${BIN_DIR}/${EXEC}_pskel_omp_gcc"
-BIN_PSKEL_TBB="../../bin/${EXEC}_pskel_tbb_icc"
-BIN_SHARED="../bin/${EXEC}_pskel_shared"
-BIN_PAPI="../bin/${EXEC}_papi"
-BIN_ACC_PAPI="../../bin/${EXEC}_acc_papi"
+#BIN_ACC_KERNELS="../bin/${EXEC}_acc_kernels"
+#BIN_ACC_PARALLEL="../bin/${EXEC}_acc_parallel"
+#BIN_ACC_MULTICORE="../bin/${EXEC}_acc_multicore"
+#BIN_PSKEL="../bin/${EXEC}_pskel"
+#BIN_PSKEL_PAPI="${BIN_DIR}/${EXEC}_papi_omp_gcc"
+#BIN_PSKEL_OMP="${BIN_DIR}/${EXEC}_pskel_omp_gcc"
+#BIN_PSKEL_TBB="../../bin/${EXEC}_pskel_tbb_icc"
+#BIN_SHARED="../bin/${EXEC}_pskel_shared"
+#BIN_PAPI="../bin/${EXEC}_papi"
+#BIN_ACC_PAPI="../../bin/${EXEC}_acc_papi"
+BIN_PAPI_MOORE="../../bin/${EXEC}_papi_omp_gcc_moore"
+BIN_PAPI_NEUMAN="../../bin/${EXEC}_papi_omp_gcc_neuman"
+BIN_PSKEL_MOORE="../../bin/${EXEC}_pskel_omp_gcc_moore"
+BIN_PSKEL_NEUMAN="../../bin/${EXEC}_pskel_omp_gcc_neuman"
 
 NUMA_CTL="numactl --physcpubind=0-11"
 NVPROF="nvprof --metrics all --events all"
@@ -24,12 +28,12 @@ NVPROF="nvprof --metrics all --events all"
 #make acc_kernels -C ../apps/${EXEC}
 #make acc_parallel -C ../apps/${EXEC}
 #make acc_multicore -C ../apps/${EXEC}
-make pskel_omp_gcc -C ../${EXEC}
+make -C ../${EXEC}
 #make pskel_papi -C ../apps/${EXEC}
 #make pskel_shared -C ../apps/${EXEC}
-make papi_tesla_omp_gcc -C ../${EXEC}
+#make papi_tesla_omp_gcc -C ../${EXEC}
 
-OUTPUT_DIR="${TEST_DIR}"
+OUTPUT_DIR="${TEST_DIR}/prof3"
 #mkdir ${OUTPUT_DIR}
 
 #teste profiling GPU a 100%
@@ -40,68 +44,43 @@ GPU_BLOCK_Y=16
 CPU_THREADS=12
 ITERATIONS=50
 TIME_TILE_SIZE=2
-for INPUT_SIZE in 8192 16000 20000 240000
+
+for ADD in 0 1
 do
-	for ITERATIONS in 1 
-	do 
-		
-		#${NUMA_CTL} nvprof ${BIN_PSKEL_PAPI} ${INPUT_SIZE} ${INPUT_SIZE} ${ITERATIONS} ${TIME_TILE_SIZE} 1 ${GPU_BLOCK_X} ${GPU_BLOCK_Y} ${CPU_THREADS} ${VERBOSE} &>> ${OUTPUT_DIR}/${EXEC}_${INPUT_SIZE}_${ITERATIONS}_1_${CPU_THREADS}_prof.txt
-		for MASK_TYPE in 0 1
+	for MULT in 0 1
+	do
+	if [[ !("$ADD" = 0 && "$MULT" = 0) ]]
+	then
+		for INPUT_SIZE in 24000 20000 16000
 		do
-		for MASK_RANGE in 1 2 3
-		do
-		for NUM_ADD in 0 1 2
-		do
-		for NUM_MULT in 0 1 2
-		do
-		for ITERATION in {1..1..1}
-		do
-			echo $"Running with INPUT_SIZE = ${INPUT_SIZE}"
-			echo "ITERATION #${ITERATION}"
+			for ITERATIONS in 1
+			do 
+				#for GPU_PERCENT in 0 1 
+				#do
+					#for MASK_TYPE in 0 1
+					#do
+						for MASK_RANGE in 1 2 3
+						do
+							for ITERATION in {1..1..1}
+							do
+								echo $"Running with INPUT_SIZE = ${INPUT_SIZE}"
+								echo "ITERATION #${ITERATION}"
         	
-			${NUMA_CTL} ${NVPROF} ${BIN_PSKEL_OMP} ${INPUT_SIZE} ${INPUT_SIZE} ${ITERATIONS} 1 ${GPU_BLOCK_X} ${CPU_THREADS} ${MASK_TYPE} ${MASK_RANGE} ${NUM_ADD} ${NUM_MULT} ${VERBOSE} &>> ${OUTPUT_DIR}/${EXEC}_${INPUT_SIZE}_${ITERATIONS}_1_${CPU_THREADS}_${MASK_TYPE}_${MASK_RANGE}_${NUM_ADD}_${NUM_MULT}.txt
-			sleep 1
-			
-			${NUMA_CTL} ${NVPROF} ${BIN_PSKEL_PAPI} ${INPUT_SIZE} ${INPUT_SIZE} ${ITERATIONS} 0 ${GPU_BLOCK_X} ${CPU_THREADS} ${MASK_TYPE} ${MASK_RANGE} ${NUM_ADD} ${NUM_MULT} ${VERBOSE} &>> ${OUTPUT_DIR}/${EXEC}_${INPUT_SIZE}_${ITERATIONS}_0_${CPU_THREADS}_${MASK_TYPE}_${MASK_RANGE}_${NUM_ADD}_${NUM_MULT}.txt
-			sleep 1
-
-
-			#${NUMA_CTL} ${BIN_PSKEL_OMP} ${INPUT_SIZE} ${INPUT_SIZE} ${ITERATIONS} 0  ${GPU_BLOCK_X} ${GPU_BLOCK_Y} ${CPU_THREADS} ${VERBOSE} &>> ${OUTPUT_DIR}/${EXEC}_${INPUT_SIZE}_${ITERATIONS}_1_${CPU_THREADS}_time.txt
-			#sleep 1 
-
-#${BIN_ACC_PAPI} ${INPUT_SIZE} ${INPUT_SIZE} ${ITERATIONS} ${VERBOSE} &>> ${OUTPUT_DIR}/${EXEC}_accpapi_${INPUT_SIZE}_${ITERATIONS}_${CPU_THREADS}.txt
-			#sleep 1
-		
-			#nvprof ${BIN_ACC_KERNELS} ${INPUT_SIZE} ${INPUT_SIZE} ${ITERATIONS} ${VERBOSE} &>> ${OUTPUT_DIR}/${EXEC}_gpuacckernels_${INPUT_SIZE}_${ITERATIONS}_${CPU_THREADS}.txt
-			#sleep 1
-        
-        		#nvprof --events all --metrics all ${BIN_ACC_KERNELS} ${INPUT_SIZE} ${INPUT_SIZE} 2 ${VERBOSE} &>> ${OUTPUT_DIR}/${EXEC}_gpuacckernels_${INPUT_SIZE}_${ITERATIONS}_${CPU_THREADS}.txt
-			#sleep 1
-
-			#${BIN_ACC_MULTICORE} ${INPUT_SIZE} ${INPUT_SIZE} 50 ${VERBOSE} &>> ${OUTPUT_DIR}/${EXEC}_acccpu_${INPUT_SIZE}_${ITERATIONS}_12.txt
-			#sleep 1
-
-			#nvprof ${BIN_SHARED} ${INPUT_SIZE} ${INPUT_SIZE} ${ITERATIONS} ${TIME_TILE_SIZE} ${GPU_PERCENT} ${GPU_BLOCK_X} ${GPU_BLOCK_Y} ${CPU_THREADS} ${VERBOSE} &>> ${OUTPUT_DIR}/${EXEC}_gpupskelshared_${INPUT_SIZE}_${ITERATIONS}_${CPU_THREADS}.txt
-			#sleep 1
-
-			#nvprof --metrics all --events all ${BIN_SHARED} ${INPUT_SIZE} ${INPUT_SIZE} ${TIME_TILE_SIZE} ${TIME_TILE_SIZE} ${GPU_PERCENT} ${GPU_BLOCK_X} ${GPU_BLOCK_Y} ${CPU_THREADS} ${VERBOSE} &>> ${OUTPUT_DIR}/${EXEC}_gpupskelshared_${INPUT_SIZE}_${ITERATIONS}_${CPU_THREADS}.txt
-			#sleep 1
-		
-			#${BIN_PAPI} ${INPUT_SIZE} ${INPUT_SIZE} ${ITERATIONS} ${GPU_PERCENT}  ${GPU_BLOCK_X} ${GPU_BLOCK_Y} ${CPU_THREADS} ${VERBOSE} &>> ${OUTPUT_DIR}/${EXEC}_pskelpapi_${INPUT_SIZE}_${ITERATIONS}_${CPU_THREADS}.txt
-			#sleep 1
-		
-			#Running with 24 theads
-			#${BIN_PAPI} ${INPUT_SIZE} ${INPUT_SIZE} ${ITERATIONS} ${GPU_PERCENT}  ${GPU_BLOCK_X} ${GPU_BLOCK_Y} 24 ${VERBOSE} &>> ${OUTPUT_DIR}/${EXEC}_pskelpapi_${INPUT_SIZE}_${ITERATIONS}_24.txt
-			#sleep 1
-
-			#${BIN_ACC_PAPI} ${INPUT_SIZE} ${INPUT_SIZE} ${ITERATIONS} ${VERBOSE} &>> ${OUTPUT_DIR}/${EXEC}_accpapi_${INPUT_SIZE}_${ITERATIONS}_${CPU_NUM_THREADS}.txt
-			#sleep 1	
+								${NUMA_CTL} ${BIN_PAPI_MOORE} ${INPUT_SIZE} ${INPUT_SIZE} ${ITERATIONS} 0 ${GPU_BLOCK_X} ${CPU_THREADS} ${MASK_RANGE} ${ADD} ${MULT} ${VERBOSE} &>> ${OUTPUT_DIR}/${EXEC}_${INPUT_SIZE}_${ITERATIONS}_${GPU_PERCENT}_${CPU_THREADS}_1_${MASK_RANGE}_${ADD}_${MULT}.txt
+								
+								${NUMA_CTL} ${NVPROF} ${BIN_PSKEL_MOORE} ${INPUT_SIZE} ${INPUT_SIZE} ${ITERATIONS} 1 ${GPU_BLOCK_X} ${CPU_THREADS} ${MASK_RANGE} ${ADD} ${MULT} ${VERBOSE} &>> ${OUTPUT_DIR}/${EXEC}_${INPUT_SIZE}_${ITERATIONS}_${GPU_PERCENT}_${CPU_THREADS}_1_${MASK_RANGE}_${ADD}_${MULT}.txt
+							
+								${NUMA_CTL} ${BIN_PAPI_NEUMAN} ${INPUT_SIZE} ${INPUT_SIZE} ${ITERATIONS} 0 ${GPU_BLOCK_X} ${CPU_THREADS} ${MASK_RANGE} ${ADD} ${MULT} ${VERBOSE} &>> ${OUTPUT_DIR}/${EXEC}_${INPUT_SIZE}_${ITERATIONS}_${GPU_PERCENT}_${CPU_THREADS}_0_${MASK_RANGE}_${ADD}_${MULT}.txt
+								
+								${NUMA_CTL} ${NVPROF} ${BIN_PSKEL_NEUMAN} ${INPUT_SIZE} ${INPUT_SIZE} ${ITERATIONS} 1 ${GPU_BLOCK_X} ${CPU_THREADS} ${MASK_RANGE} ${ADD} ${MULT} ${VERBOSE} &>> ${OUTPUT_DIR}/${EXEC}_${INPUT_SIZE}_${ITERATIONS}_${GPU_PERCENT}_${CPU_THREADS}_0_${MASK_RANGE}_${ADD}_${MULT}.txt
+								sleep 1
+							done
+						done
+					#done
+				#done
+			done
 		done
-		done
-		done
-		done
-
-		done
+	fi
 	done
 done
 

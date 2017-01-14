@@ -27,7 +27,7 @@ ACC_LIBS	= -I${HR_TIME} -lrt -mp
 SRC_NAME        = synthetic
 BIN_DIR         = ../../bin/
 
-all: pskel acc_parallel acc_multicore
+all: pskel_omp_gcc_neuman pskel_omp_gcc_moore papi_tesla_omp_gcc_moore papi_tesla_omp_gcc_neuman
 
 serial: ${SRC_NAME}_serial.cpp
 	${CUDAC} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_serial ${SRC_NAME}_serial.cpp ${LIBS}
@@ -49,6 +49,14 @@ pskel: ${SRC_NAME}_pskel.cu
 
 pskel_omp_gcc: ${SRC_NAME}_pskel.cu
 	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_omp_gcc ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP
+
+pskel_omp_gcc_moore: ${SRC_NAME}_pskel.cu
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_omp_gcc_moore ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_MOORE
+
+pskel_omp_gcc_neuman: ${SRC_NAME}_pskel.cu
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_omp_gcc_neuman ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_NEUMAN
+
+
 
 pskel_tbb_gcc: ${SRC_NAME}_pskel.cu
 	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_tbb_gcc ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_TBB
@@ -75,6 +83,12 @@ src: ${SRC_NAME}_serial.cpp
 	
 papi_tesla_omp_gcc: ${SRC_NAME}_pskel.cu
 	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi_omp_gcc ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_PAPI -DTESLA -DXEON
+
+papi_tesla_omp_gcc_moore: ${SRC_NAME}_pskel.cu
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi_omp_gcc_moore ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_PAPI -DTESLA -DXEON -DPSKEL_MOORE
+
+papi_tesla_omp_gcc_neuman: ${SRC_NAME}_pskel.cu
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi_omp_gcc_neuman ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_PAPI -DTESLA -DXEON -DPSKEL_NEUMAN
 
 papi: ${SRC_NAME}_pskel.cu
 	${CUDAC} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi ${SRC_NAME}_pskel.cu ${LIBS} -lpapi -DPSKEL_PAPI -DTIME

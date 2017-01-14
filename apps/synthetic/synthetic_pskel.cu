@@ -2,7 +2,9 @@
 //#define PSKEL_LOGMODE 1
 //#define TBB_USE_DEBUG 1
 
-#include "../../include/PSkel.h"
+#define PSKEL_CUDA
+
+#include "PSkel.h"
 #include "hr_time.h"
 #include <omp.h>
 #include <fstream>
@@ -13,6 +15,20 @@
 #include <cmath>
 #include <cassert>
 
+
+#ifndef PSKEL_NEUMAN
+	#ifndef PSKEL_MOORE
+		#define PSKEL_NEUMAN
+	#endif
+#else
+#ifndef PSKEL_MOORE
+	#ifndef PSKEL_NEUMAN
+		#define PSKEL_MOORE
+	#endif
+#endif
+#endif
+
+
 using namespace std;
 using namespace PSkel;
 
@@ -22,7 +38,7 @@ struct Arguments{
 
 	Arguments(){
 		//neighborhood = 0;
-		//radius = 2;
+		radius = 2;
 		numAdd = 10;
 		//numSub = 0;
 		numMult = 0;
@@ -33,7 +49,7 @@ struct Arguments{
 	}
 
 	//Arguments(int nb, int r, int nAdd, int nSub, int nMult, int nDiv, int nPow, int nSqrt, int nFma){
-    Arguments(int r, int nAdd, int nMult){
+    	Arguments(int r, int nAdd, int nMult){
 		//neighborhood = nb;
 		radius = r;
 		numAdd = nAdd;
@@ -57,41 +73,114 @@ namespace PSkel{
 
 		int loopControl;
 		int opControl;
+		int i,j,k,fim,ini;
 
+		loopControl = args.numAdd > 0 ? (args.numAdd-1)/mask.size + 1 : 0; //estava assim originalmente
+		//opControl = args.numAdd > mask.size ? mask.size : args.numAdd;
+		opControl = args.numAdd > 0 ? args.radius : 0;
+
+
+		
+		#ifdef PSKEL_NEUMAN
+		for(int i = 0; i < loopControl; i++){    
+        		fim = 0;
+        		ini = 0;
+        		k = 0;
+        		for (j = -opControl; j <= 0; j++) {
+            			for(k = ini; k <= fim; k++){
+                			//if(j != 0 || k !=0){
+                                       		returnValue = returnValue + input(h+j,w+k);	
+                			//}
+            			}
+            			ini--;
+            			fim++;                
+        		}        
+        		ini+=2;
+        		fim-=2;
+        
+        		for(j = 1; j <= opControl; j++){
+             			for(k = ini; k <= fim; k++){
+                	      		returnValue = returnValue + input(h+j,w+k);		
+				}
+            			ini++;
+            			fim--;
+        		}
+    		}
+
+		#else
+		#ifdef PSKEL_MOORE
+		
 		//Adição
 		//loopControl = ceil(float(args.numAdd)/float(mask.size));
-		////loopControl = args.numAdd > 0 ? (args.numAdd-1)/mask.size + 1 : 0; //estava assim originalmente
-		opControl = args.numAdd>mask.size?mask.size:args.numAdd;
+		//loopControl = args.numAdd > 0 ? (args.numAdd-1)/mask.size + 1 : 0; //estava assim originalmente
+		//opControl = args.numAdd > mask.size ? mask.size : args.numAdd;
+		//opControl = args.numAdd > 0 ? args.radius : 0;
 
-		loopControl = args.nAdd;
+		//loopControl = loopControl/2;
 		//printf("Executing ADD loopControl: %d opControl: %d\n",loopControl,opControl);
-		//for(int i = 0; i<loopControl; i++){
-		for(int i = -loopControl; i <= loopControl; i++){
-			for(int j = -loopControl;j <= loopControl; j++){
-				for(int k = 0; j < opControl; k++){
+		for(i = 0; i<loopControl; i++){
+		//for(int i = -loopControl; i <= loopControl; i++){
+			for(j = -opControl;j <= opControl; j++){
+				for(k = -opControl; k <= opControl; k++){  //for(int k = 0; k < opControl; k++){
 					//returnValue = returnValue + mask.get(j,input,h,w);
 					//returnValue = returnValue + mask.getWeight(j);
-					returnValue = returnValue + input(i,j);
+					returnValue = returnValue + input(h+j,w+k);
 				}
 			}
 		}
+		#endif
+		#endif
+		
 
 		//Multiplicação
 		//loopControl = ceil(float(args.numMult)/float(mask.size));
-		////loopControl = args.numMult > 0 ? (args.numMult-1)/mask.size + 1 : 0;
-		opControl = args.numMult > mask.size? mask.size: args.numMult;
-		loopControl = args.nMult;
+		loopControl = args.numMult > 0 ? (args.numMult-1)/mask.size + 1 : 0;
+		//opControl = args.numMult > mask.size ? mask.size: args.numMult;
+		opControl = args.numMult > 0 ? args.radius : 0;
+		
+		//loopControl = loopControl/2;
 		//printf("Executing MULT loopControl: %d opControl: %d\n",loopControl,opControl);
 
-		for(int i = -loopControl; i<=loopControl; i++){
-			for(int j = -loopControl; j<= loopControl; j++){
-				for(int k = 0; k<opControl; k++){
+		#ifdef PSKEL_NEUMAN
+		for(i = 0; i < loopControl; i++){    
+        		fim = 0;
+        		ini = 0;
+        		k = 0;
+        		for (j = -opControl; j <= 0; j++) {
+            			for(k = ini; k<= fim; k++){
+                			//if(j != 0 || k !=0){
+                                       		returnValue = returnValue * input(h+j,w+k);	
+                			//}
+            			}
+            			ini--;
+            			fim++;                
+        		}        
+        		ini+=2;
+        		fim-=2;
+        
+        		for(j = 1; j <= opControl; j++){
+             			for(k = ini; k <= fim; k++){
+                	      		returnValue = returnValue * input(h+j,w+k);		
+				}
+            			ini++;
+            			fim--;
+        		}
+    		}
+
+		#else
+		#ifdef PSKEL_MOORE
+		for(i = 0; i<loopControl; i++){
+			for(j = -opControl; j <= opControl; j++){
+				for(k = -opControl; k <= opControl; k++){
 					//returnValue = returnValue * mask.get(j,input,h,w);
 					//returnValue = returnValue * mask.getWeight(j);
+					returnValue = returnValue * input(h+j,w+k);
 				}
 			}
 		}		
-
+		#endif
+		#endif
+		
 		//Divisao
 		/*loopControl = (args.numDiv-1)/mask.size + 1;
 		opControl = args.numDiv>mask.size?mask.size:args.numDiv;
@@ -102,7 +191,9 @@ namespace PSkel{
 		}
 
 		*/
-		output(h,w) = returnValue;
+
+        	output(h,w) = returnValue;
+		
 	}
 }
 
@@ -116,11 +207,11 @@ int main(int argc, char **argv){
     //int nSub, nDiv, nPow, nFma;
     float GPUTime;
 
-    if (argc != 12){
+    if (argc != 11){
         printf ("Wrong number of parameters.\n");
         //printf ("Usage: synthetic WIDTH HEIGHT ITERATIONS GPUTIME GPUBLOCKS CPUTHREADS MASKTYPE MASKRANGE NumADDS NumSUBS NumMults NumDivs NumPows NumSqrts NumFmas OUTPUT_WRITE_FLAG\n");
 
-        printf ("Usage: synthetic WIDTH HEIGHT ITERATIONS GPUTIME GPUBLOCKS CPUTHREADS MASKTYPE MASKRANGE NumADDS NumMults OUTPUT_WRITE_FLAG\n");
+        printf ("Usage: synthetic WIDTH HEIGHT ITERATIONS GPUTIME GPUBLOCKS CPUTHREADS MASKRANGE NumADDS NumMults OUTPUT_WRITE_FLAG\n"); //Masktype is now defined from #ifdef
         exit(-1);
     }
 
@@ -130,8 +221,29 @@ int main(int argc, char **argv){
     GPUTime = atof(argv[4]);
     GPUBlockSize = atoi(argv[5]);
     numCPUThreads = atoi(argv[6]);
-    maskType = atoi (argv[7]);
-    maskRange = atoi (argv[8]);
+    
+    #ifdef PSKEL_NEUMAN
+    maskType = 0;
+    //cout<<"Neuman"<<endl;
+    #else
+    maskType = 1;
+    //cout<<"Moore"<<endl;
+    #endif
+
+    maskRange = atoi (argv[7]); 
+    nAdd = atoi(argv[8]) ;
+    //nSub = 0; //atoi(argv[10]);
+    nMult = atoi(argv[9]) ;
+    //nDiv = 0; //atoi(argv[12]);
+    //nPow = 0; //atoi(argv[13]);
+    //nSqrt = 0; //atoi(argv[14]);
+    //nFma = 0; //atoi(argv[15]);
+    writeToFile = atoi(argv[10]);
+    
+    if(nAdd == 0 && nMult == 0){
+	printf("The number of Adds and Mults are 0!\n");
+	exit(-1);
+    }
 
     #ifdef PSKEL_INT
     Array2D<int> inputGrid(width, height);
@@ -168,28 +280,22 @@ int main(int argc, char **argv){
         //Neumann number 2r(r+1)+1,
         //maskSize = ((2 * args.radius)*args.radius) + (2 * args.radius) + 1;
         maskSize = 1 + ((2 * maskRange ) * ( maskRange + 1));		
-    }else{
-        //Moore (2r + 1)^2
+    }else{ 
+       //Moore (2r + 1)^2
         maskSize = (2 * maskRange + 1) * (2 * maskRange + 1);
     }
 
-    //Masksize = number of cells in neighborhood - 1 (the center cell);
+    //maskSize = number of cells in neighborhood - 1 (the center cell);
     #ifdef PSKEL_INT
     Mask2D<int> mask(maskSize - 1,1);
     #else
     Mask2D<float> mask(maskSize - 1,1.0);
     #endif
 
-    nAdd = atoi(argv[9])  * (maskSize - 1);
+    nAdd = nAdd  * (maskSize - 1);
     //nSub = 0; //atoi(argv[10]);
-    nMult = atoi(argv[10]) * (maskSize - 1);
-    //nDiv = 0; //atoi(argv[12]);
-    //nPow = 0; //atoi(argv[13]);
-    //nSqrt = 0; //atoi(argv[14]);
-    //nFma = 0; //atoi(argv[15]);
-
-    writeToFile = atoi(argv[11]);
-    //Arguments args(maskType, maskRange, nAdd, nSub, nMult, nDiv, nPow, nSqrt, nFma);
+    nMult = nMult * (maskSize - 1);
+   //Arguments args(maskType, maskRange, nAdd, nSub, nMult, nDiv, nPow, nSqrt, nFma);
 
     Arguments args(maskRange,nAdd, nMult);
     srand(1234);
@@ -210,7 +316,7 @@ int main(int argc, char **argv){
                     #ifdef PSKEL_INT
                         weight += 1 + rand()%3;
                     #endif		
-                    mask.set(idx, h, w,weight);
+                    mask.set(idx, h, w, weight);
 
                     //cout<<"["<<idx<<"] = "<<h<<","<<w<<" "<<weight<<endl;
                 //cout << idx <<", "<< h <<", "<< w <<"\n";
@@ -231,7 +337,7 @@ int main(int argc, char **argv){
                         weight += 1 + rand()%3;
                     #endif		
 
-                mask.set(idx, h, w,weight);
+                mask.set(idx, h, w, weight);
                 //cout<<"["<<idx<<"] = "<<h<<","<<w<< " "<<weight<<endl;
                 idx++;
             }
@@ -239,7 +345,7 @@ int main(int argc, char **argv){
             fim--;
         }
     }
-    else{
+    else{ 
         //Set mask for Moore neighborhood
         int idx = 0;
         int h, w;
@@ -251,33 +357,32 @@ int main(int argc, char **argv){
                     #ifdef PSKEL_INT
                         weight += 1 + rand()%3;
                     #endif		
-                    mask.set(idx, h, w,weight);
+                    mask.set(idx, h, w, weight);
                     //cout<<"["<<idx<<"] = "<<h<<","<<w<< " "<<weight<<endl;
                     idx ++;
                 }
             }
         }
     }
-    
-    /*	
+    	
     cout <<"\n";
     cout << "Width: " << width << "; Height: " << height << ";\n";
     cout << "Iterations: " << iterations << endl;	
-    cout << "MaskType: " << maskType << endl;	
+    cout << "MaskType: " << maskType << endl;
     cout << "MaskRange: " << maskRange << endl;
     cout << "Neighbors: "	 << mask.size << endl;
     cout << "GPU Time: " << GPUTime << endl;
     cout << "GPU Block size: " << GPUBlockSize << endl;
     cout << "CPU Threads: " << numCPUThreads << endl;
     cout << "Num Add: " << args.numAdd << endl;
-    cout << "Num Sub: " << args.numSub << endl;
+    //cout << "Num Sub: " << args.numSub << endl;
     cout << "Num Mult: " << args.numMult << endl;
-    cout << "Num Div: " << args.numDiv << endl;	
-    cout << "Num Pow: " << args.numPow << endl;
-    cout << "Num Sqrt: " << args.numSqrt << endl;
-    cout << "Num Fma: " << args.numFma << endl;
+    //cout << "Num Div: " << args.numDiv << endl;	
+    //cout << "Num Pow: " << args.numPow << endl;
+    //cout << "Num Sqrt: " << args.numSqrt << endl;
+    //cout << "Num Fma: " << args.numFma << endl;
     cout <<"\n";
-    */
+    
             
     #ifdef PSKEL_INT
     Stencil2D<Array2D<int>, Mask2D<int>, Arguments> synthetic(inputGrid, outputGrid, mask, args);
@@ -303,7 +408,9 @@ int main(int argc, char **argv){
         #ifdef PSKEL_PAPI
         for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
             //cout << "Running iteration " << i << endl;
-            synthetic.runIterativeCPU(iterations, numCPUThreads, i);	
+	    PSkelPAPI::papi_start(PSkelPAPI::CPU,i);
+            synthetic.runIterativeCPU(iterations, numCPUThreads);	
+	    PSkelPAPI::papi_stop(PSkelPAPI::CPU,i);
         }
         #else
             //cout<<"Running Iterative CPU"<<endl;
@@ -312,7 +419,7 @@ int main(int argc, char **argv){
     }
 
     else if(GPUTime == 1.0){
-        synthetic.runIterativeGPU(iterations, GPUBlockSize);
+        synthetic.runIterativeGPU(iterations, GPUBlockSize,GPUBlockSize);
     }
     else{
         #ifdef PSKEL_PAPI
@@ -320,7 +427,7 @@ int main(int argc, char **argv){
             synthetic.runIterativePartition(iterations, GPUTime, numCPUThreads,GPUBlockSize,i);
         }
         #else
-            synthetic.runIterativePartition(iterations, GPUTime, numCPUThreads,GPUBlockSize);
+            synthetic.runIterativePartition(iterations, GPUTime, numCPUThreads,GPUBlockSize,GPUBlockSize);
         #endif
     }
     //t2 = omp_get_wtime();
