@@ -552,18 +552,18 @@ prof_files.sort()
 
 # extract the results from the files
 results = list()
-for i in range(len(prof_files)):
+for i in range(len(time_files)):
   # extract configuration attributes from the file name
-  data = get_attr_from_filename(prof_files[i])
+  data = get_attr_from_filename(time_files[i])
 
   # from the "time" files, we want PS: also needs to take this for prof
-  #for metric in metrics_time:
-    #data += [ mean(extract_values(metric, time_files[i])) ]
+  for metric in metrics_time:
+    data += [ mean(extract_values(metric, time_files[i])) ]
 
   # for the "prof" files, we want all metrics
   #if data[3] > '0' :
-  for metric in metrics_prof:
-	data += [ mean(extract_values(metric, prof_files[i])) ]
+  #for metric in metrics_prof:
+	#data += [ mean(extract_values(metric, prof_files[i])) ]
   #k += 1
 	
   # create a results row
