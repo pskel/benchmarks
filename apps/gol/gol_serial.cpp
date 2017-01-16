@@ -13,26 +13,26 @@
 
 using namespace std;
 
-void stencilKernel(int *input, int *output, int width, int height, int T_MAX){
+void stencilKernel(bool *input, bool *output, int width, int height, int T_MAX){
 	for(int t=0;t<T_MAX;t++){
 		for(int j=1;j<height-1;j++){
-			for(int i=1;i<width-1;i++){
-				int neighbors = 0;
-                
-                /*int neighbors = input[(j+0)*width + (i+1)] + input[(j+0)*width + (i-1)] +
+			for(int i=1;i<width-1;i++){                
+                int neighbors = input[(j+0)*width + (i+1)] + input[(j+0)*width + (i-1)] +
                                 input[(j+1)*width + (i+0)] + input[(j-1)*width + (i+0)] +
                                 input[(j+1)*width + (i+1)] + input[(j-1)*width + (i-1)] +
                                 input[(j+1)*width + (i-1)] + input[(j-1)*width + (i+1)];
                 
-                */
-				for(int y=-1;y<=1;y++){
+                
+				/*
+                int neighbors = 0;
+                for(int y=-1;y<=1;y++){
 					for(int x=-1;x<=1;x++){
 						if( x!=0 || y!=0 ){
 							neighbors += input[(j+y)*width + (i+x)];
 						}
 					}
 				}
-                
+                */
 				output[j*width + i] = (neighbors == 3 || (input[j*width + i] == 1 && neighbors == 2))?1:0;
                 /*
                 if(neighbors == 3 || (input[j*width + i] == 1 && neighbors == 2)){
@@ -60,8 +60,8 @@ int main(int argc, char **argv){
 	int T_MAX;
     int verbose;
 
-	int *inputGrid;
-	int *outputGrid;
+	bool *inputGrid;
+	bool *outputGrid;
 
 	if (argc != 5){
 		printf ("Wrong number of parameters.\n");
@@ -74,14 +74,13 @@ int main(int argc, char **argv){
 	T_MAX = atoi (argv[3]);
     verbose = atoi (argv[4]);
 
-	inputGrid = (int*) calloc(width*height,sizeof(int));
-	outputGrid = (int*) calloc(width*height,sizeof(int));
+	inputGrid = (bool*) calloc(width*height,sizeof(bool));
+	outputGrid = (bool*) calloc(width*height,sizeof(bool));
 
-	srand(123456789);
-	for(int j=0;j<height;j++) {
-		for(int i=0;i<width;i++) {
-			inputGrid[j*width + i] = rand()%2;
-            outputGrid[j*width + i] = inputGrid[j*width + i];
+	srand(1234);
+	for(int j=1;j<height-1;j++) {
+		for(int i=1;i<width-1;i++) {
+			inputGrid[j*width + i] = (rand()%2);
 		}
 	}
     
@@ -89,12 +88,19 @@ int main(int argc, char **argv){
 		//cout<<setprecision(6);
 		//cout<<fixed;
 		cout<<"INPUT"<<endl;
-		for(int i=0; i<width;i+=10){
+		/*for(int i=0; i<width;i+=10){
             
 			cout<<"("<<i<<","<<i<<") = "<<inputGrid[i*width+i]<<"\t\t(";
             cout<<width-i<<","<<height-i<<") = "<<inputGrid[(height-i)*width+(width-i)]<<endl;
 		}
 		cout<<endl;
+        */
+        for(int h = 0; h < height; h++){		
+			for(int w = 0; w < width; w++){
+				cout<<inputGrid[h*width + w];
+			}
+			cout<<endl;
+		}
     }    
   
     hr_timer_t timer;

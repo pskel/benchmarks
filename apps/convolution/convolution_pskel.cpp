@@ -1,5 +1,19 @@
-#define PSKEL_TBB
+//#define PSKEL_TBB
 #define PSKEL_CUDA
+
+#ifndef PSKEL_OMP
+	#ifndef PSKEL_TBB
+		#define PSKEL_OMP
+		#undef PSKEL_TBB
+	#endif
+#else 
+#ifndef PSKEL_TBB
+	#ifndef PSKEL_OMP
+		#define PSKEL_TBB
+		#undef PSKEL_OMP
+	#endif
+#endif
+#endif
 
 #include <stdio.h>
 #include <iostream>
@@ -28,7 +42,7 @@ namespace PSkel{
 		}
 		output(i,j)= accum;
 		*/
-		output(i,j) = mask.get(0,input,i,j) * mask.getWeight(0) +
+		/*output(i,j) = mask.get(0,input,i,j) * mask.getWeight(0) +
 					  mask.get(1,input,i,j) * mask.getWeight(1) +
 					  mask.get(2,input,i,j) * mask.getWeight(2) +
 					  mask.get(3,input,i,j) * mask.getWeight(3) +
@@ -53,6 +67,11 @@ namespace PSkel{
 					  mask.get(22,input,i,j) * mask.getWeight(22) +
 					  mask.get(23,input,i,j) * mask.getWeight(23) +
 					  mask.get(24,input,i,j) * mask.getWeight(24); 
+		*/
+		output(i,j) = input(i-1,j-1) * 0.33 + input(i-1,j) * 0.33 + input(i-1,j+1) *0.33  +
+                     	      input(i,j-1)   * 0.33 + input(i,j)   * 0.33 + input(i,j+1)   * 0.33 +
+			      input(i+1,j-1) * 0.33 + input(i+1,j) * 0.33 + input(i+1,j+1) * 0.33;
+                    			      
 	}
 }//end namespace
 

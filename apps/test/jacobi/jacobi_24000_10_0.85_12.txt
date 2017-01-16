@@ -1,0 +1,106 @@
+Host scalable memory allocated
+Host scalable memory allocated
+OMP: Warning #123: Ignoring invalid OS proc ID 14.
+OMP: Warning #123: Ignoring invalid OS proc ID 16.
+OMP: Warning #123: Ignoring invalid OS proc ID 18.
+OMP: Warning #123: Ignoring invalid OS proc ID 20.
+OMP: Warning #123: Ignoring invalid OS proc ID 22.
+OMP: Warning #123: Ignoring invalid OS proc ID 13.
+OMP: Warning #123: Ignoring invalid OS proc ID 15.
+OMP: Warning #123: Ignoring invalid OS proc ID 17.
+OMP: Warning #123: Ignoring invalid OS proc ID 19.
+OMP: Warning #123: Ignoring invalid OS proc ID 21.
+OMP: Warning #123: Ignoring invalid OS proc ID 23.
+==46748== NVPROF is profiling process 46748, command: ../../bin/jacobi_pskel_tbb_icc 24000 24000 10 2 0.85 16 16 12 0
+Allocated 1959360000 bytes in the GPU
+Allocated 1959360000 bytes in the GPU
+Host scalable memory allocated
+Host scalable memory allocated
+CPU_time	0.956035
+GPU_time	1.76146
+Total_time	1.76152
+Exec_time	2.11494
+==46748== Profiling application: ../../bin/jacobi_pskel_tbb_icc 24000 24000 10 2 0.85 16 16 12 0
+==46748== Profiling result:
+   Start  Duration            Grid Size      Block Size     Regs*    SSMem*    DSMem*      Size  Throughput           Device   Context    Stream  Name
+347.98ms  1.5360us                    -               -         -         -         -       32B  19.868MB/s   Tesla K20m (0)         1         7  [CUDA memcpy HtoD]
+348.00ms     960ns                    -               -         -         -         -       16B  15.895MB/s   Tesla K20m (0)         1         7  [CUDA memcpy HtoD]
+451.13ms  470.39ms                    -               -         -         -         -  1.8248GB  3.8794GB/s   Tesla K20m (0)         1         7  [CUDA memcpy HtoD]
+1.16377s  49.642ms        (1500 1276 1)       (16 16 1)        16        0B        0B         -           -   Tesla K20m (0)         1         7  void PSkel::stencilTilingCU<float, float, Arguments>(PSkel::Array2D<float>, float, PSkel::Mask2D<float>, Arguments, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long) [121]
+1.21455s  49.638ms        (1500 1276 1)       (16 16 1)        16        0B        0B         -           -   Tesla K20m (0)         1         7  void PSkel::stencilTilingCU<float, float, Arguments>(PSkel::Array2D<float>, float, PSkel::Mask2D<float>, Arguments, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long) [136]
+1.26520s  49.640ms        (1500 1276 1)       (16 16 1)        16        0B        0B         -           -   Tesla K20m (0)         1         7  void PSkel::stencilTilingCU<float, float, Arguments>(PSkel::Array2D<float>, float, PSkel::Mask2D<float>, Arguments, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long) [151]
+1.31495s  49.646ms        (1500 1276 1)       (16 16 1)        16        0B        0B         -           -   Tesla K20m (0)         1         7  void PSkel::stencilTilingCU<float, float, Arguments>(PSkel::Array2D<float>, float, PSkel::Mask2D<float>, Arguments, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long) [166]
+1.36463s  49.629ms        (1500 1276 1)       (16 16 1)        16        0B        0B         -           -   Tesla K20m (0)         1         7  void PSkel::stencilTilingCU<float, float, Arguments>(PSkel::Array2D<float>, float, PSkel::Mask2D<float>, Arguments, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long) [181]
+1.41430s  49.651ms        (1500 1276 1)       (16 16 1)        16        0B        0B         -           -   Tesla K20m (0)         1         7  void PSkel::stencilTilingCU<float, float, Arguments>(PSkel::Array2D<float>, float, PSkel::Mask2D<float>, Arguments, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long) [196]
+1.46398s  49.615ms        (1500 1276 1)       (16 16 1)        16        0B        0B         -           -   Tesla K20m (0)         1         7  void PSkel::stencilTilingCU<float, float, Arguments>(PSkel::Array2D<float>, float, PSkel::Mask2D<float>, Arguments, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long) [211]
+1.51363s  49.658ms        (1500 1276 1)       (16 16 1)        16        0B        0B         -           -   Tesla K20m (0)         1         7  void PSkel::stencilTilingCU<float, float, Arguments>(PSkel::Array2D<float>, float, PSkel::Mask2D<float>, Arguments, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long) [226]
+1.56333s  49.606ms        (1500 1276 1)       (16 16 1)        16        0B        0B         -           -   Tesla K20m (0)         1         7  void PSkel::stencilTilingCU<float, float, Arguments>(PSkel::Array2D<float>, float, PSkel::Mask2D<float>, Arguments, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long) [241]
+1.61297s  49.659ms        (1500 1276 1)       (16 16 1)        16        0B        0B         -           -   Tesla K20m (0)         1         7  void PSkel::stencilTilingCU<float, float, Arguments>(PSkel::Array2D<float>, float, PSkel::Mask2D<float>, Arguments, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long) [256]
+1.73257s  291.66ms                    -               -         -         -         -  1.8239GB  6.2535GB/s   Tesla K20m (0)         1         7  [CUDA memcpy DtoH]
+
+Regs: Number of registers used per CUDA thread. This number includes registers used internally by the CUDA driver and/or tools and can be more than what the compiler shows.
+SSMem: Static shared memory allocated per CUDA block.
+DSMem: Dynamic shared memory allocated per CUDA block.
+Host scalable memory allocated
+Host scalable memory allocated
+OMP: Warning #123: Ignoring invalid OS proc ID 14.
+OMP: Warning #123: Ignoring invalid OS proc ID 16.
+OMP: Warning #123: Ignoring invalid OS proc ID 18.
+OMP: Warning #123: Ignoring invalid OS proc ID 20.
+OMP: Warning #123: Ignoring invalid OS proc ID 22.
+OMP: Warning #123: Ignoring invalid OS proc ID 13.
+OMP: Warning #123: Ignoring invalid OS proc ID 15.
+OMP: Warning #123: Ignoring invalid OS proc ID 17.
+OMP: Warning #123: Ignoring invalid OS proc ID 19.
+OMP: Warning #123: Ignoring invalid OS proc ID 21.
+OMP: Warning #123: Ignoring invalid OS proc ID 23.
+Allocated 1959360000 bytes in the GPU
+Allocated 1959360000 bytes in the GPU
+Host scalable memory allocated
+Host scalable memory allocated
+CPU_time	1.00993
+GPU_time	1.71954
+Total_time	1.7196
+Exec_time	3.13
+Host scalable memory allocated
+Host scalable memory allocated
+OMP: Warning #123: Ignoring invalid OS proc ID 14.
+OMP: Warning #123: Ignoring invalid OS proc ID 16.
+OMP: Warning #123: Ignoring invalid OS proc ID 18.
+OMP: Warning #123: Ignoring invalid OS proc ID 20.
+OMP: Warning #123: Ignoring invalid OS proc ID 22.
+OMP: Warning #123: Ignoring invalid OS proc ID 13.
+OMP: Warning #123: Ignoring invalid OS proc ID 15.
+OMP: Warning #123: Ignoring invalid OS proc ID 17.
+OMP: Warning #123: Ignoring invalid OS proc ID 19.
+OMP: Warning #123: Ignoring invalid OS proc ID 21.
+OMP: Warning #123: Ignoring invalid OS proc ID 23.
+Allocated 1959360000 bytes in the GPU
+Allocated 1959360000 bytes in the GPU
+Host scalable memory allocated
+Host scalable memory allocated
+CPU_time	1.05969
+GPU_time	1.74591
+Total_time	1.74597
+Exec_time	3.15063
+Host scalable memory allocated
+Host scalable memory allocated
+OMP: Warning #123: Ignoring invalid OS proc ID 14.
+OMP: Warning #123: Ignoring invalid OS proc ID 16.
+OMP: Warning #123: Ignoring invalid OS proc ID 18.
+OMP: Warning #123: Ignoring invalid OS proc ID 20.
+OMP: Warning #123: Ignoring invalid OS proc ID 22.
+OMP: Warning #123: Ignoring invalid OS proc ID 13.
+OMP: Warning #123: Ignoring invalid OS proc ID 15.
+OMP: Warning #123: Ignoring invalid OS proc ID 17.
+OMP: Warning #123: Ignoring invalid OS proc ID 19.
+OMP: Warning #123: Ignoring invalid OS proc ID 21.
+OMP: Warning #123: Ignoring invalid OS proc ID 23.
+Allocated 1959360000 bytes in the GPU
+Allocated 1959360000 bytes in the GPU
+Host scalable memory allocated
+Host scalable memory allocated
+CPU_time	0.995726
+GPU_time	1.89367
+Total_time	1.89373
+Exec_time	3.30191

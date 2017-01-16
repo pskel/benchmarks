@@ -1,0 +1,407 @@
+
+Width: 20000; Height: 20000;
+Iterations: 1
+MaskType: 0
+MaskRange: 1
+Neighbors: 4
+GPU Time: 0
+GPU Block size: 16
+CPU Threads: 12
+Num Add: 4
+Num Mult: 0
+
+CPU_time	1.30924
+CPU_time	1.3947
+CPU_time	1.18866
+CPU_time	1.32099
+CPU_time	1.37101
+CPU_time	1.24464
+CPU_time	1.3767
+CPU_time	1.18448
+
+--------------------------------------------------------------------------------
+PROFILE VALUES
+--------------------------------------------------------------------------------
+PAPI_TOT_INS				  5367285245
+PAPI_VEC_SP				           0
+PAPI_LD_INS				  1200183639
+PAPI_SR_INS				   533396018
+--------------------------------------------------------------------------------
+PAPI_TOT_INS				  5369332994
+PAPI_FP_INS				   269678071
+PAPI_FDV_INS				    33389264
+PAPI_FP_OPS				   269678071
+--------------------------------------------------------------------------------
+PAPI_TOT_INS				  5367272443
+PAPI_BR_INS				   566740035
+PAPI_BR_CN				   566738450
+PAPI_BR_TKN				   166690750
+PAPI_BR_MSP				        4521
+PAPI_BR_PRC				   566735514
+PAPI_BR_UCN				        1585
+PAPI_BR_NTK				   400049285
+--------------------------------------------------------------------------------
+PAPI_L2_DCA				     8341718
+PAPI_L2_DCM				      494009
+PAPI_L2_TCA				     8344600
+PAPI_L2_TCM				      496399
+--------------------------------------------------------------------------------
+PAPI_L2_DCR				     6258907
+PAPI_L2_DCW				     2084235
+PAPI_L2_TCR				     6261694
+PAPI_L2_TCW				     2084235
+--------------------------------------------------------------------------------
+PAPI_L3_TCA				      480652
+PAPI_L3_TCM				      244704
+PAPI_L3_DCR				      356866
+PAPI_L3_DCW				      121280
+PAPI_L3_TCR				      359372
+PAPI_L3_TCW				      121280
+--------------------------------------------------------------------------------
+PAPI_TOT_CYC				  2242899900
+PAPI_TOT_INS				  5367275502
+PAPI_STL_ICY				     4140240
+PAPI_REF_CYC				  2875475757
+PAPI_TLB_DM				        1156
+--------------------------------------------------------------------------------
+PAPI_L1_DCM				     8342357
+PAPI_LD_INS				  1200525752
+PAPI_SR_INS				   533394646
+--------------------------------------------------------------------------------
+PERCENTUAL VALUES
+--------------------------------------------------------------------------------
+FP_INS  = 5.023
+FDV_INS = 0.622
+VEC_SP  = 0.000
+LD_INS  = 22.361
+SR_INS  = 9.938
+--------------------------------------------------------------------------------
+BR_INS  = 10.56
+BR_UCN  = 0.00
+BR_CN   = 100.00
+BR_TKN  = 29.41
+BR_NTK  = 70.59
+BR_PRC  = 100.00
+BR_MSP  = 0.00
+--------------------------------------------------------------------------------
+L1_DCH  = 1.00
+L1_REUSE  = 206.85
+--------------------------------------------------------------------------------
+L2_DCH  = 0.94
+L2_REUSE  = 15.89
+L2_DCM  = 5.92
+L2_TCM  = 5.95
+L2_DCR  = 75.02
+L2_DCW  = 24.98
+L2_TCR  = 75.03
+L2_TCW  = 24.97
+--------------------------------------------------------------------------------
+L3_TCH  = 0.51
+L3_REUSE  = 1.03
+L3_TCM  = 50.91
+L3_DCR  = 74.64
+L3_DCW  = 25.36
+L3_TCR  = 74.77
+L3_TCW  = 25.23
+--------------------------------------------------------------------------------
+INS_CYC = 2.39
+STL_ICY = 0.18
+REF_CYC = 0.78
+--------------------------------------------------------------------------------
+Exec_time	10.3921
+
+Width: 20000; Height: 20000;
+Iterations: 1
+MaskType: 0
+MaskRange: 1
+Neighbors: 4
+GPU Time: 1
+GPU Block size: 16
+CPU Threads: 12
+Num Add: 4
+Num Mult: 0
+==33597== NVPROF is profiling process 33597, command: ../../bin/synthetic_pskel_omp_gcc_neuman 20000 20000 1 1 16 12 1 1 0 0
+==33597== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+
+Allocated 1600000000 bytes in the GPU
+Allocated 1600000000 bytes in the GPU
+GPU_time	88.9903
+Exec_time	89.3743
+==33597== Profiling application: ../../bin/synthetic_pskel_omp_gcc_neuman 20000 20000 1 1 16 12 1 1 0 0
+==33597== Profiling result:
+==33597== Event result:
+Invocations                                Event Name         Min         Max         Avg       Total
+Device "Tesla K20m (0)"
+    Kernel: void PSkel::stencilTilingCU<float, float, Arguments>(PSkel::Array2D<float>, float, PSkel::Mask2D<float>, Arguments, unsigned long, unsigned long, unsigned long, unsigned long)
+          1                 tex0_cache_sector_queries           0           0           0           0
+          1                 tex1_cache_sector_queries           0           0           0           0
+          1                 tex2_cache_sector_queries           0           0           0           0
+          1                 tex3_cache_sector_queries           0           0           0           0
+          1                  tex0_cache_sector_misses           0           0           0           0
+          1                  tex1_cache_sector_misses           0           0           0           0
+          1                  tex2_cache_sector_misses           0           0           0           0
+          1                  tex3_cache_sector_misses           0           0           0           0
+          1                     fb_subp0_read_sectors    41272421    41272421    41272421    41272421
+          1                     fb_subp1_read_sectors    41274668    41274668    41274668    41274668
+          1                    fb_subp0_write_sectors    31608758    31608758    31608758    31608758
+          1                    fb_subp1_write_sectors    31609575    31609575    31609575    31609575
+          1              l2_subp0_write_sector_misses    12498752    12498752    12498752    12498752
+          1              l2_subp1_write_sector_misses    12498742    12498742    12498742    12498742
+          1              l2_subp2_write_sector_misses    12498751    12498751    12498751    12498751
+          1              l2_subp3_write_sector_misses    12498749    12498749    12498749    12498749
+          1               l2_subp0_read_sector_misses    14079648    14079648    14079648    14079648
+          1               l2_subp1_read_sector_misses    14079435    14079435    14079435    14079435
+          1               l2_subp2_read_sector_misses    14080300    14080300    14080300    14080300
+          1               l2_subp3_read_sector_misses    14079255    14079255    14079255    14079255
+          1          l2_subp0_write_l1_sector_queries    12498752    12498752    12498752    12498752
+          1          l2_subp1_write_l1_sector_queries    12498744    12498744    12498744    12498744
+          1          l2_subp2_write_l1_sector_queries    12498752    12498752    12498752    12498752
+          1          l2_subp3_write_l1_sector_queries    12498752    12498752    12498752    12498752
+          1           l2_subp0_read_l1_sector_queries    87481303    87481303    87481303    87481303
+          1           l2_subp1_read_l1_sector_queries    87481235    87481235    87481235    87481235
+          1           l2_subp2_read_l1_sector_queries    87481320    87481320    87481320    87481320
+          1           l2_subp3_read_l1_sector_queries    87481146    87481146    87481146    87481146
+          1              l2_subp0_read_l1_hit_sectors    73419887    73419887    73419887    73419887
+          1              l2_subp1_read_l1_hit_sectors    73420115    73420115    73420115    73420115
+          1              l2_subp2_read_l1_hit_sectors    73419964    73419964    73419964    73419964
+          1              l2_subp3_read_l1_hit_sectors    73420038    73420038    73420038    73420038
+          1          l2_subp0_read_tex_sector_queries           0           0           0           0
+          1          l2_subp1_read_tex_sector_queries           0           0           0           0
+          1          l2_subp2_read_tex_sector_queries           0           0           0           0
+          1          l2_subp3_read_tex_sector_queries           0           0           0           0
+          1             l2_subp0_read_tex_hit_sectors           0           0           0           0
+          1             l2_subp1_read_tex_hit_sectors           0           0           0           0
+          1             l2_subp2_read_tex_hit_sectors           0           0           0           0
+          1             l2_subp3_read_tex_hit_sectors           0           0           0           0
+          1        rocache_subp0_gld_thread_count_32b           0           0           0           0
+          1        rocache_subp1_gld_thread_count_32b           0           0           0           0
+          1        rocache_subp2_gld_thread_count_32b           0           0           0           0
+          1        rocache_subp3_gld_thread_count_32b           0           0           0           0
+          1        rocache_subp0_gld_thread_count_64b           0           0           0           0
+          1        rocache_subp1_gld_thread_count_64b           0           0           0           0
+          1        rocache_subp2_gld_thread_count_64b           0           0           0           0
+          1        rocache_subp3_gld_thread_count_64b           0           0           0           0
+          1       rocache_subp0_gld_thread_count_128b           0           0           0           0
+          1       rocache_subp1_gld_thread_count_128b           0           0           0           0
+          1       rocache_subp2_gld_thread_count_128b           0           0           0           0
+          1       rocache_subp3_gld_thread_count_128b           0           0           0           0
+          1          rocache_subp0_gld_warp_count_32b           0           0           0           0
+          1          rocache_subp1_gld_warp_count_32b           0           0           0           0
+          1          rocache_subp2_gld_warp_count_32b           0           0           0           0
+          1          rocache_subp3_gld_warp_count_32b           0           0           0           0
+          1          rocache_subp0_gld_warp_count_64b           0           0           0           0
+          1          rocache_subp1_gld_warp_count_64b           0           0           0           0
+          1          rocache_subp2_gld_warp_count_64b           0           0           0           0
+          1          rocache_subp3_gld_warp_count_64b           0           0           0           0
+          1         rocache_subp0_gld_warp_count_128b           0           0           0           0
+          1         rocache_subp1_gld_warp_count_128b           0           0           0           0
+          1         rocache_subp2_gld_warp_count_128b           0           0           0           0
+          1         rocache_subp3_gld_warp_count_128b           0           0           0           0
+          1       l2_subp0_read_sysmem_sector_queries           0           0           0           0
+          1       l2_subp1_read_sysmem_sector_queries           0           0           0           0
+          1       l2_subp2_read_sysmem_sector_queries           0           0           0           0
+          1       l2_subp3_read_sysmem_sector_queries           0           0           0           0
+          1      l2_subp0_write_sysmem_sector_queries           1           1           1           1
+          1      l2_subp1_write_sysmem_sector_queries           0           0           0           0
+          1      l2_subp2_write_sysmem_sector_queries           0           0           0           0
+          1      l2_subp3_write_sysmem_sector_queries           0           0           0           0
+          1        l2_subp0_total_read_sector_queries    87497679    87497679    87497679    87497679
+          1        l2_subp1_total_read_sector_queries    87497742    87497742    87497742    87497742
+          1        l2_subp2_total_read_sector_queries    87497972    87497972    87497972    87497972
+          1        l2_subp3_total_read_sector_queries    87498770    87498770    87498770    87498770
+          1       l2_subp0_total_write_sector_queries    12508742    12508742    12508742    12508742
+          1       l2_subp1_total_write_sector_queries    12508856    12508856    12508856    12508856
+          1       l2_subp2_total_write_sector_queries    12508738    12508738    12508738    12508738
+          1       l2_subp3_total_write_sector_queries    12508662    12508662    12508662    12508662
+          1                         elapsed_cycles_sm   880866210   880866210   880866210   880866210
+          1                             gld_inst_8bit           0           0           0           0
+          1                            gld_inst_16bit           0           0           0           0
+          1                            gld_inst_32bit  2399520024  2399520024  2399520024  2399520024
+          1                            gld_inst_64bit           0           0           0           0
+          1                           gld_inst_128bit           0           0           0           0
+          1                             gst_inst_8bit           0           0           0           0
+          1                            gst_inst_16bit           0           0           0           0
+          1                            gst_inst_32bit   399920004   399920004   399920004   399920004
+          1                            gst_inst_64bit           0           0           0           0
+          1                           gst_inst_128bit           0           0           0           0
+          1                     rocache_gld_inst_8bit           0           0           0           0
+          1                    rocache_gld_inst_16bit           0           0           0           0
+          1                    rocache_gld_inst_32bit           0           0           0           0
+          1                    rocache_gld_inst_64bit           0           0           0           0
+          1                   rocache_gld_inst_128bit           0           0           0           0
+          1                           prof_trigger_00           0           0           0           0
+          1                           prof_trigger_01           0           0           0           0
+          1                           prof_trigger_02           0           0           0           0
+          1                           prof_trigger_03           0           0           0           0
+          1                           prof_trigger_04           0           0           0           0
+          1                           prof_trigger_05           0           0           0           0
+          1                           prof_trigger_06           0           0           0           0
+          1                           prof_trigger_07           0           0           0           0
+          1                            atom_cas_count           0           0           0           0
+          1                            warps_launched    12500000    12500000    12500000    12500000
+          1                          threads_launched   400000000   400000000   400000000   400000000
+          1                             inst_executed  2900000000  2900000000  2900000000  2900000000
+          1                              inst_issued1  1717055201  1717055201  1717055201  1717055201
+          1                              inst_issued2   737516026   737516026   737516026   737516026
+          1                      thread_inst_executed  9.2783e+10  9.2783e+10  9.2783e+10  9.2783e+10
+          1                               shared_load           0           0           0           0
+          1                              shared_store           0           0           0           0
+          1                                local_load           0           0           0           0
+          1                               local_store           0           0           0           0
+          1                               gld_request    75000000    75000000    75000000    75000000
+          1                               gst_request    12500000    12500000    12500000    12500000
+          1                             active_cycles   880751567   880751567   880751567   880751567
+          1                              active_warps  5.2552e+10  5.2552e+10  5.2552e+10  5.2552e+10
+          1                           sm_cta_launched     1562500     1562500     1562500     1562500
+          1   not_predicated_off_thread_inst_executed  8.4785e+10  8.4785e+10  8.4785e+10  8.4785e+10
+          1                         l1_local_load_hit           0           0           0           0
+          1                        l1_local_load_miss           0           0           0           0
+          1                        l1_local_store_hit           0           0           0           0
+          1                       l1_local_store_miss           0           0           0           0
+          1                        l1_global_load_hit           0           0           0           0
+          1                       l1_global_load_miss           0           0           0           0
+          1          uncached_global_load_transaction   174942504   174942504   174942504   174942504
+          1                  global_store_transaction    24997500    24997500    24997500    24997500
+          1                        shared_load_replay           0           0           0           0
+          1                       shared_store_replay           0           0           0           0
+          1          global_ld_mem_divergence_replays    99942504    99942504    99942504    99942504
+          1          global_st_mem_divergence_replays    12497500    12497500    12497500    12497500
+          1                   local_load_transactions           0           0           0           0
+          1                  local_store_transactions           0           0           0           0
+          1               l1_shared_load_transactions           0           0           0           0
+          1              l1_shared_store_transactions           0           0           0           0
+          1             __l1_global_load_transactions   174942905   174942905   174942905   174942905
+          1            __l1_global_store_transactions    24998415    24998415    24998415    24998415
+          1                                atom_count           0           0           0           0
+          1                                gred_count           0           0           0           0
+
+==33597== Metric result:
+Invocations                               Metric Name                                    Metric Description         Min         Max         Avg
+Device "Tesla K20m (0)"
+    Kernel: void PSkel::stencilTilingCU<float, float, Arguments>(PSkel::Array2D<float>, float, PSkel::Mask2D<float>, Arguments, unsigned long, unsigned long, unsigned long, unsigned long)
+          1                  l1_cache_global_hit_rate                                    L1 Global Hit Rate       0.00%       0.00%       0.00%
+          1                   l1_cache_local_hit_rate                                     L1 Local Hit Rate       0.00%       0.00%       0.00%
+          1                             sm_efficiency                               Multiprocessor Activity      99.99%      99.99%      99.99%
+          1                                       ipc                                          Executed IPC    3.292547    3.292547    3.292547
+          1                        achieved_occupancy                                    Achieved Occupancy    0.932282    0.932282    0.932282
+          1                  gld_requested_throughput                      Requested Global Load Throughput  93.075GB/s  93.075GB/s  93.075GB/s
+          1                  gst_requested_throughput                     Requested Global Store Throughput  15.512GB/s  15.512GB/s  15.512GB/s
+          1                    sm_efficiency_instance                               Multiprocessor Activity      99.99%      99.99%      99.99%
+          1                              ipc_instance                                          Executed IPC    3.292547    3.292547    3.292547
+          1                      inst_replay_overhead                           Instruction Replay Overhead    0.100720    0.100720    0.100720
+          1                    shared_replay_overhead                         Shared Memory Replay Overhead    0.000000    0.000000    0.000000
+          1                    global_replay_overhead                         Global Memory Replay Overhead    0.038772    0.038772    0.038772
+          1              global_cache_replay_overhead                   Global Memory Cache Replay Overhead    0.000000    0.000000    0.000000
+          1                        tex_cache_hit_rate                                Texture Cache Hit Rate       0.00%       0.00%       0.00%
+          1                      tex_cache_throughput                              Texture Cache Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          1                      dram_read_throughput                         Device Memory Read Throughput  25.615GB/s  25.615GB/s  25.615GB/s
+          1                     dram_write_throughput                        Device Memory Write Throughput  19.617GB/s  19.617GB/s  19.616GB/s
+          1                            gst_throughput                               Global Store Throughput  15.514GB/s  15.514GB/s  15.514GB/s
+          1                            gld_throughput                                Global Load Throughput  108.59GB/s  108.59GB/s  108.58GB/s
+          1                     local_replay_overhead                    Local Memory Cache Replay Overhead    0.000000    0.000000    0.000000
+          1                         shared_efficiency                              Shared Memory Efficiency       0.00%       0.00%       0.00%
+          1                            gld_efficiency                         Global Memory Load Efficiency      85.72%      85.72%      85.72%
+          1                            gst_efficiency                        Global Memory Store Efficiency      99.99%      99.99%      99.99%
+          1                       l2_l1_read_hit_rate                                L2 Hit Rate (L1 Reads)      83.93%      83.93%      83.93%
+          1                  l2_texture_read_hit_rate                           L2 Hit Rate (Texture Reads)       0.00%       0.00%       0.00%
+          1                     l2_l1_read_throughput                              L2 Throughput (L1 Reads)  108.59GB/s  108.59GB/s  108.58GB/s
+          1                l2_texture_read_throughput                         L2 Throughput (Texture Reads)  0.00000B/s  0.00000B/s  0.00000B/s
+          1                     local_memory_overhead                                 Local Memory Overhead       0.00%       0.00%       0.00%
+          1                 warp_execution_efficiency                             Warp Execution Efficiency      99.98%      99.98%      99.98%
+          1               nc_gld_requested_throughput         Requested Non-Coherent Global Load Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          1                                issued_ipc                                            Issued IPC    3.624041    3.624041    3.624041
+          1                             inst_per_warp                                 Instructions per warp  232.000000  232.000000  232.000000
+          1                    issue_slot_utilization                                Issue Slot Utilization      69.67%      69.67%      69.67%
+          1       local_load_transactions_per_request            Local Memory Load Transactions Per Request    0.000000    0.000000    0.000000
+          1      local_store_transactions_per_request           Local Memory Store Transactions Per Request    0.000000    0.000000    0.000000
+          1      shared_load_transactions_per_request           Shared Memory Load Transactions Per Request    0.000000    0.000000    0.000000
+          1     shared_store_transactions_per_request          Shared Memory Store Transactions Per Request    0.000000    0.000000    0.000000
+          1              gld_transactions_per_request                  Global Load Transactions Per Request    2.332567    2.332567    2.332567
+          1              gst_transactions_per_request                 Global Store Transactions Per Request    1.999800    1.999800    1.999800
+          1                   local_load_transactions                               Local Load Transactions           0           0           0
+          1                  local_store_transactions                              Local Store Transactions           0           0           0
+          1                  shared_load_transactions                              Shared Load Transactions           0           0           0
+          1                 shared_store_transactions                             Shared Store Transactions           0           0           0
+          1                          gld_transactions                              Global Load Transactions   174942504   174942504   174942504
+          1                          gst_transactions                             Global Store Transactions    24997500    24997500    24997500
+          1                  sysmem_read_transactions                       System Memory Read Transactions           0           0           0
+          1                 sysmem_write_transactions                      System Memory Write Transactions           1           1           1
+          1                    tex_cache_transactions                            Texture Cache Transactions           0           0           0
+          1                    dram_read_transactions                       Device Memory Read Transactions    82547089    82547089    82547089
+          1                   dram_write_transactions                      Device Memory Write Transactions    63218333    63218333    63218333
+          1                      l2_read_transactions                                  L2 Read Transactions   349992163   349992163   349992163
+          1                     l2_write_transactions                                 L2 Write Transactions    50034998    50034998    50034998
+          1                     local_load_throughput                          Local Memory Load Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          1                    local_store_throughput                         Local Memory Store Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          1                    shared_load_throughput                         Shared Memory Load Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          1                   shared_store_throughput                        Shared Memory Store Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          1                        l2_read_throughput                                 L2 Throughput (Reads)  108.61GB/s  108.61GB/s  108.61GB/s
+          1                       l2_write_throughput                                L2 Throughput (Writes)  15.526GB/s  15.526GB/s  15.526GB/s
+          1                    sysmem_read_throughput                         System Memory Read Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          1                   sysmem_write_throughput                        System Memory Write Throughput  333.000B/s  333.000B/s  0.00000B/s
+          1         warp_nonpred_execution_efficiency              Warp Non-Predicated Execution Efficiency      91.36%      91.36%      91.36%
+          1                                 cf_issued                      Issued Control-Flow Instructions   367175271   367175271   367175271
+          1                               cf_executed                    Executed Control-Flow Instructions   362500000   362500000   362500000
+          1                               ldst_issued                        Issued Load/Store Instructions   199940487   199940487   199940487
+          1                             ldst_executed                      Executed Load/Store Instructions    87500000    87500000    87500000
+          1                             flop_count_sp           Floating Point Operations(Single Precision)  1999600020  1999600020  1999600020
+          1                         flop_count_sp_add       Floating Point Operations(Single Precision Add)  1999600020  1999600020  1999600020
+          1                         flop_count_sp_mul        Floating Point Operation(Single Precision Mul)           0           0           0
+          1                         flop_count_sp_fma       Floating Point Operations(Single Precision FMA)           0           0           0
+          1                             flop_count_dp           Floating Point Operations(Double Precision)           0           0           0
+          1                         flop_count_dp_add       Floating Point Operations(Double Precision Add)           0           0           0
+          1                         flop_count_dp_mul       Floating Point Operations(Double Precision Mul)           0           0           0
+          1                         flop_count_dp_fma       Floating Point Operations(Double Precision FMA)           0           0           0
+          1                     flop_count_sp_special   Floating Point Operations(Single Precision Special)   399920004   399920004   399920004
+          1                          stall_inst_fetch              Issue Stall Reasons (Instructions Fetch)      12.85%      12.85%      12.85%
+          1                     stall_exec_dependency            Issue Stall Reasons (Execution Dependency)      38.05%      38.05%      38.05%
+          1                   stall_memory_dependency                    Issue Stall Reasons (Data Request)      15.84%      15.84%      15.84%
+          1                             stall_texture                         Issue Stall Reasons (Texture)       0.00%       0.00%       0.00%
+          1                                stall_sync                 Issue Stall Reasons (Synchronization)       0.00%       0.00%       0.00%
+          1                               stall_other                           Issue Stall Reasons (Other)      10.08%      10.08%      10.08%
+          1                     l1_shared_utilization                          L1/Shared Memory Utilization     Low (1)     Low (1)     Low (1)
+          1                            l2_utilization                                  L2 Cache Utilization     Low (3)     Low (3)     Low (3)
+          1                           tex_utilization                             Texture Cache Utilization    Idle (0)    Idle (0)    Idle (0)
+          1                          dram_utilization                             Device Memory Utilization     Low (3)     Low (3)     Low (3)
+          1                        sysmem_utilization                             System Memory Utilization     Low (1)     Low (1)     Low (1)
+          1                       ldst_fu_utilization                  Load/Store Function Unit Utilization     Low (3)     Low (3)     Low (3)
+          1                        alu_fu_utilization                  Arithmetic Function Unit Utilization    High (7)    High (7)    High (7)
+          1                         cf_fu_utilization                Control-Flow Function Unit Utilization     Low (2)     Low (2)     Low (2)
+          1                        tex_fu_utilization                     Texture Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1                             inst_executed                                 Instructions Executed  2900000000  2900000000  2900000000
+          1                               inst_issued                                   Instructions Issued  3192084112  3192084112  3192084112
+          1                               issue_slots                                           Issue Slots  2454567901  2454567901  2454567901
+          1                     nc_l2_read_throughput                    L2 Throughput (Non-Coherent Reads)  0.00000B/s  0.00000B/s  0.00000B/s
+          1                   nc_l2_read_transactions                     L2 Non-Coherent Read Transactions           0           0           0
+          1                  nc_cache_global_hit_rate                          Non-Coherent Global Hit Rate       0.00%       0.00%       0.00%
+          1                         nc_gld_throughput            Non-Coherent Global Memory Load Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          1                         nc_gld_efficiency                   Non-Coherent Global Load Efficiency       0.00%       0.00%       0.00%
+          1                      l2_atomic_throughput                       L2 Throughput (Atomic requests)  0.00000B/s  0.00000B/s  0.00000B/s
+          1                                inst_fp_32                               FP Instructions(Single)  2399520024  2399520024  2399520024
+          1                                inst_fp_64                               FP Instructions(Double)           0           0           0
+          1                              inst_integer                                  Integer Instructions  5.9589e+10  5.9589e+10  5.9589e+10
+          1                          inst_bit_convert                              Bit-Convert Instructions  2799440028  2799440028  2799440028
+          1                              inst_control                             Control-Flow Instructions  3999280036  3999280036  3999280036
+          1                        inst_compute_ld_st                               Load/Store Instructions  2799440028  2799440028  2799440028
+          1                                 inst_misc                                     Misc Instructions  1.2398e+10  1.2398e+10  1.2398e+10
+          1           inst_inter_thread_communication                             Inter-Thread Instructions           0           0           0
+          1                    atomic_replay_overhead                                Atomic Replay Overhead    0.000000    0.000000    0.000000
+          1                       atomic_transactions                                   Atomic Transactions           0           0           0
+          1           atomic_transactions_per_request                       Atomic Transactions Per Request    0.000000    0.000000    0.000000
+          1                   sysmem_read_utilization                        System Memory Read Utilization    Idle (0)    Idle (0)    Idle (0)
+          1                  sysmem_write_utilization                       System Memory Write Utilization     Low (1)     Low (1)     Low (1)
+          1                   l2_l1_read_transactions               L2 Read Transactions (L1 read requests)   349925004   349925004   349925004
+          1                  l2_l1_write_transactions             L2 Write Transactions (L1 write requests)    49995000    49995000    49995000
+          1                  l2_tex_read_transactions                       L2 Transactions (Texture Reads)           0           0           0
+          1                    l2_l1_write_throughput                             L2 Throughput (L1 Writes)  15.514GB/s  15.514GB/s  15.514GB/s
+          1                    l2_atomic_transactions                     L2 Transactions (Atomic requests)           0           0           0
+          1                          ecc_transactions                                      ECC Transactions    39451790    39451790    39451790
+          1                            ecc_throughput                                        ECC Throughput  12.242GB/s  12.242GB/s  12.242GB/s
+          1                           stall_pipe_busy                       Issue Stall Reasons (Pipe Busy)       9.68%       9.68%       9.68%
+          1          stall_constant_memory_dependency              Issue Stall Reasons (Immediate constant)       0.00%       0.00%       0.00%
+          1                        flop_sp_efficiency                          FLOP Efficiency(Peak Single)       0.59%       0.59%       0.59%
+          1                        flop_dp_efficiency                          FLOP Efficiency(Peak Double)       0.00%       0.00%       0.00%
+          1                     stall_memory_throttle                 Issue Stall Reasons (Memory Throttle)       4.07%       4.07%       4.07%
+          1                        stall_not_selected                    Issue Stall Reasons (Not Selected)       9.44%       9.44%       9.44%
+          1                  eligible_warps_per_cycle                       Eligible Warps Per Active Cycle    8.094577    8.094577    8.094577
+          1                         atomic_throughput                                     Atomic Throughput  0.00000B/s  0.00000B/s  0.00000B/s

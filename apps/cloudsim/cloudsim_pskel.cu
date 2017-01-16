@@ -1,7 +1,22 @@
-#define PSKEL_OMP 
+//#define PSKEL_OMP 1
 //#define PSKEL_TBB 1
-#define PSKEL_CUDA 
+#define PSKEL_CUDA
 //#define CLOUDSIM_KERNEL
+
+#ifndef PSKEL_OMP
+	#ifndef PSKEL_TBB
+		#define PSKEL_OMP
+		#undef PSKEL_TBB
+	#endif
+#else 
+#ifndef PSKEL_TBB
+	#ifndef PSKEL_OMP
+		#define PSKEL_TBB
+		#undef PSKEL_OMP
+	#endif
+#endif
+#endif
+
 
 #include <stdio.h>
 #include <omp.h>
@@ -24,6 +39,7 @@ using namespace PSkel;
 #define WIND_Y_BASE	12
 #define DISTURB		0.1f
 #define CELL_LENGTH	0.1f
+#define CELL_LENGTH_INV 10.0f
 #define K           0.0243f
 #define DELTAPO     0.5f
 #define TAM_VETOR_FILENAME  200
@@ -61,15 +77,15 @@ __parallel__ void stencilKernel(Array2D<float> input,Array2D<float> output,Mask2
         
     	//sum =   (inValue - input(i-1,j) ) + (inValue - input(i,j-1) ) + (inValue - input(i,j+1) ) + (inValue - input(i+1,j) );
     	sum = 4 * inValue - ( input(i,j-1) + input(i-1,j) + input(i+1,j) + input(i,j+1) );
-     
+    
     	float temperaturaNeighborX = input(i,(j+xfactor));
     	float temperaturaNeighborY = input((i+yfactor),j);
     
       
-    	float temp_wind = (-componenteVentoX * ((inValue - temperaturaNeighborX)*10.0f)) -
-                          ( componenteVentoY * ((inValue - temperaturaNeighborY)*10.0f));
-        	
-		/*
+    	float temp_wind = (-componenteVentoX * ((inValue - temperaturaNeighborX)*CELL_LENGTH_INV)) -
+                          ( componenteVentoY * ((inValue - temperaturaNeighborY)*CELL_LENGTH_INV));
+      	
+	/*
 		float temp_wind = 0.0f;
 		int height=input.getHeight();
         int width=input.getWidth();
@@ -281,22 +297,27 @@ int main(int argc, char **argv){
 	//omp_set_num_threads(numCPUThreads);
 
 	/* Inicialização da matriz de entrada com a temperatura ambiente */
-	//#pragma omp parallel for private (i,j)
-	for (i = 0; i < linha; i++){		
-		for (j = 0; j < coluna; j++){
+	#pragma omp parallel num_threads(numCPUThreads)
+	{
+       	unsigned int seed = 1234 + 17 * omp_get_thread_num();
+		
+	#pragma omp for
+	for (size_t i = 0; i < linha; i++){		
+		for (size_t j = 0; j < coluna; j++){
 			inputGrid(i,j) = temperaturaAtmosferica;
 			//outputGrid(i,j) = temperaturaAtmosferica;
 		}
-	}	
-	/* Inicialização dos ventos Latitudinal(Wind_X) e Longitudinal(Wind_Y) */
-    	srand(1234);
-	for( i = 0; i < linha; i++ ){
-		for(j = 0; j < coluna; j++ ){			
-			cloud.wind_x(i,j) = (WIND_X_BASE - DISTURB) + (float)rand()/RAND_MAX * 2 * DISTURB;
-			cloud.wind_y(i,j) = (WIND_Y_BASE - DISTURB) + (float)rand()/RAND_MAX * 2 * DISTURB;		
-		}
 	}
 	
+	/* Inicialização dos ventos Latitudinal(Wind_X) e Longitudinal(Wind_Y) */
+    	#pragma omp for
+	for(size_t i  = 0; i < linha; i++ ){
+		for(size_t j = 0; j < coluna; j++ ){			
+			cloud.wind_x(i,j) = (WIND_X_BASE - DISTURB) + (float)rand_r(&seed)/RAND_MAX * 2 * DISTURB;
+			cloud.wind_y(i,j) = (WIND_Y_BASE - DISTURB) + (float)rand_r(&seed)/RAND_MAX * 2 * DISTURB;		
+		}
+	}
+	}	
 	//Forcing copy
 	if(GPUTime > 0){
 		cloud.wind_x.deviceAlloc();
@@ -317,7 +338,7 @@ int main(int argc, char **argv){
 		}
 	}
 	
-    #ifdef PSKEL_PAPI
+    	#ifdef PSKEL_PAPI
 		if(GPUTime < 1.0)
 			PSkelPAPI::init(PSkelPAPI::CPU);
 	#endif
