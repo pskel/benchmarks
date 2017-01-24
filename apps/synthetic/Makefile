@@ -51,12 +51,26 @@ pskel_omp_gcc: ${SRC_NAME}_pskel.cu
 	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_omp_gcc ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP
 
 pskel_omp_gcc_moore: ${SRC_NAME}_pskel.cu
-	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_omp_gcc_moore ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_MOORE
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_omp_gcc_moore_r1_a1_m0 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_MOORE -DMASK_RADIUS=1 -DNUM_ADD=1 -DNUM_MULT=0
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_omp_gcc_moore_r1_a0_m1 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_MOORE -DMASK_RADIUS=1 -DNUM_ADD=0 -DNUM_MULT=1
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_omp_gcc_moore_r1_a1_m1 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_MOORE -DMASK_RADIUS=1 -DNUM_ADD=1 -DNUM_MULT=1
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_omp_gcc_moore_r2_a1_m0 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_MOORE -DMASK_RADIUS=2 -DNUM_ADD=1 -DNUM_MULT=0
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_omp_gcc_moore_r2_a0_m1 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_MOORE -DMASK_RADIUS=2 -DNUM_ADD=0 -DNUM_MULT=1
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_omp_gcc_moore_r2_a1_m1 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_MOORE -DMASK_RADIUS=2 -DNUM_ADD=1 -DNUM_MULT=1
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_omp_gcc_moore_r3_a1_m0 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_MOORE -DMASK_RADIUS=3 -DNUM_ADD=1 -DNUM_MULT=0
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_omp_gcc_moore_r3_a0_m1 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_MOORE -DMASK_RADIUS=3 -DNUM_ADD=0 -DNUM_MULT=1
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_omp_gcc_moore_r3_a1_m1 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_MOORE -DMASK_RADIUS=3 -DNUM_ADD=1 -DNUM_MULT=1
 
 pskel_omp_gcc_neuman: ${SRC_NAME}_pskel.cu
-	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_omp_gcc_neuman ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_NEUMAN
-
-
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_omp_gcc_neuman_r1_a1_m0 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_NEUMAN -DMASK_RADIUS=1 -DNUM_ADD=1 -DNUM_MULT=0
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_omp_gcc_neuman_r1_a0_m1 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_NEUMAN -DMASK_RADIUS=1 -DNUM_ADD=0 -DNUM_MULT=1
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_omp_gcc_neuman_r1_a1_m1 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_NEUMAN -DMASK_RADIUS=1 -DNUM_ADD=1 -DNUM_MULT=1
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_omp_gcc_neuman_r2_a1_m0 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_NEUMAN -DMASK_RADIUS=2 -DNUM_ADD=1 -DNUM_MULT=0
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_omp_gcc_neuman_r2_a0_m1 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_NEUMAN -DMASK_RADIUS=2 -DNUM_ADD=0 -DNUM_MULT=1
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_omp_gcc_neuman_r2_a1_m1 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_NEUMAN -DMASK_RADIUS=2 -DNUM_ADD=1 -DNUM_MULT=1
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_omp_gcc_neuman_r3_a1_m0 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_NEUMAN -DMASK_RADIUS=3 -DNUM_ADD=1 -DNUM_MULT=0
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_omp_gcc_neuman_r3_a0_m1 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_NEUMAN -DMASK_RADIUS=3 -DNUM_ADD=0 -DNUM_MULT=1
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_omp_gcc_neuman_r3_a1_m1 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_NEUMAN -DMASK_RADIUS=3 -DNUM_ADD=1 -DNUM_MULT=1
 
 pskel_tbb_gcc: ${SRC_NAME}_pskel.cu
 	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_tbb_gcc ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_TBB
@@ -85,10 +99,27 @@ papi_tesla_omp_gcc: ${SRC_NAME}_pskel.cu
 	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi_omp_gcc ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_PAPI -DTESLA -DXEON
 
 papi_tesla_omp_gcc_moore: ${SRC_NAME}_pskel.cu
-	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi_omp_gcc_moore ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_PAPI -DTESLA -DXEON -DPSKEL_MOORE
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi_omp_gcc_moore_r1_a1_m0 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_PAPI -DTESLA -DPSKEL_MOORE -DMASK_RADIUS=1 -DNUM_ADD=1 -DNUM_MULT=0
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi_omp_gcc_moore_r1_a0_m1 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_PAPI -DTESLA -DPSKEL_MOORE -DMASK_RADIUS=1 -DNUM_ADD=0 -DNUM_MULT=1
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi_omp_gcc_moore_r1_a1_m1 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_PAPI -DTESLA -DPSKEL_MOORE -DMASK_RADIUS=1 -DNUM_ADD=1 -DNUM_MULT=1
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi_omp_gcc_moore_r2_a1_m0 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_PAPI -DTESLA -DPSKEL_MOORE -DMASK_RADIUS=2 -DNUM_ADD=1 -DNUM_MULT=0
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi_omp_gcc_moore_r2_a0_m1 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_PAPI -DTESLA -DPSKEL_MOORE -DMASK_RADIUS=2 -DNUM_ADD=0 -DNUM_MULT=1
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi_omp_gcc_moore_r2_a1_m1 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_PAPI -DTESLA -DPSKEL_MOORE -DMASK_RADIUS=2 -DNUM_ADD=1 -DNUM_MULT=1
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi_omp_gcc_moore_r3_a1_m0 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_PAPI -DTESLA -DPSKEL_MOORE -DMASK_RADIUS=3 -DNUM_ADD=1 -DNUM_MULT=0
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi_omp_gcc_moore_r3_a0_m1 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_PAPI -DTESLA -DPSKEL_MOORE -DMASK_RADIUS=3 -DNUM_ADD=0 -DNUM_MULT=1
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi_omp_gcc_moore_r3_a1_m1 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_PAPI -DTESLA -DPSKEL_MOORE -DMASK_RADIUS=3 -DNUM_ADD=1 -DNUM_MULT=1
+
 
 papi_tesla_omp_gcc_neuman: ${SRC_NAME}_pskel.cu
-	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi_omp_gcc_neuman ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_PAPI -DTESLA -DXEON -DPSKEL_NEUMAN
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi_omp_gcc_neuman_r1_a1_m0 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_PAPI -DTESLA -DPSKEL_NEUMAN -DMASK_RADIUS=1 -DNUM_ADD=1 -DNUM_MULT=0
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi_omp_gcc_neuman_r1_a0_m1 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_PAPI -DTESLA -DPSKEL_NEUMAN -DMASK_RADIUS=1 -DNUM_ADD=0 -DNUM_MULT=1
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi_omp_gcc_neuman_r1_a1_m1 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_PAPI -DTESLA -DPSKEL_NEUMAN -DMASK_RADIUS=1 -DNUM_ADD=1 -DNUM_MULT=1
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi_omp_gcc_neuman_r2_a1_m0 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_PAPI -DTESLA -DPSKEL_NEUMAN -DMASK_RADIUS=2 -DNUM_ADD=1 -DNUM_MULT=0
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi_omp_gcc_neuman_r2_a0_m1 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_PAPI -DTESLA -DPSKEL_NEUMAN -DMASK_RADIUS=2 -DNUM_ADD=0 -DNUM_MULT=1
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi_omp_gcc_neuman_r2_a1_m1 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_PAPI -DTESLA -DPSKEL_NEUMAN -DMASK_RADIUS=2 -DNUM_ADD=1 -DNUM_MULT=1
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi_omp_gcc_neuman_r3_a1_m0 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_PAPI -DTESLA -DPSKEL_NEUMAN -DMASK_RADIUS=3 -DNUM_ADD=1 -DNUM_MULT=0
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi_omp_gcc_neuman_r3_a0_m1 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_PAPI -DTESLA -DPSKEL_NEUMAN -DMASK_RADIUS=3 -DNUM_ADD=0 -DNUM_MULT=1
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi_omp_gcc_neuman_r3_a1_m1 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_PAPI -DTESLA -DPSKEL_NEUMAN -DMASK_RADIUS=3 -DNUM_ADD=1 -DNUM_MULT=1
 
 papi: ${SRC_NAME}_pskel.cu
 	${CUDAC} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi ${SRC_NAME}_pskel.cu ${LIBS} -lpapi -DPSKEL_PAPI -DTIME
