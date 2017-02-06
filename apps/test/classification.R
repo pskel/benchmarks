@@ -8,7 +8,7 @@ library(party)
 
 library(rattle)					# Fancy tree plot
 
-library(RColorBrewer)				# Color selection for fancy tree plot
+library(RColorBrewer)		# Color selection for fancy tree plot
 library(party)					# Alternative decision tree algorithm
 library(partykit)				# Convert rpart object to BinaryTree
 library(caret)	
@@ -29,6 +29,8 @@ apps=read.csv("apps_profile.csv")
 df$app = as.character(df$app)
 df$pct_gpu = factor(df$pct_gpu)
 df$pct_oracle = factor(df$pct_oracle)
+
+df = df[-which(is.na(df$pct_oracle)),]
 
 #add new metrics
 df$PAPI_FP_INS_ELEMENT = df$PAPI_FP_INS/(df$input*df$input)
@@ -183,26 +185,80 @@ df = df[,-match(c("flop_count_sp_mul"),names(df))]
 
 #fit <- svm(pct_oracle ~ ., data=df, cost=100, gamma=1)
 
-fit <- rpart(pct_oracle ~ BR_INS	+ ite + FP_INS + L2_DCM + L3_TCM + BR_MSP + 	achieved_occupancy + alu_fu_utilization + branch_efficiency + cf_fu_utilization + dram_utilization + gld_efficiency + gst_efficiency + inst_per_warp + ipc + issue_slot_utilization + issued_ipc + l1_shared_utilization + l2_l1_read_hit_rate + l2_utilization + ldst_fu_utilization + sm_efficiency + stall_data_request + stall_inst_fetch + stall_sync + stall_other  + warp_execution_efficiency,method="class", data=df,control=rpart.control(minsplit=5,minbucket=2))
+#remove synthetic loop
+df = df[-which(df$pct_oracle==0.95 | df$pct_oracle==0.9),]
 
-fit <- rpart(pct_oracle ~ ite + L2_DCM + L3_TCM + l2_l1_read_hit_rate + sm_efficiency,method="class", data=df,control=rpart.control(minsplit=5,minbucket=2))
+###### PREDICTION 1 #########
+fit1 <- rpart(pct_oracle ~ BR_INS	+ ite + FP_INS + L2_DCM + L3_TCM + BR_MSP + 	achieved_occupancy + alu_fu_utilization + branch_efficiency + cf_fu_utilization + dram_utilization + gld_efficiency + gst_efficiency + inst_per_warp + ipc + issue_slot_utilization + issued_ipc + l1_shared_utilization + l2_l1_read_hit_rate + l2_utilization + ldst_fu_utilization + sm_efficiency + stall_data_request + stall_inst_fetch + stall_sync + stall_other  + warp_execution_efficiency,method="class", data=df,control=rpart.control(minsplit=5,minbucket=2))
 
-setEPS()
-postscript("prp_tree4.eps")
-
-x <- prp(fit,type=0,extra=102,digits=4,under=FALSE,faclen=0,varlen=0,split.border.col=1,fallen.leaves = TRUE,leaf.round=1.9,ycompress = TRUE,compress=TRUE,xcompact=FALSE,xcompact.ratio=0.8,ycompact=FALSE,nn=FALSE,split.font=1,branch=1,lt="\n< ",ge="\n>= ",xflip=TRUE,cex=0.6,ycompress.cex=Inf,accept.cex=0,Fallen.yspace=0.05,trace=TRUE,nn.cex=0.7)
-
-dev.off()
-
-predictions = predict(fit,apps[which(apps$ite==60),],type="class")
+predictions = predict(fit1,apps,type="class")
 accuracy.global = sum(predictions==apps$pct_gpu)/nrow(apps)
 print(accuracy.global)
 table(predictions)
 table(apps$pct_gpu)
 print(table(predictions,apps$pct_gpu))
 
+apps$pct_gpu_p1 = predictions
 
+setEPS()
+postscript("prp_tree1.eps")
 
+x <- prp(fit1,type=0,extra=102,digits=4,under=FALSE,faclen=0,varlen=0,split.border.col=1,fallen.leaves = TRUE,leaf.round=1.9,ycompress = TRUE,compress=TRUE,xcompact=FALSE,xcompact.ratio=0.8,ycompact=FALSE,nn=FALSE,split.font=1,branch=1,lt="\n< ",ge="\n>= ",xflip=TRUE,cex=0.6,ycompress.cex=Inf,accept.cex=0,Fallen.yspace=0.05,trace=TRUE,nn.cex=0.7)
+
+dev.off()
+###########################################
+
+###### PREDICTION 2 #########
+fit2 <- rpart(pct_oracle ~ BR_INS	+ ite + L2_DCM + L3_TCM + l2_l1_read_hit_rate + l2_utilization + sm_efficiency,method="class", data=df,control=rpart.control(minsplit=5,minbucket=2))
+
+predictions2 = predict(fit2,apps,type="class")
+accuracy.global = sum(predictions2==apps$pct_gpu)/nrow(apps)
+print(accuracy.global)
+table(predictions2)
+table(apps$pct_gpu)
+print(table(predictions2,apps$pct_gpu))
+
+apps$pct_gpu_p2 = predictions2
+
+#setEPS()
+#postscript("prp_tree2.eps")
+
+x <- prp(fit2,type=0,extra=102,digits=4,under=FALSE,faclen=0,varlen=0,split.border.col=1,fallen.leaves = TRUE,leaf.round=1.9,ycompress = TRUE,compress=TRUE,xcompact=FALSE,xcompact.ratio=0.8,ycompact=FALSE,nn=FALSE,split.font=1,branch=1,lt="\n< ",ge="\n>= ",xflip=TRUE,cex=0.6,ycompress.cex=Inf,accept.cex=0,Fallen.yspace=0.05,trace=TRUE,nn.cex=0.7)
+
+dev.off()
+###########################################
+
+###### PREDICTION 3 #########
+fit3 <- rpart(pct_oracle ~ ite + L2_DCM + L3_TCM + l2_l1_read_hit_rate + gld_efficiency,method="class", data=df,control=rpart.control(minsplit=5,minbucket=2))
+
+predictions3 = predict(fit3,apps,type="class")
+accuracy.global = sum(predictions3==apps$pct_gpu)/nrow(apps)
+print(accuracy.global)
+table(predictions2)
+table(apps$pct_gpu)
+print(table(predictions3,apps$pct_gpu))
+
+apps$pct_gpu_p4 = predictions3
+
+#setEPS()
+#postscript("prp_tree2.eps")
+
+x <- prp(fit3,type=0,extra=102,digits=4,under=FALSE,faclen=0,varlen=0,split.border.col=1,fallen.leaves = TRUE,leaf.round=1.9,ycompress = TRUE,compress=TRUE,xcompact=FALSE,xcompact.ratio=0.8,ycompact=FALSE,nn=FALSE,split.font=1,branch=1,lt="\n< ",ge="\n>= ",xflip=TRUE,cex=0.6,ycompress.cex=Inf,accept.cex=0,Fallen.yspace=0.05,trace=TRUE,nn.cex=0.7)
+
+dev.off()
+###########################################
+
+#create file with predictions
+write.csv(apps,file='app_predicted.csv',row.names=F,quote=F)
+
+fit <- rpart(pct_oracle ~ ite + L2_DCM + L3_TCM + l2_l1_read_hit_rate + sm_efficiency,method="class", data=df,control=rpart.control(minsplit=5,minbucket=2))
+
+predictions = predict(fit,apps,type="class")
+accuracy.global = sum(predictions==apps$pct_gpu)/nrow(apps)
+print(accuracy.global)
+table(predictions)
+table(apps$pct_gpu)
+print(table(predictions,apps$pct_gpu))
 
 fit.float <- rpart(pct_gpu ~ BR_INS	+ ITERATIONS + FP_INS + L2_DCM + L2_DCR + 	CPU_L2_LDM + 	L2_STM + 	L3_DCR + 	CPU_L3_TCM + 	LD_INS + 	SR_INS + 	achieved_occupancy + alu_fu_utilization + branch_efficiency + cf_fu_utilization + dram_utilization + gld_efficiency + gld_transactions_per_request + gst_efficiency + gst_transactions_per_request + inst_per_warp + ipc + issue_slot_utilization + issued_ipc + GPU_L1_TCH + l1_cache_local_hit_rate + l1_shared_utilization + GPU_L2_TCH + l2_utilization + ldst_fu_utilization + GPU_SME + stall_data_request + stall_exec_dependency +  stall_inst_fetch + stall_sync + stall_other  + warp_execution_efficiency,method="class", data=df,control=rpart.control(minsplit=20,minbucket=8))
 
@@ -212,7 +268,7 @@ rpart.plot(fit.float,main=paste("Partitioning decision tree",collapse=" "),cex =
 setEPS()
 postscript("prp_tree.eps")
 #box.col=gray.colors(7,1,1)[fit.float$frame$yval]
-x <- prp(fit.float,type=0,extra=102,digits=4,under=FALSE,faclen=0,varlen=0,split.border.col=1,fallen.leaves = TRUE,leaf.round=1.9,ycompress = TRUE,compress=TRUE,xcompact=FALSE,xcompact.ratio=0.8,ycompact=FALSE,nn=FALSE,split.font=1,branch=1,lt="\n< ",ge="\n>= ",xflip=TRUE,cex=0.6,ycompress.cex=Inf,accept.cex=0,Fallen.yspace=0.05,trace=TRUE,nn.cex=0.7)
+x <- prp(fit,type=0,extra=102,digits=4,under=FALSE,faclen=0,varlen=0,split.border.col=1,fallen.leaves = TRUE,leaf.round=1.9,ycompress = TRUE,compress=TRUE,xcompact=FALSE,xcompact.ratio=0.8,ycompact=FALSE,nn=FALSE,split.font=1,branch=1,lt="\n< ",ge="\n>= ",xflip=TRUE,cex=0.6,ycompress.cex=Inf,accept.cex=0,Fallen.yspace=0.05,trace=TRUE,nn.cex=0.7)
 dev.off()
 
 
