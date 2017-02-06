@@ -18,11 +18,17 @@ library(caret)
 
 #READ SYNTHETIC FLOAT DATA
 options(digits = 2, width = 100)
-df=read.csv("quadro_syn_float_data.csv")
+#df=read.csv("quadro_syn_float_data.csv")
+df=read.csv("synthetic4b.csv")
+#df2=read.csv("synthetic2b.csv")
+apps=read.csv("apps_profile.csv")
+
+#df2 = df2[which(!is.na(df2$pct_oracle)),]
 
 #transform values
 df$app = as.character(df$app)
 df$pct_gpu = factor(df$pct_gpu)
+df$pct_oracle = factor(df$pct_oracle)
 
 #add new metrics
 df$PAPI_FP_INS_ELEMENT = df$PAPI_FP_INS/(df$input*df$input)
@@ -166,6 +172,36 @@ colnames(df)[which(names(df) == "sm_efficiency")] <- "GPU_SME"
 colnames(df)[which(names(df) == "ite")] <- "ITERATIONS"
 colnames(df)[which(names(df) == "L2_LDM")] <- "CPU_L2_LDM"
 colnames(df)[which(names(df) == "L3_TCM")] <- "CPU_L3_TCM"
+
+
+df = df[which(df$numAdd==1 & df$numMult==1),]
+
+df2 = df
+
+df = df[,-match(c("flop_count_sp_mul"),names(df))]
+#control=rpart.control(minsplit=20,minbucket=8)
+
+#fit <- svm(pct_oracle ~ ., data=df, cost=100, gamma=1)
+
+fit <- rpart(pct_oracle ~ BR_INS	+ ite + FP_INS + L2_DCM + L3_TCM + BR_MSP + 	achieved_occupancy + alu_fu_utilization + branch_efficiency + cf_fu_utilization + dram_utilization + gld_efficiency + gst_efficiency + inst_per_warp + ipc + issue_slot_utilization + issued_ipc + l1_shared_utilization + l2_l1_read_hit_rate + l2_utilization + ldst_fu_utilization + sm_efficiency + stall_data_request + stall_inst_fetch + stall_sync + stall_other  + warp_execution_efficiency,method="class", data=df,control=rpart.control(minsplit=5,minbucket=2))
+
+fit <- rpart(pct_oracle ~ ite + L2_DCM + L3_TCM + l2_l1_read_hit_rate + sm_efficiency,method="class", data=df,control=rpart.control(minsplit=5,minbucket=2))
+
+setEPS()
+postscript("prp_tree4.eps")
+
+x <- prp(fit,type=0,extra=102,digits=4,under=FALSE,faclen=0,varlen=0,split.border.col=1,fallen.leaves = TRUE,leaf.round=1.9,ycompress = TRUE,compress=TRUE,xcompact=FALSE,xcompact.ratio=0.8,ycompact=FALSE,nn=FALSE,split.font=1,branch=1,lt="\n< ",ge="\n>= ",xflip=TRUE,cex=0.6,ycompress.cex=Inf,accept.cex=0,Fallen.yspace=0.05,trace=TRUE,nn.cex=0.7)
+
+dev.off()
+
+predictions = predict(fit,apps[which(apps$ite==60),],type="class")
+accuracy.global = sum(predictions==apps$pct_gpu)/nrow(apps)
+print(accuracy.global)
+table(predictions)
+table(apps$pct_gpu)
+print(table(predictions,apps$pct_gpu))
+
+
 
 
 fit.float <- rpart(pct_gpu ~ BR_INS	+ ITERATIONS + FP_INS + L2_DCM + L2_DCR + 	CPU_L2_LDM + 	L2_STM + 	L3_DCR + 	CPU_L3_TCM + 	LD_INS + 	SR_INS + 	achieved_occupancy + alu_fu_utilization + branch_efficiency + cf_fu_utilization + dram_utilization + gld_efficiency + gld_transactions_per_request + gst_efficiency + gst_transactions_per_request + inst_per_warp + ipc + issue_slot_utilization + issued_ipc + GPU_L1_TCH + l1_cache_local_hit_rate + l1_shared_utilization + GPU_L2_TCH + l2_utilization + ldst_fu_utilization + GPU_SME + stall_data_request + stall_exec_dependency +  stall_inst_fetch + stall_sync + stall_other  + warp_execution_efficiency,method="class", data=df,control=rpart.control(minsplit=20,minbucket=8))

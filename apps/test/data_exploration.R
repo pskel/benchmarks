@@ -1,7 +1,8 @@
 library(sperrorest)
 
 options(digits = 2, width = 100)
-df=read.csv("quadro_syn_float_data.csv")
+#df=read.csv("apps_profile.csv")
+df=read.csv("synthetic4b.csv")
 
 #transform values
 df$app = as.character(df$app)
@@ -67,7 +68,20 @@ table(df$pct_gpu, result$cluster)
 ##############################################################
 #Decision Tree with rpart
 
-# grow tree 
+# grow tree
+# stall_exec_dependency
+# stall_other
+# stall_not_selected
+# active_warps
+# stall_inst_fetch
+# stall_constant_memory_dependency
+#  stall_sync
+# stall_memory_throttle
+fit <- rpart(pct_gpu ~ ite + FP_INS + FDV_INS + VEC_SP + BR_MSP + BR_CN + BR_TKN + BR_PRC + BR_MSP + LD_INS + SR_INS + L1_DCH + L1_REUSE + L2_DCH + L2_REUSE + L2_DCM + L2_TCM + L2_STM + L2_LDM + L2_DCR + L2_DCW + L2_TCR + L2_TCW + L3_REUSE + L3_TCM + L3_DCR + L3_DCW + L3_TCR + L3_TCW + INS_CYC + STL_ICY + REF_CYC + sm_efficiency + l2_l1_read_hit_rate +  + gst_efficiency + active_cycles + inst_fp_64 + gst_throughput + inst_issued2 + gst_inst_64bit + shared_store_transactions +  branch_efficiency + l1_shared_utilization + warp_nonpred_execution_efficiency + gld_inst_8bit + sysmem_read_throughput + gld_inst_64bit + issue_slot_utilization + shared_efficiency + shared_load_transactions + l2_l1_read_throughput + tex_cache_hit_rate + shared_store_throughput + tex_cache_throughput + gld_request + achieved_occupancy +  + shared_store + gld_inst_128bit + elapsed_cycles_sm + X__l1_global_load_transactions +  + inst_fp_32 + dram_read_transactions + l1_cache_local_hit_rate + dram_write_transactions + inst_bit_convert + + gld_transactions_per_request + l2_texture_read_hit_rate + gst_requested_throughput + gst_request + rocache_gld_inst_32bit + inst_integer + inst_issued + ecc_transactions + cf_fu_utilization + rocache_subp3_gld_thread_count_128b + ipc_instance + gld_inst_16bit + global_store_transaction + inst_per_warp + rocache_subp2_gld_warp_count_32b + rocache_subp0_gld_warp_count_128b + issued_ipc + gld_transactions + shared_load_throughput + sm_cta_launched + rocache_subp1_gld_warp_count_64b + inst_control + rocache_gld_inst_64bit + dram_utilization + rocache_subp0_gld_warp_count_64b  + gst_inst_128bit + shared_load_transactions_per_request + rocache_subp2_gld_warp_count_128b + l1_cache_global_hit_rate + dram_read_throughput + flop_count_sp_mul + not_predicated_off_thread_inst_executed + flop_count_sp_add + gld_inst_32bit + eligible_warps_per_cycle + ipc + l2_l1_write_transactions + gst_inst_32bit + issue_slots + cf_executed + ldst_fu_utilization + uncached_global_load_transaction + inst_misc + gld_requested_throughput + L3_DCH + flop_count_sp_special + sysmem_read_transactions + rocache_subp1_gld_warp_count_32b + l2_tex_read_transactions + rocache_subp1_gld_thread_count_64b + gst_inst_8bit + rocache_subp3_gld_thread_count_64b + sysmem_write_throughput + l2_atomic_transactions + l2_l1_write_throughput + alu_fu_utilization + l2_texture_read_throughput + ldst_executed + gst_transactions_per_request + rocache_subp2_gld_warp_count_64b + nc_l2_read_transactions + tex_cache_transactions + tex_utilization + l2_read_throughput + gst_transactions + rocache_gld_inst_8bit + rocache_subp1_gld_warp_count_128b + gld_throughput + rocache_gld_inst_16bit + rocache_subp3_gld_warp_count_128b +  + rocache_gld_inst_128bit + stall_texture +  + stall_memory_dependency + X__l1_global_store_transactions + sysmem_utilization + gst_inst_16bit + l1_shared_load_transactions + l2_write_transactions + threads_launched + nc_gld_efficiency + l2_read_transactions + rocache_subp3_gld_warp_count_64b + thread_inst_executed + l1_shared_store_transactions + cf_issued + warps_launched + ecc_throughput + l2_atomic_throughput + flop_dp_efficiency + shared_load + flop_sp_efficiency + sysmem_write_transactions + stall_pipe_busy + inst_compute_ld_st + dram_write_throughput + nc_cache_global_hit_rate + flop_count_sp + rocache_subp0_gld_warp_count_32b + sm_efficiency_instance + l2_utilization + rocache_subp1_gld_thread_count_128b + inst_executed + rocache_subp0_gld_thread_count_32b + warp_execution_efficiency + stall_data_request + tex_fu_utilization + l2_write_throughput + rocache_subp0_gld_thread_count_64b + ldst_issued + tex2_cache_sector_misses + inst_issued1 + gld_efficiency + l2_l1_read_transactions + rocache_subp2_gld_thread_count_32b + shared_store_transactions_per_request + flop_count_sp_fma, method="class", data=df,control=rpart.control(minsplit=1),minbucket=1)
+prp(fit,type=0,extra=102,digits=4,under=FALSE,faclen=0,varlen=0,split.border.col=0,fallen.leaves = TRUE,leaf.round=1,ycompress = TRUE,compress=TRUE,xcompact=TRUE,xcompact.ratio=0.5,ycompact=FALSE,nn=FALSE,split.font=1,branch=1,tweak=0.95,cex=0.65,branch.tweak=1.1,split.cex=1,xflip=TRUE,left=TRUE,nn.cex=0.7)
+
+rpart.plot(fit,main=paste("rpart CPU-GPU minsplit",collapse=" "),cex = 0.6)
+
 fit <- rpart(pct_gpu ~ ite + L2_DCM +  L3_TCM + l1_cache_global_hit_rate  sm_efficiency + ipc + gld_transactions_per_request + gst_transactions_per_request + stall_inst_fetch + stall_exec_dependency + stall_data_request + stall_memory_dependency + stall_sync + stall_other + warp_execution_efficiency + gld_efficiency + gst_efficiency + l2_l1_read_hit_rate + issued_ipc + flop_sp_efficiency + stall_pipe_busy + stall_memory_throttle,method="class", data=df,control=rpart.control(minsplit=20),minbucket=8)
 
 prp(fit,type=0,extra=102,digits=4,under=FALSE,faclen=0,varlen=0,split.border.col=0,fallen.leaves = TRUE,leaf.round=1,ycompress = TRUE,compress=TRUE,xcompact=TRUE,xcompact.ratio=0.5,ycompact=FALSE,nn=FALSE,split.font=1,branch=1,tweak=0.95,cex=0.65,branch.tweak=1.1,split.cex=1,xflip=TRUE,left=TRUE,nn.cex=0.7)
