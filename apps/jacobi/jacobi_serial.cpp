@@ -118,7 +118,7 @@ int main(int argc, char **argv){
 	alpha = 0.25/(float) width;
     	beta = 1.0/(float) height;
 
-	tbb::task_scheduler_init init(nthreads); // (tbb::task_scheduler_init::automatic);
+	//tbb::task_scheduler_init init(nthreads); // (tbb::task_scheduler_init::automatic);
 	
 	inputGrid = (float*) malloc(width*height*sizeof(float));
 	outputGrid = (float*) malloc(width*height*sizeof(float));
@@ -134,16 +134,16 @@ int main(int argc, char **argv){
 	hr_timer_t timer;
 	hrt_start(&timer);
 
-	//stencilKernel(inputGrid, outputGrid,width,height,T_MAX,alpha,beta);
-	TBBStencil jacobi(inputGrid,outputGrid,width,height); 
+	stencilKernel(inputGrid, outputGrid,width,height,T_MAX,alpha,beta);
+	//TBBStencil jacobi(inputGrid,outputGrid,width,height); 
     //TBBStencil::setValues(inputGrid, outputGrid, width, height);	
-	for(int it = 0; it < T_MAX; it++){
-		tbb::parallel_for(tbb::blocked_range<size_t>(1, height-1), jacobi);
-		jacobi.swap();	
-    	}
-	if(T_MAX%2==0){
-		jacobi.swap();
-	}
+	//for(int it = 0; it < T_MAX; it++){
+	//	tbb::parallel_for(tbb::blocked_range<size_t>(1, height-1), jacobi);
+	//	jacobi.swap();	
+    	//}
+	//if(T_MAX%2==0){
+	//	jacobi.swap();
+	//}
 	hrt_stop(&timer);
 	cout << "Exec_time\t" << hrt_elapsed_time(&timer) << endl;  
 	return 0;
