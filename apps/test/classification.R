@@ -19,7 +19,7 @@ library(caret)
 #READ SYNTHETIC FLOAT DATA
 options(digits = 2, width = 100)
 #df=read.csv("quadro_syn_float_data.csv")
-df=read.csv("synthetic4b.csv")
+df=read.csv("synthetic4c.csv")
 #df2=read.csv("synthetic2b.csv")
 apps=read.csv("apps_profile.csv")
 
@@ -29,6 +29,7 @@ apps=read.csv("apps_profile.csv")
 df$app = as.character(df$app)
 df$pct_gpu = factor(df$pct_gpu)
 df$pct_oracle = factor(df$pct_oracle)
+df$l2_utilization = factor(df$l2_utilization)
 
 df = df[-which(is.na(df$pct_oracle)),]
 
@@ -172,7 +173,7 @@ colnames(df)[which(names(df) == "l2_l1_read_hit_rate")] <- "GPU_L2_TCH"
 colnames(df)[which(names(df) == "l1_cache_global_hit_rate")] <- "GPU_L1_TCH"
 colnames(df)[which(names(df) == "sm_efficiency")] <- "GPU_SME"
 colnames(df)[which(names(df) == "ite")] <- "ITERATIONS"
-colnames(df)[which(names(df) == "L2_LDM")] <- "CPU_L2_LDM"
+colnames(df)[which(names(df) == "L2_DCM")] <- "CPU_L2_DCM"
 colnames(df)[which(names(df) == "L3_TCM")] <- "CPU_L3_TCM"
 
 
@@ -229,21 +230,30 @@ dev.off()
 ###########################################
 
 ###### PREDICTION 3 #########
-fit3 <- rpart(pct_oracle ~ ite + L2_DCM + L3_TCM + l2_l1_read_hit_rate + gld_efficiency,method="class", data=df,control=rpart.control(minsplit=5,minbucket=2))
+#predict4 = fit3 <- rpart(pct_oracle ~ ite + L2_DCM + L3_TCM + l2_l1_read_hit_rate,method="class", data=df,control=rpart.control(minsplit=5,minbucket=2))
+
+fit3 <- rpart(pct_oracle ~ ITERATIONS + CPU_L2_DCM + CPU_L3_TCM + GPU_L2_TCH,method="class", data=df,control=rpart.control(minsplit=5,minbucket=2))
+
+#prune
+pfit<- prune(fit3, cp=fit3$cptable[which.min(fit3$cptable[,"xerror"]),"CP"])
 
 predictions3 = predict(fit3,apps,type="class")
+print(predictions3)
+setEPS()
+postscript("prp_tree5a.eps")
+
+
+x <- prp(fit3,type=0,extra=102,digits=4,under=FALSE,faclen=0,varlen=0,split.border.col=1,fallen.leaves = TRUE,leaf.round=1.8,ycompress = TRUE,compress=TRUE,xcompact=FALSE,xcompact.ratio=0.5,ycompact=FALSE,nn=FALSE,split.font=0.9,branch=1,lt="\n< ",ge="\n>= ",xflip=TRUE,cex=0.6,ycompress.cex=Inf,accept.cex=0,Fallen.yspace=0.05,trace=TRUE,nn.cex=0.7)
+
+dev.off()
+
 accuracy.global = sum(predictions3==apps$pct_gpu)/nrow(apps)
 print(accuracy.global)
 table(predictions2)
 table(apps$pct_gpu)
 print(table(predictions3,apps$pct_gpu))
 
-apps$pct_gpu_p4 = predictions3
-
-#setEPS()
-#postscript("prp_tree2.eps")
-
-x <- prp(fit3,type=0,extra=102,digits=4,under=FALSE,faclen=0,varlen=0,split.border.col=1,fallen.leaves = TRUE,leaf.round=1.9,ycompress = TRUE,compress=TRUE,xcompact=FALSE,xcompact.ratio=0.8,ycompact=FALSE,nn=FALSE,split.font=1,branch=1,lt="\n< ",ge="\n>= ",xflip=TRUE,cex=0.6,ycompress.cex=Inf,accept.cex=0,Fallen.yspace=0.05,trace=TRUE,nn.cex=0.7)
+apps$pct_gpu_p5 = predictions3
 
 dev.off()
 ###########################################

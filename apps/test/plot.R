@@ -1,6 +1,6 @@
 ###################### PLOT BAR GRAPHS #################################################
 #read speedup data
-apps = read.csv('apps_time.csv')
+apps = read.csv('app_predicted.csv')
 apps$app = as.character(apps$app)
 
 par(xpd=TRUE,cex.lab=1.5)
@@ -36,23 +36,23 @@ par(xpd=TRUE,cex.lab=1.5)
 par(xpd=TRUE,cex.lab=1.5)
 for(j in c('cloudsim','convolution','fast','gol','jacobi')){
   #for(i in c(24000)){
-    #x <- apps[which(apps$app == j & apps$ite >= 1),c("CPU_time")]
-    #x <- c(x,exp(mean(log(x[-1])))) #geometric mean
-    y <- apps[which(apps$app ==j  & apps$ite >= 1),c("GPU_time")]
+    x <- apps[which(apps$app == j & apps$ite >= 1),c("speedup_cpu")]
+    x <- c(x,exp(mean(log(x[-1])))) #geometric mean
+    y <- apps[which(apps$app ==j  & apps$ite >= 1),c("speedup_gpu")]
     y <- c(y,exp(mean(log(y[-1])))) #geometric mean
-    w <- apps[which(apps$app ==j  & apps$ite >= 1),c("Naive_total_time")]
+    w <- apps[which(apps$app ==j  & apps$ite >= 1),c("speedup_awt")]
     w <- c(w,exp(mean(log(w[-1])))) #geometric mean
-    z <- apps[which(apps$app ==j  & apps$ite >= 1),c("Oracle_total_time")]
+    z <- apps[which(apps$app ==j  & apps$ite >= 1),c("speedup_oracle")]
     z <- c(z,exp(mean(log(z[-1])))) #geometric mean
     
     # create a two row matrix with x and y
-    height <- rbind(y,w,z)
-    #setEPS()
-    #postscript(paste(c(j,"_",i,"2.eps"),collapse=""))
+    height <- rbind(x,y,w,z)
+    setEPS()
+    postscript(paste(c(j,".eps"),collapse=""))
     #xlab = "# of iterations",ylab = "Speedup over single core",legend = c("CPU only","GPU only","Predictive model","Oracle"),args.legend = list(x="top",horiz=FALSE,inset=c(0,-0.1),ncol=2,cex=1.5),cex.axis=1.3,cex.names=1.2,cex.lab=1.5,mgp=c(2.8,1,0)
-    xx <- barplot(height, beside = TRUE,ylim = c(0, 20), names.arg = c(1,10,20,30,40,50,60,"gmean"))
+    xx <- barplot(height, beside = TRUE, names.arg = c(1,10,20,30,40,50,60,"gmean"),main = j)
     #text(x = xx, y=height[x][], label=round(height[x],1), pos=3, col="black", font=2, cex=1.1)
-    #dev.off()
+    dev.off()
   #}
 }
 
