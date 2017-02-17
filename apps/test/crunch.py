@@ -14,7 +14,7 @@ kv_time = dict()
 kv_time['CPU_time'] = 'CPU_time'
 kv_time['GPU_time'] = 'GPU_time'
 kv_time['Total_time'] = 'Total_time'
-kv_time['Exec_time'] = 'Exec_time'
+#kv_time['Exec_time'] = 'Exec_time'
 
 kv_prof = dict()
 #PAPI VALUES
@@ -406,10 +406,10 @@ kv_prof['__l1_global_store_transactions'] =  '__l1_global_store_transactions'
 #atomic_throughput
 
 # fixed header fields for synthetic
-#fixed_header = ['app','input','ite','pct_gpu','thrd_cpu','mask_type','mask_radius','numAdd','numMult']
+fixed_header = ['app','input','ite','pct_gpu','thrd_cpu','mask_type','mask_radius','numAdd','numMult']
 
 # fixed header fields for apps
-fixed_header = ['app','input','pct_gpu','thrd_cpu']
+#fixed_header = ['app','input','pct_gpu','thrd_cpu']
 
 HEADER_FIXED_COLS = len(fixed_header)
 
@@ -421,13 +421,13 @@ header = list()
 metrics_time = list()
 for metric in kv_time:
   metrics_time.append(metric)
-  #header.append(kv_time[metric])
+  header.append(kv_time[metric])
 
 
 metrics_prof = list()
 for metric in kv_prof:
   metrics_prof.append(metric)
-  header.append(kv_prof[metric])
+  #header.append(kv_prof[metric])
 
 #sort the header by metric name
 header.sort()
@@ -459,8 +459,8 @@ def get_test_files():
   
   basedir = sys.argv[1]
 
-  prof = basedir + '/prof3'
-  time = basedir + '/time3'
+  prof = basedir + '/prof5'
+  time = basedir + '/time5'
 
   for d in (basedir, prof):
     if not os.path.isdir(d):
@@ -563,18 +563,18 @@ prof_files.sort()
 
 # extract the results from the files
 results = list()
-for i in range(len(prof_files)):
+for i in range(len(time_files)):
   # extract configuration attributes from the file name
-  data = get_attr_from_filename(prof_files[i])
+  data = get_attr_from_filename(time_files[i])
 
   # from the "time" files, we want PS: also needs to take this for prof
-  #for metric in metrics_time:
-    #data += [ mean(extract_values(metric, prof_files[i])) ]
+  for metric in metrics_time:
+    data += [ mean(extract_values(metric, time_files[i])) ]
 
   # for the "prof" files, we want all metrics
   #if data[3] > '0' :
-  for metric in metrics_prof:
-	data += [ mean(extract_values(metric, prof_files[i])) ]
+  #for metric in metrics_prof:
+	#data += [ mean(extract_values(metric, prof_files[i])) ]
   #k += 1
 	
   # create a results row
