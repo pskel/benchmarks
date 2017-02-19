@@ -5,7 +5,7 @@ OUTPUT_FLAG=0
 OPTIMUS=""
 OUTPUT_DIR=""
 EXEC=$1
-TEST_DIR="./${EXEC}"
+TEST_DIR="./quadro/${EXEC}"
 BIN_DIR="../../bin"
 #BIN_ACC_KERNELS="../bin/${EXEC}_acc_kernels"
 #BIN_ACC_PARALLEL="../bin/${EXEC}_acc_parallel"
@@ -51,7 +51,7 @@ do
 	do
 	if [[ !("$ADD" = 0 && "$MULT" = 0) ]]
 	then
-		for INPUT_SIZE in 24000 20000 16000
+		for INPUT_SIZE in 8192 4096 2048 1024 512
 		do
 			for ITERATIONS in 1
 			do 
