@@ -1,6 +1,3 @@
-#export AR=/opt/intel/bin/xiar
-#export LD=/opt/intel/bin/icpc
-
 ICC 		= /opt/intel/bin/icpc 
 ICC_FLAGS	= -Xcompiler -O3 -Xcompiler -ansi-alias -Xcompiler -finline -Xcompiler -opt-malloc-options=2 -Xcompiler -xhost -Xcompiler -mtune=native -Xcompiler -march=native -Xcompiler -openmp -Xcompiler -tbb  #-Xcompiler -qopt-report -Xcompiler -qopt-report-file:stdout -Xcompiler -qopt-report-phase=vec
 GCC 		= /usr/local/bin/g++ 
@@ -10,7 +7,7 @@ ACC		= /opt/pgi/linux86-64/2016/bin/pgc++
 PSKEL_SRC	= python ../pskelccv2.py 
 OPTIMUS         = optirun #remover este valor se não estiver em um sistema OPTIMUS (notebook)
 CUDA_LIB_PATH   = /usr/local/cuda-5.5/lib64
-GENCODE		= -gencode arch=compute_35,code=\"sm_35,compute_35\" #-gencode arch=compute_20,code=sm_20 -gencode arch=compute_30,code=sm_30
+GENCODE		= -gencode arch=compute_35,code=\"sm_35,compute_35\" -gencode arch=compute_20,code=sm_20 -gencode arch=compute_30,code=sm_30
 CUDAFLAGS    	= -O3 ${GENCODE} -m64 -lineinfo #-Xcompiler -ftree-vectorize -Xcompiler -march=native -Xcompiler -mtune=native -Xcompiler -O3
 CUDAFLAGS_T    	= -O3 ${GENCODE} -m64 -lineinfo #-Xcompiler -ftree-vectorize -Xcompiler -march=native -Xcompiler -mtune=native -Xcompiler -O3
 ACCFLAGS	= -O3 -ta=tesla -tp=sandybridge -Minfo=accel
