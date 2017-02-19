@@ -28,6 +28,17 @@
 #endif
 #endif
 
+#ifndef NUM_ADD
+	#define NUM_ADD 1
+#endif
+
+#ifndef NUM_MULT
+	#define NUM_MULT 0
+#endif
+
+#ifndef MASK_RADIUS
+	#define MASK_RADIUS 1
+#endif
 
 using namespace std;
 using namespace PSkel;
@@ -35,6 +46,8 @@ using namespace PSkel;
 struct Arguments{
 	//int neighborhood, radius, numAdd, numSub, numMult, numDiv, numPow, numSqrt, numFma;
 	int numAdd, numMult,radius;
+	int loopControlAdd, loopControlMult, opControlAdd, opControlMult;
+	float arg1, arg2, arg3, arg4, arg5, arg6, arg7;
 
 	Arguments(){
 		//neighborhood = 0;
@@ -49,7 +62,7 @@ struct Arguments{
 	}
 
 	//Arguments(int nb, int r, int nAdd, int nSub, int nMult, int nDiv, int nPow, int nSqrt, int nFma){
-    	Arguments(int r, int nAdd, int nMult){
+    	Arguments(int r, int nAdd, int nMult, int maskSize){
 		//neighborhood = nb;
 		radius = r;
 		numAdd = nAdd;
@@ -59,27 +72,225 @@ struct Arguments{
 		//numPow = nPow;
 		//numSqrt = nSqrt;
 		//numFma = nFma;
+
+		loopControlAdd  = numAdd  > 0 ? (numAdd-1) /maskSize + 1 : 0;
+		loopControlMult = numMult > 0 ? (numMult-1)/maskSize + 1 : 0;
+		
+		opControlAdd = numAdd > 0 ? radius : 0;
+		opControlMult = numMult > 0 ? radius : 0;
+
+		arg1 = (float) rand()/RAND_MAX;
+		arg2 = (float) rand()/RAND_MAX;
+		arg3 = (float) rand()/RAND_MAX;
+		arg4 = (float) rand()/RAND_MAX;
+		arg5 = (float) rand()/RAND_MAX;
+		arg6 = (float) rand()/RAND_MAX;
+		arg7 = (float) rand()/RAND_MAX;
+
+		//cout<<"Arguments: "<< arg1 << " " << arg2 << " "<<  arg3 << " " << arg4 << " " << arg5 << endl;
 	}
 };
 
 namespace PSkel{
 	#ifdef PSKEL_INT
-	__parallel__ void stencilKernel(Array2D<int> input,Array2D<int> output,Mask2D<int> mask,Arguments args, size_t h, size_t w){
-		int returnValue = input(h,w);
+	__parallel__ void stencilKernel(Array2D<int> &input,Array2D<int> &output,Mask2D<int> &mask,Arguments &args, size_t h, size_t w){
+		int returnValue; // = input(h,w);
+		int L1, L2, L3, L4, L5, L6, L7;
 	#else
-	__parallel__ void stencilKernel(Array2D<float> input,Array2D<float> output,Mask2D<float> mask,Arguments args, size_t h, size_t w){
-		float  returnValue = input(h,w);
+	__parallel__ void stencilKernel(Array2D<float> &input,Array2D<float> &output,Mask2D<float> &mask,Arguments &args, size_t i, size_t j){
+		float  returnValue; // = input(i,j);
+		float L1, L2, L3, L4, L5, L6, L7;
 	#endif
 
-		int loopControl;
+		
+		#ifdef PSKEL_NEUMAN
+			#if MASK_RADIUS == 1
+				#if NUM_ADD == 1
+					#if NUM_MULT == 1
+					//printf("Neuman RADIUS 1 ADD 1 MULT 1\n");
+					L1 = input(i-1,j) * args.arg1;
+					L2 = input(i  ,j-1) * args.arg2 + input(i,j+1) * args.arg3;
+					L3 = input(i+1,j) * args.arg4;
+					returnValue = L1 + L2 + L3;
+					#else
+					//printf("Neuman RADIUS 1 ADD 1 MULT 0\n");
+					L1 = input(i-1,j);
+					L2 = input(i  ,j-1) + input(i,j+1);
+					L3 = input(i+1,j);
+					returnValue = L1 + L2 + L3;	
+					#endif
+				#elif NUM_MULT == 1
+					//printf("Neuman RADIUS 1 ADD 0 MULT 1\n");
+					L1 = input(i-1,j);
+					L2 = input(i  ,j-1) * input(i,j+1);
+					L3 = input(i+1,j);
+					returnValue = L1 * L2 * L3;
+				#endif						
+			#elif MASK_RADIUS == 2
+				#if NUM_ADD == 1
+					#if NUM_MULT == 1
+				 	//printf("Neuman RADIUS 2 ADD 1 MULT 1\n");
+					L1 =                                                         input(i-2,j) * args.arg1;
+					L2 =                            input(i-1,j-1) * args.arg2 + input(i-1,j) * args.arg3 + input(i-1,j+1) * args.arg4;
+					L3 = input(i,j-2) * args.arg1 + input(i  ,j-1) * args.arg2 +                            input(i  ,j+1) * args.arg3 + input(i,j+2) * args.arg4;
+					L4 =                            input(i+1,j-1) * args.arg4 + input(i+1,j) * args.arg5 + input(i+1,j+1) * args.arg6;
+					L5 =                                                         input(i+2,j) * args.arg7;
+					returnValue = L1 + L2 + L3 + L4 + L5;
+					#else
+					//printf("Neuman RADIUS 2 ADD 1 MULT 0\n");
+					L1 =                                   input(i-2,j);
+					L2 =                  input(i-1,j-1) + input(i-1,j) + input(i-1,j+1);
+					L3 = input(i,j-2)   + input(i  ,j-1) +                input(i  ,j+1) + input(i,j+2);
+					L4 =                  input(i+1,j-1) + input(i+1,j) + input(i+1,j+1);
+					L5 =                                   input(i+2,j);
+					returnValue = L1 + L2 + L3 + L4 + L5;	
+					#endif
+				#elif NUM_MULT == 1
+				 	//printf("Neuman RADIUS 2 ADD 0 MULT 1\n");
+					L1 =                                   input(i-2,j);
+					L2 =                  input(i-1,j-1) * input(i-1,j) * input(i-1,j+1);
+					L3 = input(i,j-2)   * input(i  ,j-1) *                input(i  ,j+1) * input(i,j+2);
+					L4 =                  input(i+1,j-1) * input(i+1,j) * input(i+1,j+1);
+					L5 =                                   input(i+2,j);
+					returnValue = L1 * L2 * L3 * L4 * L5;
+				#endif
+			#else
+				#if NUM_ADD == 1
+					#if NUM_MULT == 1
+					 //printf("Neuman RADIUS 3 ADD 1 MULT 1\n");
+		L1 =                                                                                        input(i-3,j) * args.arg1;
+		L2 =  		                                              input(i-2,j-1) * args.arg1  + input(i-2,j) * args.arg2 + input(i-2,j+1);
+		L3 =                            input(i-1,j-2) * args.arg1  + input(i-1,j-1) * args.arg2  + input(i-1,j) * args.arg3 + input(i-1,j+1) * args.arg4 + input(i-1,j+2) * args.arg5 ;
+		L4 = input(i,j-3) * args.arg1 + input(i  ,j-2) * args.arg2  + input(i  ,j-1) * args.arg3  +                            input(i  ,j+1) * args.arg5 + input(i  ,j+2) * args.arg6 + input(i,j+3) * args.arg7;
+		L5 =                            input(i+1,j-2) * args.arg3  + input(i+1,j-1) * args.arg4  + input(i+1,j) * args.arg5 + input(i+1,j+1) * args.arg6 + input(i+1,j+2) * args.arg7 ;
+                L6 =                                                          input(i+2,j-1) * args.arg5  + input(i+2,j) * args.arg6 + input(i+2,j+1);
+		L7 =                                                                                        input(i+3,j) * args.arg7;
+		returnValue = L1 + L2 + L3 + L4 + L5 + L6 + L7;			
+					#else
+					//printf("Neuman RADIUS 3 ADD 1 MULT 0\n");
+					L1 =                                                  input(i-3,j);
+					L2 =  		                     input(i-2,j-1) + input(i-2,j) + input(i-2,j+1);
+					L3 =                input(i-1,j-2) + input(i-1,j-1) + input(i-1,j) + input(i-1,j+1) + input(i-1,j+2);
+					L4 = input(i,j-3) + input(i  ,j-2) + input(i  ,j-1) +                input(i  ,j+1) + input(i  ,j+2) + input(i,j+3);
+					L5 =                input(i+1,j-2) + input(i+1,j-1) + input(i+1,j) + input(i+1,j+1) + input(i+1,j+2);
+                                	L6 =                                 input(i+2,j-1) + input(i+2,j) + input(i+2,j+1);
+					L7 =                                                  input(i+3,j);
+					returnValue = L1 + L2 + L3 + L4 + L5 + L6 + L7;		
+					#endif				
+				#elif NUM_MULT == 1
+					//printf("Neuman RADIUS 3 ADD 0 MULT 1\n");
+					L1 =                                                  input(i-3,j);
+					L2 =  		                     input(i-2,j-1) * input(i-2,j) * input(i-2,j+1);
+					L3 =                input(i-1,j-2) * input(i-1,j-1) * input(i-1,j) * input(i-1,j+1) * input(i-1,j+2);
+					L4 = input(i,j-3) * input(i  ,j-2) * input(i  ,j-1) *                input(i  ,j+1) * input(i  ,j+2) * input(i,j+3);
+					L5 =                input(i+1,j-2) * input(i+1,j-1) * input(i+1,j) * input(i+1,j+1) * input(i+1,j+2);
+                                	L6 =                                 input(i+2,j-1) * input(i+2,j) * input(i+2,j+1);
+					L7 =                                                  input(i+3,j);
+					returnValue = L1 * L2 * L3 * L4 * L5 * L6 * L7;			
+				#endif
+
+			#endif
+		#else
+		#ifdef PSKEL_MOORE
+			#if MASK_RADIUS == 1
+				#if NUM_ADD == 1
+					#if NUM_MULT == 1
+					//printf("Moore RADIUS 1 ADD 1 MULT 1\n");
+					L1 = input(i-1,j-1) * args.arg1 + input(i-1,j) * args.arg2 + input(i-1,j+1) * args.arg3;
+					L2 = input(i,  j-1) * args.arg1 + input(i,  j) * args.arg2 + input(i,  j+1) * args.arg3;
+					L3 = input(i+1,j-1) * args.arg1 + input(i+1,j) * args.arg2 + input(i+1,j+1) * args.arg3;
+					returnValue = L1 + L2 + L3;
+					#else
+					//printf("Moore RADIUS 1 ADD 1 MULT 0\n");
+					L1 = input(i-1,j-1) + input(i-1,j) + input(i-1,j+1);
+					L2 = input(i,  j-1) + input(i  ,j) + input(i,  j+1);
+					L3 = input(i+1,j-1) + input(i+1,j) + input(i+1,j+1);
+					returnValue = L1 + L2 + L3;
+					#endif
+				#elif NUM_MULT == 1
+					//printf("Moore RADIUS 1 ADD 0 MULT 1\n");
+					L1 = input(i-1,j-1) * input(i-1,j) * input(i-1,j+1);
+					L2 = input(i  ,j-1) * input(i  ,j) * input(i  ,j+1);
+					L3 = input(i+1,j-1) * input(i+1,j) * input(i+1,j+1);
+					returnValue = L1 * L2 * L3;		
+				#endif						
+			#elif MASK_RADIUS == 2
+				#if NUM_ADD == 1
+					#if NUM_MULT == 1
+					//printf("Moore RADIUS 2 ADD 1 MULT 1\n");
+					L1 = input(i-2,j-2) * args.arg1 + input(i-2,j-1) * args.arg2 + input(i-2,j) * args.arg3 + input(i-2,j+1) * args.arg4 + input(i-2,j+2) * args.arg5;
+					L2 = input(i-1,j-2) * args.arg1 + input(i-1,j-1) * args.arg2 + input(i-1,j) * args.arg3 + input(i-1,j+1) * args.arg4 + input(i-1,j+2) * args.arg5;
+					L3 = input(i  ,j-2) * args.arg1 + input(i,  j-1) * args.arg2 + input(i  ,j) * args.arg3 + input(i,  j+1) * args.arg4 + input(i  ,j+2) * args.arg5;
+					L4 = input(i+1,j-2) * args.arg1 + input(i+1,j-1) * args.arg2 + input(i+1,j) * args.arg3 + input(i+1,j+1) * args.arg4 + input(i+1,j+2) * args.arg5;
+					L5 = input(i+2,j-2) * args.arg1 + input(i+2,j-1) * args.arg2 + input(i+2,j) * args.arg3 + input(i+2,j+1) * args.arg4 + input(i+2,j+2) * args.arg5;
+					returnValue = L1 + L2 + L3 + L4 + L5;				
+					#else
+					//printf("Moore RADIUS 2 ADD 1 MULT 0\n");
+					L1 = input(i-2,j-2) + input(i-2,j-1) + input(i-2,j) + input(i-2,j+1) + input(i-2,j+2);
+					L2 = input(i-1,j-2) + input(i-1,j-1) + input(i-1,j) + input(i-1,j+1) + input(i-1,j+2);
+					L3 = input(i  ,j-2) + input(i,  j-1) + input(i  ,j) + input(i,  j+1) + input(i  ,j+2);
+					L4 = input(i+1,j-2) + input(i+1,j-1) + input(i+1,j) + input(i+1,j+1) + input(i+1,j+2);
+					L5 = input(i+2,j-2) + input(i+2,j-1) + input(i+2,j) + input(i+2,j+1) + input(i+2,j+2);
+					returnValue = L1 + L2 + L3 + L4 + L5;
+					#endif
+				#elif NUM_MULT == 1
+					//printf("Moore RADIUS 2 ADD 0 MULT 1\n");
+					L1 = input(i-2,j-2) * input(i-2,j-1) * input(i-2,j) * input(i-2,j+1) * input(i-2,j+2);
+					L2 = input(i-1,j-2) * input(i-1,j-1) * input(i-1,j) * input(i-1,j+1) * input(i-1,j+2);
+					L3 = input(i  ,j-2) * input(i,  j-1) * input(i  ,j) * input(i,  j+1) * input(i  ,j+2);
+					L4 = input(i+1,j-2) * input(i+1,j-1) * input(i+1,j) * input(i+1,j+1) * input(i+1,j+2);
+					L5 = input(i+2,j-2) * input(i+2,j-1) * input(i+2,j) * input(i+2,j+1) * input(i+2,j+2);
+					returnValue = L1 * L2 * L3 * L4 * L5;
+				#endif
+			#else
+				#if NUM_ADD == 1
+				#if NUM_MULT == 1
+				 //printf("Moore RADIUS 3 ADD 1 MULT 1\n");
+	L1 = input(i-3,j-3) * args.arg1 + input(i-3,j-2) * args.arg2 + input(i-3,j-1) * args.arg3 + input(i-3,j) * args.arg4 + input(i-3,j+1) * args.arg5 + input(i-3,j+2) * args.arg6 + input(i-3,j+3) * args.arg7;
+	L2 = input(i-2,j-3) * args.arg1 + input(i-2,j-2) * args.arg2 + input(i-2,j-1) * args.arg3 + input(i-2,j) * args.arg4 + input(i-2,j+1) * args.arg5 + input(i-2,j+2) * args.arg6 + input(i-2,j+3) * args.arg7;
+	L3 = input(i-1,j-3) * args.arg1 + input(i-1,j-2) * args.arg2 + input(i-1,j-1) * args.arg3 + input(i-1,j) * args.arg4 + input(i-1,j+1) * args.arg5 + input(i-1,j+2) * args.arg6 + input(i-1,j+3) * args.arg7;
+	L4 = input(i  ,j-3) * args.arg1 + input(i  ,j-2) * args.arg2 + input(i,  j-1) * args.arg3 + input(i  ,j) * args.arg4 + input(i,  j+1) * args.arg5 + input(i  ,j+2) * args.arg6 + input(i  ,j+3) * args.arg7;
+	L5 = input(i+1,j-3) * args.arg1 + input(i+1,j-2) * args.arg2 + input(i+1,j-1) * args.arg3 + input(i+1,j) * args.arg4 + input(i+1,j+1) * args.arg5 + input(i+1,j+2) * args.arg6 + input(i+1,j+3) * args.arg7;
+	L6 = input(i+2,j-3) * args.arg1 + input(i+2,j-2) * args.arg2 + input(i+2,j-1) * args.arg3 + input(i+2,j) * args.arg4 + input(i+2,j+1) * args.arg5 + input(i+2,j+2) * args.arg6 + input(i+2,j+3) * args.arg7;
+	L7 = input(i+3,j-3) * args.arg1 + input(i+3,j-2) * args.arg2 + input(i+3,j-1) * args.arg3 + input(i+3,j) * args.arg4 + input(i+3,j+1) * args.arg5 + input(i+3,j+2) * args.arg6 + input(i+3,j+3) * args.arg7;
+	returnValue = L1 + L2 + L3 + L4 + L5 + L6 + L7;				
+				#else
+				 //printf("Moore RADIUS 3 ADD 1 MULT 0\n");
+	L1 = input(i-3,j-3) + input(i-3,j-2) + input(i-3,j-1) + input(i-3,j) + input(i-3,j+1) + input(i-3,j+2) + input(i-3,j+3);
+	L2 = input(i-2,j-3) + input(i-2,j-2) + input(i-2,j-1) + input(i-2,j) + input(i-2,j+1) + input(i-2,j+2) + input(i-2,j+3);
+	L3 = input(i-1,j-3) + input(i-1,j-2) + input(i-1,j-1) + input(i-1,j) + input(i-1,j+1) + input(i-1,j+2) + input(i-1,j+3);
+	L4 = input(i  ,j-3) + input(i  ,j-2) + input(i,  j-1) + input(i  ,j) + input(i,  j+1) + input(i  ,j+2) + input(i  ,j+3);
+	L5 = input(i+1,j-3) + input(i+1,j-2) + input(i+1,j-1) + input(i+1,j) + input(i+1,j+1) + input(i+1,j+2) + input(i+1,j+3);
+	L6 = input(i+2,j-3) + input(i+2,j-2) + input(i+2,j-1) + input(i+2,j) + input(i+2,j+1) + input(i+2,j+2) + input(i+2,j+3);
+	L7 = input(i+3,j-3) + input(i+3,j-2) + input(i+3,j-1) + input(i+3,j) + input(i+3,j+1) + input(i+3,j+2) + input(i+3,j+3);
+	returnValue = L1 + L2 + L3 + L4 + L5 + L6 + L7;				
+				#endif
+				#elif NUM_MULT==1
+				 //printf("Moore RADIUS 3 ADD 0 MULT 1\n");
+	L1 = input(i-3,j-3) * input(i-3,j-2) * input(i-3,j-1) * input(i-3,j) * input(i-3,j+1) * input(i-3,j+2) * input(i-3,j+3);
+	L2 = input(i-2,j-3) * input(i-2,j-2) * input(i-2,j-1) * input(i-2,j) * input(i-2,j+1) * input(i-2,j+2) * input(i-2,j+3);
+	L3 = input(i-1,j-3) * input(i-1,j-2) * input(i-1,j-1) * input(i-1,j) * input(i-1,j+1) * input(i-1,j+2) * input(i-1,j+3);
+	L4 = input(i  ,j-3) * input(i  ,j-2) * input(i,  j-1) * input(i  ,j) * input(i,  j+1) * input(i  ,j+2) * input(i  ,j+3);
+	L5 = input(i+1,j-3) * input(i+1,j-2) * input(i+1,j-1) * input(i+1,j) * input(i+1,j+1) * input(i+1,j+2) * input(i+1,j+3);
+	L6 = input(i+2,j-3) * input(i+2,j-2) * input(i+2,j-1) * input(i+2,j) * input(i+2,j+1) * input(i+2,j+2) * input(i+2,j+3);
+	L7 = input(i+3,j-3) * input(i+3,j-2) * input(i+3,j-1) * input(i+3,j) * input(i+3,j+1) * input(i+3,j+2) * input(i+3,j+3);
+	returnValue = L1 * L2 * L3 * L4 * L5 * L6 * L7;				
+				#endif							
+			#endif
+
+		#endif
+		#endif
+
+		/*int loopControl;
 		int opControl;
 		int i,j,k,fim,ini;
 
-		loopControl = args.numAdd > 0 ? (args.numAdd-1)/mask.size + 1 : 0; //estava assim originalmente
+		//loopControl = args.numAdd > 0 ? (args.numAdd-1)/mask.size + 1 : 0; //estava assim originalmente
 		//opControl = args.numAdd > mask.size ? mask.size : args.numAdd;
-		opControl = args.numAdd > 0 ? args.radius : 0;
+		//opControl = args.numAdd > 0 ? args.radius : 0;
 
-
+		loopControl = args.loopControlAdd;
+		opControl = args.opControlAdd;
 		
 		#ifdef PSKEL_NEUMAN
 		for(int i = 0; i < loopControl; i++){    
@@ -134,13 +345,15 @@ namespace PSkel{
 
 		//Multiplicação
 		//loopControl = ceil(float(args.numMult)/float(mask.size));
-		loopControl = args.numMult > 0 ? (args.numMult-1)/mask.size + 1 : 0;
+		//loopControl = args.numMult > 0 ? (args.numMult-1)/mask.size + 1 : 0;
 		//opControl = args.numMult > mask.size ? mask.size: args.numMult;
-		opControl = args.numMult > 0 ? args.radius : 0;
+		//opControl = args.numMult > 0 ? args.radius : 0;
 		
 		//loopControl = loopControl/2;
 		//printf("Executing MULT loopControl: %d opControl: %d\n",loopControl,opControl);
-
+		loopControl = args.loopControlMult;
+		opControl = args.opControlMult;
+		
 		#ifdef PSKEL_NEUMAN
 		for(i = 0; i < loopControl; i++){    
         		fim = 0;
@@ -180,7 +393,7 @@ namespace PSkel{
 		}		
 		#endif
 		#endif
-		
+		*/
 		//Divisao
 		/*loopControl = (args.numDiv-1)/mask.size + 1;
 		opControl = args.numDiv>mask.size?mask.size:args.numDiv;
@@ -192,7 +405,7 @@ namespace PSkel{
 
 		*/
 
-        	output(h,w) = returnValue;
+        	output(i,j) = returnValue;
 		
 	}
 }
@@ -215,6 +428,7 @@ int main(int argc, char **argv){
         exit(-1);
     }
 
+    srand(time(NULL));
     width = atoi (argv[1]);
     height = atoi (argv[2]);
     iterations = atoi (argv[3]);
@@ -230,10 +444,14 @@ int main(int argc, char **argv){
     //cout<<"Moore"<<endl;
     #endif
 
-    maskRange = atoi (argv[7]); 
-    nAdd = atoi(argv[8]) ;
+    //maskRange = atoi (argv[7]); 
+    maskRange = MASK_RADIUS;
+    
+    //nAdd = atoi(argv[8]) ;
+    nAdd = NUM_ADD;
     //nSub = 0; //atoi(argv[10]);
-    nMult = atoi(argv[9]) ;
+    //nMult = atoi(argv[9]) ;
+    nMult = NUM_MULT;
     //nDiv = 0; //atoi(argv[12]);
     //nPow = 0; //atoi(argv[13]);
     //nSqrt = 0; //atoi(argv[14]);
@@ -297,7 +515,7 @@ int main(int argc, char **argv){
     nMult = nMult * (maskSize - 1);
    //Arguments args(maskType, maskRange, nAdd, nSub, nMult, nDiv, nPow, nSqrt, nFma);
 
-    Arguments args(maskRange,nAdd, nMult);
+    Arguments args(maskRange,nAdd, nMult,maskSize);
     srand(1234);
 
     //cout<<"MASK VALUES"<<endl;
@@ -319,7 +537,7 @@ int main(int argc, char **argv){
                     mask.set(idx, h, w, weight);
 
                     //cout<<"["<<idx<<"] = "<<h<<","<<w<<" "<<weight<<endl;
-                //cout << idx <<", "<< h <<", "<< w <<"\n";
+                    //cout << idx <<", "<< h <<", "<< w <<"\n";
                 idx++;
                 }
             }
@@ -365,23 +583,23 @@ int main(int argc, char **argv){
         }
     }
     	
-    cout <<"\n";
-    cout << "Width: " << width << "; Height: " << height << ";\n";
-    cout << "Iterations: " << iterations << endl;	
-    cout << "MaskType: " << maskType << endl;
-    cout << "MaskRange: " << maskRange << endl;
-    cout << "Neighbors: "	 << mask.size << endl;
-    cout << "GPU Time: " << GPUTime << endl;
-    cout << "GPU Block size: " << GPUBlockSize << endl;
-    cout << "CPU Threads: " << numCPUThreads << endl;
-    cout << "Num Add: " << args.numAdd << endl;
+    //cout <<"\n";
+    //cout << "Width: " << width << "; Height: " << height << ";\n";
+    //cout << "Iterations: " << iterations << endl;	
+    //cout << "MaskType: " << maskType << endl;
+    //cout << "MaskRange: " << maskRange << endl;
+    //cout << "Neighbors: "	 << mask.size << endl;
+    //cout << "GPU Time: " << GPUTime << endl;
+    //cout << "GPU Block size: " << GPUBlockSize << endl;
+    //cout << "CPU Threads: " << numCPUThreads << endl;
+    //cout << "Num Add: " << args.numAdd << endl;
     //cout << "Num Sub: " << args.numSub << endl;
-    cout << "Num Mult: " << args.numMult << endl;
+    //cout << "Num Mult: " << args.numMult << endl;
     //cout << "Num Div: " << args.numDiv << endl;	
     //cout << "Num Pow: " << args.numPow << endl;
     //cout << "Num Sqrt: " << args.numSqrt << endl;
     //cout << "Num Fma: " << args.numFma << endl;
-    cout <<"\n";
+    //cout <<"\n";
     
             
     #ifdef PSKEL_INT

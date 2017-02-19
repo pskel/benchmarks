@@ -1,14 +1,14 @@
 ICC 		= /opt/intel/bin/icpc 
 ICC_FLAGS	= -Xcompiler -O3 -Xcompiler -xhost -Xcompiler -openmp -Xcompiler -tbb  -Xcompiler -qopt-report2 -Xcompiler -qopt-report-file:stdout -Xcompiler -qopt-report-phase=vec
 GCC 		= /usr/local/bin/g++ 
-GCC_FLAGS	= -Xcompiler -O3 -Xcompiler -ftree-vectorize -Xcompiler -march=native -Xcompiler -mtune=native -Xcompiler -fopenmp
+GCC_FLAGS	= -Xcompiler -O3 -Xcompiler -fopenmp -Xcompiler -ftree-vectorize -Xcompiler -march=native -Xcompiler -mtune=native -Xcompiler -fopenmp
 CUDAC 		= /usr/local/cuda-8.0/bin/nvcc #-ccbin=${CC}
 ACC		= /opt/pgi/linux86-64/2016/bin/pgc++
 PSKEL_SRC	= python ../pskelccv2.py 
 OPTIMUS         = optirun #remover este valor se não estiver em um sistema OPTIMUS (notebook)
 CUDA_LIB_PATH   = /usr/local/cuda-5.5/lib64
-GENCODE		= -gencode arch=compute_35,code=\"sm_35,compute_35\" #-gencode arch=compute_20,code=sm_20 -gencode arch=compute_30,code=sm_30
-CUDAFLAGS    	= -O3 ${GENCODE} -m64 -lineinfo #-Xcompiler -ftree-vectorize -Xcompiler -march=native -Xcompiler -mtune=native -Xcompiler -O3
+GENCODE		= -O3 -gencode arch=compute_35,code=\"sm_35,compute_35\" #-gencode arch=compute_20,code=sm_20 -gencode arch=compute_30,code=sm_30
+CUDAFLAGS    	= ${GENCODE} -m64 -lineinfo #-Xcompiler -ftree-vectorize -Xcompiler -march=native -Xcompiler -mtune=native -Xcompiler -O3
 CUDAFLAGS_T    	= -O3 ${GENCODE} -m64 -lineinfo #-Xcompiler -ftree-vectorize -Xcompiler -march=native -Xcompiler -mtune=native -Xcompiler -O3
 ACCFLAGS	= -O3 -ta=tesla -tp=sandybridge -Minfo=accel
 ACCFLAGS_T	= -O3 -ta=tesla -tp=sandybridge -Minfo=accel
@@ -51,7 +51,7 @@ pskel_omp_gcc: ${SRC_NAME}_pskel.cu
 	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_omp_gcc ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP
 
 pskel_tbb_gcc: ${SRC_NAME}_pskel.cu
-	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_omp_gcc ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_TBB
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_tbb_gcc ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_TBB
 
 pskel_omp_icc: ${SRC_NAME}_pskel.cu
 	 ${CUDAC} -ccbin=${ICC} ${ICC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_omp_icc ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP

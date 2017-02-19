@@ -29,7 +29,7 @@
 
 
 #include "PSkel.h"
-//#include "hr_time.h"
+#include "hr_time.h"
 //#include "wb.h"
 
 using namespace std;
@@ -37,9 +37,16 @@ using namespace PSkel;
 
 namespace PSkel{
 __parallel__ void stencilKernel(Array2D<bool> &input, Array2D<bool> &output, Mask2D<bool> &mask, bool args, size_t i, size_t j){
-    int neighbors =  (input(i-1,j-1) + input(i-1,j) + input(i-1,j+1))  +
-                     (input(i,j-1)   + input(i,j+1)) + 
-		     (input(i+1,j-1) + input(i+1,j) + input(i+1,j+1));
+    int L1 = input(i-1,j-1) + input(i-1,j) + input(i-1,j+1);
+    int L0 = input(i,j);
+    int L2 = input(i,j-1)   + input(i,j+1); 
+    int L3 = input(i+1,j-1) + input(i+1,j) + input(i+1,j+1);
+
+    int neighbors = L1 + L2 + L3;
+    
+    //int neighbors =  (input(i-1,j-1) + input(i-1,j) + input(i-1,j+1))  +
+    //                 (input(i,j-1)   + input(i,j+1)) + 
+    //		     (input(i+1,j-1) + input(i+1,j) + input(i+1,j+1));
                       
     //bool central = input(i,j);
     //printf("%d,%d\n",i,j);
@@ -86,7 +93,16 @@ __parallel__ void stencilKernel(Array2D<bool> &input, Array2D<bool> &output, Mas
                      input(i,j-1)   + input(i,j+1) ;
     }
     */ 
-    output(i,j) = (neighbors == 3 || (neighbors == 2 && input(i,j)))?1:0;
+
+    output(i,j) = (neighbors == 3 || (neighbors == 2 && L0))? 1 : 0;
+    
+    /*if(neighbors == 3 || (neighbors == 2 && L0)){
+	output(i,j) = 1;
+    }
+    else{
+	output(i,j) = 0;
+    }
+    */
         
     }
 }
@@ -128,8 +144,8 @@ int main(int argc, char **argv){
 	#pragma omp for
     	for(int h = 0; h < height; h++){		
        		for(int w = 0; w < width; w++){
-      			inputGrid(h,w) = (bool) (rand_r(&seed)%2) ;            
-            		//outputGrid(i,j) =  inputGrid(i,j);
+      			inputGrid(h,w) = (rand_r(&seed)%2) ;            
+            		outputGrid(h,w) =  0;
 		}
 	}
 	}
@@ -151,8 +167,8 @@ int main(int argc, char **argv){
 		PSkelPAPI::init(PSkelPAPI::NVML);
 	#endif	
 	
-	//hr_timer_t timer;
-	//hrt_start(&timer);
+	hr_timer_t timer;
+	hrt_start(&timer);
 	//wbTime_start(GPU, "Doing GPU Computation (memory + compute)");
 	Stencil2D<Array2D<bool>, Mask2D<bool>, bool> stencil(inputGrid, outputGrid, mask, 0);
 	
@@ -205,7 +221,7 @@ int main(int argc, char **argv){
 	
 	
 	//wbTime_stop(GPU, "Doing GPU Computation (memory + compute)");
-	//hrt_stop(&timer);
+	hrt_stop(&timer);
 
 	#ifdef PSKEL_PAPI
 		if(GPUTime < 1.0){
@@ -249,7 +265,7 @@ int main(int argc, char **argv){
 		}
     }
     
-    //cout << "Exec_time\t" << hrt_elapsed_time(&timer) << endl;
+    cout << "Exec_time\t" << hrt_elapsed_time(&timer) << endl;
     
     return 0;
 }
