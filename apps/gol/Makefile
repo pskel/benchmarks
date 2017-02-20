@@ -1,7 +1,7 @@
 ICC 		= /opt/intel/bin/icpc 
 ICC_FLAGS	= -Xcompiler -O3 -Xcompiler -xhost -Xcompiler -openmp -Xcompiler -tbb  -Xcompiler -qopt-report2 -Xcompiler -qopt-report-file:stdout -Xcompiler -qopt-report-phase=vec
 GCC 		= /usr/local/bin/g++ 
-GCC_FLAGS	= -Xcompiler -O3 -Xcompiler -ftree-vectorize -Xcompiler -march=native -Xcompiler -mtune=native -Xcompiler -fopenmp
+GCC_FLAGS	= -Xcompiler -O3 -Xcompiler -fopenmp -Xcompiler -ftree-vectorize -Xcompiler -march=native -Xcompiler -mtune=native -Xcompiler -fopenmp
 CUDAC 		= /usr/local/cuda-8.0/bin/nvcc #-ccbin=${CC}
 ACC		= /opt/pgi/linux86-64/2016/bin/pgc++
 PSKEL_SRC	= python ../pskelccv2.py 
@@ -27,7 +27,7 @@ ACC_LIBS	= -I${HR_TIME} -lrt -mp
 SRC_NAME        = gol
 BIN_DIR         = ../../bin/
 
-all: pskel acc_parallel acc_multicore
+all: pskel_omp_gcc
 
 serial: ${SRC_NAME}_serial.cpp
 	${CUDAC} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_serial ${SRC_NAME}_serial.cpp ${LIBS}
@@ -51,7 +51,7 @@ pskel_omp_gcc: ${SRC_NAME}_pskel.cu
 	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_omp_gcc ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP
 
 pskel_tbb_gcc: ${SRC_NAME}_pskel.cu
-	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_omp_gcc ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_TBB
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_tbb_gcc ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_TBB
 
 pskel_omp_icc: ${SRC_NAME}_pskel.cu
 	 ${CUDAC} -ccbin=${ICC} ${ICC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_pskel_omp_icc ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP
@@ -75,6 +75,9 @@ src: ${SRC_NAME}_serial.cpp
 
 papi_tesla_omp_gcc: ${SRC_NAME}_pskel.cu
 	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi_omp_gcc ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_PAPI -DTESLA -DXEON
+
+papi_quadro_omp_gcc: ${SRC_NAME}_pskel.cu
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi_omp_gcc ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_PAPI -DQUADRO -DXEON
 	
 papi: ${SRC_NAME}_pskel.cu
 	${CUDAC} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi ${SRC_NAME}_pskel.cu ${LIBS} -lpapi -DPSKEL_PAPI -DTIME

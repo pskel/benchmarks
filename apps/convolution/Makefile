@@ -1,7 +1,7 @@
 ICC 		= /opt/intel/bin/icpc 
 ICC_FLAGS	= -Xcompiler -O3 -Xcompiler -ansi-alias -Xcompiler -finline -Xcompiler -opt-malloc-options=2 -Xcompiler -xhost -Xcompiler -mtune=native -Xcompiler -march=native -Xcompiler -openmp -Xcompiler -tbb  #-Xcompiler -qopt-report -Xcompiler -qopt-report-file:stdout -Xcompiler -qopt-report-phase=vec
 GCC 		= /usr/local/bin/g++ 
-GCC_FLAGS	= -Xcompiler -O3 -Xcompiler -ftree-vectorize -Xcompiler -march=native -Xcompiler -mtune=native -Xcompiler -fopenmp
+GCC_FLAGS	= -Xcompiler -O3 -Xcompiler -fopenmp -Xcompiler -ftree-vectorize -Xcompiler -march=native -Xcompiler -mtune=native -Xcompiler -fopenmp
 CUDAC 		= /usr/local/cuda-8.0/bin/nvcc #-ccbin=${CC}
 ACC		= /opt/pgi/linux86-64/2016/bin/pgc++
 PSKEL_SRC	= python ../pskelccv2.py 

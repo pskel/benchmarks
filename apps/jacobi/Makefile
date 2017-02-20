@@ -1,7 +1,7 @@
 ICC 		= /opt/intel/bin/icpc 
 ICC_FLAGS	= -Xcompiler -O3 -Xcompiler -xhost -Xcompiler -openmp -Xcompiler -tbb  -Xcompiler -qopt-report2 -Xcompiler -qopt-report-file:stdout -Xcompiler -qopt-report-phase=vec
 GCC 		= /usr/local/bin/g++ 
-GCC_FLAGS	= -Xcompiler -fopenmp -Xcompiler -O3 -Xcompiler -ftree-vectorize -Xcompiler -march=native -Xcompiler -mtune=native -Xcompiler -fopenmp
+GCC_FLAGS	= -Xcompiler -fopenmp -Xcompiler -O3 -Xcompiler -ftree-vectorize -Xcompiler -march=native -Xcompiler -mtune=native
 CUDAC 		= /usr/local/cuda-8.0/bin/nvcc #-ccbin=${CC}
 ACC		= /opt/pgi/linux86-64/2016/bin/pgc++
 PSKEL_SRC	= python ../pskelccv2.py 
@@ -9,7 +9,7 @@ OPTIMUS         = optirun #remover este valor se não estiver em um sistema OPTI
 CUDA_LIB_PATH   = /usr/local/cuda-5.5/lib64
 GENCODE		= -gencode arch=compute_35,code=\"sm_35,compute_35\" -gencode arch=compute_20,code=sm_20 -gencode arch=compute_20,code=sm_20 -gencode arch=compute_30,code=sm_30
 CUDAFLAGS    	= -O3 ${GENCODE} -m64 -lineinfo #-Xcompiler -ftree-vectorize -Xcompiler -march=native -Xcompiler -mtune=native -Xcompiler -O3
-CUDAFLAGS_T    	= -O3 ${GENCODE} -m64 -lineinfo #-Xcompiler -ftree-vectorize -Xcompiler -march=native -Xcompiler -mtune=native -Xcompiler -O3
+CUDAFLAGS_T    	=  ${GENCODE} -m64 -lineinfo #-Xcompiler -ftree-vectorize -Xcompiler -march=native -Xcompiler -mtune=native -Xcompiler -O3
 ACCFLAGS	= -O3 -ta=tesla -tp=sandybridge -Minfo=accel
 ACCFLAGS_T	= -O3 -ta=tesla -tp=sandybridge -Minfo=accel
 ACCFLAGS_M	= -O3 -ta=multicore -tp=sandybridge -Minfo=accel
@@ -22,7 +22,7 @@ GA_SRC_PATH 	= /home/alyson/galib247/
 PAPI_LIB_PATH 	= /usr/local/lib
 PAPI_SRC_PATH 	= /usr/local/include
 HR_TIME		= ../../pskel/include
-LIBS		= -I${HR_TIME} -I${GA_SRC_PATH} -L${GA_LIB_PATH} -I${PAPI_SRC_PATH} -L${PAPI_LIB_PATH} -lga -lm -I${TBB_SRC_PATH} -L${TBB_LIB_PATH} -ltbb -ltbbmalloc
+LIBS		= -I${HR_TIME} -I${GA_SRC_PATH} -L${GA_LIB_PATH} -I${PAPI_SRC_PATH} -L${PAPI_LIB_PATH} -lga -lm -I${TBB_SRC_PATH} -L${TBB_LIB_PATH} -ltbb -ltbbmalloc -lpapi
 ACC_LIBS	= -I${HR_TIME} -lrt -mp 
 SRC_NAME        = jacobi
 BIN_DIR         = ../../bin/
@@ -75,6 +75,9 @@ src: ${SRC_NAME}_serial.cpp
 	
 papi_tesla_omp_gcc: ${SRC_NAME}_pskel.cu
 	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi_omp_gcc ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_PAPI -DTESLA -DXEON
+
+papi_quadro_omp_gcc: ${SRC_NAME}_pskel.cu
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi_omp_gcc ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_PAPI -DQUADRO -DXEON
 
 papi: ${SRC_NAME}_pskel.cu
 	${CUDAC} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi ${SRC_NAME}_pskel.cu ${LIBS} -lpapi -DPSKEL_PAPI -DTIME
