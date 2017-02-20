@@ -40,17 +40,21 @@ for(j in c('cloudsim','convolution','fast','gol','jacobi')){
     x <- c(x,exp(mean(log(x[-1])))) #geometric mean
     y <- apps[which(apps$app ==j  & apps$ite >= 1),c("speedup_gpu")]
     y <- c(y,exp(mean(log(y[-1])))) #geometric mean
+    t <- apps[which(apps$app ==j  & apps$ite >= 1),c("speedup_naive")]
+    t <- c(t,exp(mean(log(t[-1])))) #geometric mean
     w <- apps[which(apps$app ==j  & apps$ite >= 1),c("speedup_awt")]
     w <- c(w,exp(mean(log(w[-1])))) #geometric mean
     z <- apps[which(apps$app ==j  & apps$ite >= 1),c("speedup_oracle")]
     z <- c(z,exp(mean(log(z[-1])))) #geometric mean
     
     # create a two row matrix with x and y
-    height <- rbind(x,y,w,z)
+    height <- rbind(x,y,t,w,z)
     setEPS()
-    postscript(paste(c(j,".eps"),collapse=""))
-    #xlab = "# of iterations",ylab = "Speedup over single core",legend = c("CPU only","GPU only","Predictive model","Oracle"),args.legend = list(x="top",horiz=FALSE,inset=c(0,-0.1),ncol=2,cex=1.5),cex.axis=1.3,cex.names=1.2,cex.lab=1.5,mgp=c(2.8,1,0)
-    xx <- barplot(height, beside = TRUE, names.arg = c(1,10,20,30,40,50,60,"gmean"),main = j)
+    postscript(paste(c(j,"_new.eps"),collapse=""))
+    
+    xx <- barplot(height, beside = TRUE, names.arg = c(1,10,20,30,40,50,60,"gmean"),ylim=c(0,max(x,y,w,z,t)), main = j)
+    ##xlab = "# of iterations", ylab = "Speedup over single core",legend = c("CPU only","GPU only","Naive","AWP","Oracle"), args.legend = list(x="top",horiz=FALSE,inset=c(0,-0.1),ncol=2,cex=1.5),cex.axis=1.3,cex.names=1.2,cex.lab=1.5,mgp=c(2.8,1,0)
+    
     #text(x = xx, y=height[x][], label=round(height[x],1), pos=3, col="black", font=2, cex=1.1)
     dev.off()
   #}
