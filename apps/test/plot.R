@@ -50,12 +50,13 @@ for(j in c('cloudsim','convolution','fast','gol','jacobi')){
     # create a two row matrix with x and y
     height <- rbind(x,y,t,w,z)
     setEPS()
+
     postscript(paste(c(j,"_new.eps"),collapse=""))
     
     xx <- barplot(height, beside = TRUE, names.arg = c(1,10,20,30,40,50,60,"gmean"),ylim=c(0,max(x,y,w,z,t)), main = j)
-    ##xlab = "# of iterations", ylab = "Speedup over single core",legend = c("CPU only","GPU only","Naive","AWP","Oracle"), args.legend = list(x="top",horiz=FALSE,inset=c(0,-0.1),ncol=2,cex=1.5),cex.axis=1.3,cex.names=1.2,cex.lab=1.5,mgp=c(2.8,1,0)
-    
-    #text(x = xx, y=height[x][], label=round(height[x],1), pos=3, col="black", font=2, cex=1.1)
+    ##xlab = "# of iterations", ylab = "Speedup over single core",legend = c("CPU only","GPU only","Naive","AWP","Oracle"), args.legend = list(x="top",horiz=FALSE,inset=c(0,-0.1),ncol=2,cex=1.5),cex.axis=1.3,cex.names=1.2,cex.lab=1.5,mgp=c(2.8,1,0)   
+
+   #text(x = xx, y=height[x][], label=round(height[x],1), pos=3, col="black", font=2, cex=1.1)
     dev.off()
   #}
 }
