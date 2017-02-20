@@ -42,13 +42,28 @@ namespace PSkel{
 		output(i,j)= accum;
 		*/
 
+		float L1 = input(i-2,j-2) * 0.33 + input(i-2,j-1) * 0.33 + input(i-2,j)   * 0.33 + input(i-2,j+1) * 0.33  + input(i-2,j+2) * 0.33;
+		float L2 = input(i-1,j-2) * 0.33 + input(i-1,j-1) * 0.33 + input(i-1,j)   * 0.33 + input(i-1,j+1) * 0.33  + input(i-1,j+2) * 0.33; 
+                float L3 = input(i, j-2)  * 0.33 + input(i,j-1)   * 0.33 + input(i,j)     * 0.33 + input(i,j+1)   * 0.33  + input(i, j+2)  * 0.33; 
+                float L4 = input(i+1,j-2) * 0.33 + input(i+1,j-1) * 0.33 + input(i+1,j)   * 0.33 + input(i+1,j+1) * 0.33  + input(i+1,j+2) * 0.33;  
+ 		float L5 = input(i+2,j-2) * 0.33 + input(i+2,j-1) * 0.33 + input(i+2,j)   * 0.33 + input(i+2,j+1) * 0.33  + input(i+2,j+2) * 0.33; 
 		
+/*
 		float L1 = input(i-2,j-2) * 0.33 + input(i-1,j-2) * 0.33 + input(i,j-2)   * 0.33 + input(i+1,j-2) * 0.33  + input(i+2,j-2) * 0.33;
 		float L2 = input(i-2,j-1) * 0.33 + input(i-1,j-1) * 0.33 + input(i,j-1)   * 0.33 + input(i+1,j-1) * 0.33  + input(i+2,j-1) * 0.33; 
                 float L3 = input(i-2, j)  * 0.33 + input(i-1,j)   * 0.33 + input(i,j)     * 0.33 + input(i+1,j)   * 0.33  + input(i+2, j)  * 0.33; 
                 float L4 = input(i-2,j+1) * 0.33 + input(i-1,j+1) * 0.33 + input(i,j+1)   * 0.33 + input(i+1,j+1) * 0.33  + input(i+2,j+1) * 0.33;  
  		float L5 = input(i-2,j+2) * 0.33 + input(i-1,j+2) * 0.33 + input(i,j+2)   * 0.33 + input(i+1,j+2) * 0.33  + input(i+2,j+2) * 0.33; 
 		
+*/
+/*
+		float L1 = input(i-2,j-2) * mask.getWeight(0)  + input(i-1,j-2) * mask.getWeight(1)  + input(i,j-2) * mask.getWeight(2)  + input(i+1,j-2) * mask.getWeight(3) + input(i+2,j-2) * mask.getWeight(4);
+		float L2 = input(i-2,j-1) * mask.getWeight(5)  + input(i-1,j-1) * mask.getWeight(6)  + input(i,j-1) * mask.getWeight(7)  + input(i+1,j-1) * mask.getWeight(8) + input(i+2,j-1) * mask.getWeight(9); 
+                float L3 = input(i-2, j)  * mask.getWeight(10) + input(i-1,j)   * mask.getWeight(11)  + input(i,j)  * mask.getWeight(12)  + input(i+1,j)   * mask.getWeight(13) + input(i+2, j)  * mask.getWeight(14); 
+                float L4 = input(i-2,j+1) * mask.getWeight(15) + input(i-1,j+1) * mask.getWeight(16)  + input(i,j+1) * mask.getWeight(17)  + input(i+1,j+1) * mask.getWeight(18) + input(i+2,j+1) * mask.getWeight(19);  
+ 		float L5 = input(i-2,j+2) * mask.getWeight(20) + input(i-1,j+2) * mask.getWeight(21)  + input(i,j+2) * mask.getWeight(22)  + input(i+1,j+2) * mask.getWeight(23) + input(i+2,j+2) * mask.getWeight(24); 
+	*/	
+	
 		output(i,j) = L1 + L2 + L3 + L4 + L5;
 			
 		/*output(i,j) = input(i-2,j-2) * 0.33 + input(i-2,j-1) * 0.33 + input(i-2,j)   * 0.33 + input(i-2,j+1) * 0.33  + input(i-2,j+2) * 0.33 + 
@@ -122,11 +137,11 @@ int main(int argc, char **argv){
 	Array2D<float> inputGrid(x_max, y_max);
 	Array2D<float> outputGrid(x_max, y_max);	
 
-	mask.set(0,-2,2,0.0);	mask.set(1,-1,2,0.0);	mask.set(2,0,2,0.0);	mask.set(3,1,2,0.0);	mask.set(4,2,2,0.0);
-	mask.set(5,-2,1,0.0);	mask.set(6,-1,1,0.0);	mask.set(7,0,1,0.1);	mask.set(8,1,1,0.0);	mask.set(9,2,1,0.0);
-	mask.set(10,-2,0,0.0);	mask.set(11,-1,0,0.1);	mask.set(12,0,0,0.2);	mask.set(13,1,0,0.1);	mask.set(14,2,0,0.0);
-	mask.set(15,-2,-1,0.0);	mask.set(16,-1,-1,0.0);	mask.set(17,0,-1,0.1);	mask.set(18,1,-1,0.0);	mask.set(19,2,-1,0.0);
-	mask.set(20,-2,-2,0.0);	mask.set(21,-1,-2,0.0);	mask.set(22,0,-2,0.0);	mask.set(23,1,-2,0.0);	mask.set(24,2,-2,0.0);
+	mask.set(0,-2,2,0.1);	mask.set(1,-1,2,0.2);	mask.set(2,0,2,0.3);	mask.set(3,1,2,0.4);	mask.set(4,2,2,0.5);
+	mask.set(5,-2,1,0.6);	mask.set(6,-1,1,0.7);	mask.set(7,0,1,0.1);	mask.set(8,1,1,0.3);	mask.set(9,2,1,0.5);
+	mask.set(10,-2,0,0.7);	mask.set(11,-1,0,0.1);	mask.set(12,0,0,0.2);	mask.set(13,1,0,0.1);	mask.set(14,2,0,0.5);
+	mask.set(15,-2,-1,0.8);	mask.set(16,-1,-1,0.0);	mask.set(17,0,-1,0.1);	mask.set(18,1,-1,0.5);	mask.set(19,2,-1,0.5);
+	mask.set(20,-2,-2,0.9);	mask.set(21,-1,-2,0.9);	mask.set(22,0,-2,0.9);	mask.set(23,1,-2,0.9);	mask.set(24,2,-2,0.9);
 	
 	#pragma omp parallel num_threads(numCPUThreads)
 	{

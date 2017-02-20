@@ -9,7 +9,7 @@
 #include <fstream>
 
 //#define PSKEL_SHARED_MASK
-/*
+
 #define PSKEL_CUDA
 
 #ifndef PSKEL_OMP
@@ -25,11 +25,9 @@
 	#endif
 #endif
 #endif
-*/
-#define PSKEL_CUDA
 
 #include "PSkel.h"
-//#include "hr_time.h"
+#include "hr_time.h"
 //#include "wb.h"
 
 using namespace std;
@@ -49,22 +47,21 @@ __parallel__ void stencilKernel(float input[BLOCK_SIZE][BLOCK_SIZE],float output
 	output[ty][tx] = 0.25f * (input[ty][tx-1] + input[ty][tx+1] + input[ty-1][tx] + input[ty+1][tx] - args.h);
 }
 */
-__parallel__ void stencilKernel(Array2D<float> &input, Array2D<float> &output, const Mask2D<float> &mask, const Arguments &args, size_t i, size_t j){
+__parallel__ void stencilKernel(Array2D<float> &input, Array2D<float> &output, const Mask2D<float> &mask, float args, size_t i, size_t j){
 	//output(i,j) = 0.25f * ( mask.get(0, input, i, j) + mask.get(1, input, i, j) +  
 	//			mask.get(2, input, i, j) + mask.get(3, input, i, j) - args.h );
 						 
-	/*
-	float N = input(i,j+1);
-	float W = input(i-1,j);
-	float E = input(i+1,j);
-	float S = input(i,j-1);
+	
+	//float L1 = input(i-1,j);
+	//float L2 = input(i,j-1) + input(i,j+1);
+	//float L3 = input(i+1,j);
 
-	output(i,j) = 0.25f * (N+W+E+S - args.h);
+	//output(i,j) = (L1+L2+L3 - args) * 0.25f;
 	
 	//printf("%f\t",output(i,j));
-	//output(i,j) = 0.25f * ( input(i-1,j) + (input(i,j-1) + input(i,j+1)) + input(i+1,j) - args.h);
-	*/
-	output(i,j) = 0.25f * ( input(i-1,j) + (input(i,j-1) + input(i,j+1)) + input(i+1,j) - args.h);
+	output(i,j) = 0.25f * ( input(i-1,j) + (input(i,j-1) + input(i,j+1)) + input(i+1,j) - args);
+	
+	//output(i,j) = 0.25f * ( input(i-1,j) + (input(i,j-1) + input(i,j+1)) + input(i+1,j) - args);
    /*int width = input.getWidth(); 
     int height = input.getHeight();
     //	Corner 1	
@@ -145,11 +142,12 @@ int main(int argc, char **argv){
 	mask.set(2,1,0,0);
 	mask.set(3,-1,0,0);
 	
-	Arguments args;
+	//Arguments args;
+	float args;
 	//args.h = 1.f / (float) x_max;
-	args.h = 4.f / (float) (x_max*x_max);
+	args = 4.f / (float) (x_max*x_max);
 		
-	omp_set_num_threads(numCPUThreads);
+	//omp_set_num_threads(numCPUThreads);
 	size_t gpuHeight = ceil(inputGrid.getHeight()*GPUTime);
 	size_t cpuHeight = inputGrid.getHeight()-gpuHeight;	
 	/* initialize the first timesteps */
@@ -198,9 +196,9 @@ int main(int argc, char **argv){
 	}
 	#else
 */	
-	#pragma omp parallel num_threads(numCPUThreads)
+	//#pragma omp parallel num_threads(numCPUThreads)
 	{
-	#pragma omp for 
+	//#pragma omp for 
 	for(size_t h = 0; h < y_max; h++){	
 		for(size_t w = 0; w < x_max; w++){
 			inputGrid(h,w) = 1.0f + w*0.1f + h*0.01f;
@@ -209,12 +207,16 @@ int main(int argc, char **argv){
 	}
 	}
 //	#endif
-//	hr_timer_t timer;
-//	hrt_start(&timer);
+	hr_timer_t timer;
+	//hrt_start(&timer);
     
 	//wbTime_start(GPU, "Doing GPU Computation (memory + compute)");
-	Stencil2D<Array2D<float>, Mask2D<float>, Arguments> jacobi(inputGrid, outputGrid, mask, args);
+	Stencil2D<Array2D<float>, Mask2D<float>, float> jacobi(inputGrid, outputGrid, mask, args);
 	
+	hrt_start(&timer);
+    
+
+
 	//Runtime< Stencil2D<Array2D<float>, Mask2D<float>, Arguments> > stencilComponent(&jacobi);
 	/*
 	hrt_start(&timer);
@@ -246,18 +248,21 @@ int main(int argc, char **argv){
 		//	}
 		//#else
 			//cout<<"Running Iterative CPU"<<endl;
-		#ifdef PSKEL_PAPI
-            	for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
-			PSkelPAPI::papi_start(PSkelPAPI::CPU,i);
-		#endif
-
-
+		//if(numCPUThreads==1){
+		//	cout<<"Running Seq"<<endl;
+		//	jacobi.runIterativeSequential(T_MAX);
+		//}
+		//else{
+			#ifdef PSKEL_PAPI
+            		for(unsigned int i=0;i<NUM_GROUPS_CPU;i++){
+				PSkelPAPI::papi_start(PSkelPAPI::CPU,i);
+			#endif
 			jacobi.runIterativeCPU(T_MAX, numCPUThreads);	
-
-		#ifdef PSKEL_PAPI
-			PSkelPAPI::papi_stop(PSkelPAPI::CPU,i);
-            	}
-		#endif
+			#ifdef PSKEL_PAPI
+				PSkelPAPI::papi_stop(PSkelPAPI::CPU,i);
+            		}
+			#endif
+		//}
 	}
 	else if(GPUTime == 1.0){
 		#ifdef PSKEL_CUDA
@@ -285,7 +290,7 @@ int main(int argc, char **argv){
 	
 	
 	//wbTime_stop(GPU, "Doing GPU Computation (memory + compute)");
-	//hrt_stop(&timer);
+	hrt_stop(&timer);
 
 	#ifdef PSKEL_PAPI
 		if(GPUTime < 1.0){
@@ -294,7 +299,7 @@ int main(int argc, char **argv){
 		}
 	#endif
 	
-	//cout << "Exec_time\t" << hrt_elapsed_time(&timer) << endl;
+	cout << "Exec_time\t" << hrt_elapsed_time(&timer) << endl;
 
 	if(writeToFile == 1){
 		/*stringstream outputFile;

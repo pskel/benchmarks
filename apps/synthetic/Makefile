@@ -111,7 +111,7 @@ papi_tesla_omp_gcc_moore: ${SRC_NAME}_pskel.cu
 
 
 papi_tesla_omp_gcc_neuman: ${SRC_NAME}_pskel.cu
-	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi_omp_gcc_neuman_r1_a1_m0 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_PAPI -DTESLA -DPSKEL_NEUMAN -DMASK_RADIUS=1 -DNUM_ADD=1 -DNUM_MULT=0
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi_omp_gcc_neuman_r1_a1_m0 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_PAPI -DXEON -DTESLA -DPSKEL_NEUMAN -DMASK_RADIUS=1 -DNUM_ADD=1 -DNUM_MULT=0
 	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi_omp_gcc_neuman_r1_a0_m1 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_PAPI -DTESLA -DPSKEL_NEUMAN -DMASK_RADIUS=1 -DNUM_ADD=0 -DNUM_MULT=1
 	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi_omp_gcc_neuman_r1_a1_m1 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_PAPI -DTESLA -DPSKEL_NEUMAN -DMASK_RADIUS=1 -DNUM_ADD=1 -DNUM_MULT=1
 	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi_omp_gcc_neuman_r2_a1_m0 ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_PAPI -DTESLA -DPSKEL_NEUMAN -DMASK_RADIUS=2 -DNUM_ADD=1 -DNUM_MULT=0
