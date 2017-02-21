@@ -408,10 +408,10 @@ kv_prof['__l1_global_store_transactions'] =  '__l1_global_store_transactions'
 #atomic_throughput
 
 # fixed header fields for synthetic
-fixed_header = ['app','input','ite','pct_gpu','thrd_cpu','mask_type','mask_radius','numAdd','numMult']
+#fixed_header = ['app','input','ite','pct_gpu','thrd_cpu','mask_type','mask_radius','numAdd','numMult']
 
 # fixed header fields for apps
-#fixed_header = ['app','input','pct_gpu','thrd_cpu']
+fixed_header = ['app','input','ite','pct_gpu','thrd_cpu']
 
 HEADER_FIXED_COLS = len(fixed_header)
 
