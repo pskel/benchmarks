@@ -22,7 +22,8 @@ options(digits = 2, width = 100)
 #df=read.csv("synthetic4c.csv")
 df=read.csv("synthetic_quadro_predicted.csv")
 #df2=read.csv("synthetic2b.csv")
-apps=read.csv("apps_profile.csv")
+#apps=read.csv("apps_profile.csv")
+apps=read.csv("apps_quadro.csv")
 
 #df2 = df2[which(!is.na(df2$pct_oracle)),]
 
@@ -33,6 +34,8 @@ df$pct_oracle = factor(df$pct_oracle)
 df$l2_utilization = factor(df$l2_utilization)
 
 df = df[-which(is.na(df$pct_oracle)),]
+
+#remove 1 iteration instances
 df = df[-which((df$ite == 1)),]
 
 #add new metrics
@@ -259,6 +262,45 @@ apps$pct_gpu_p5 = predictions3
 
 dev.off()
 ###########################################
+
+
+###### PREDICTION QUADRO #########
+#predict4 = fit3 <- rpart(pct_oracle ~ ite + L2_DCM + L3_TCM + l2_l1_read_hit_rate,method="class", data=df,control=rpart.control(minsplit=5,minbucket=2))
+
+df$dram_utilization = as.integer(df$dram_utilization)
+
+#ite + l1_cache_global_hit_rate + BR_INS + FP_INS + L2_DCM + L3_TCM + l2_l1_read_hit_rate +  branch_efficiency + l2_utilization + FP_INS + LD_INS + achieved_occupancy + alu_fu_utilization + ldst_fu_utilization + dram_utilization + l1_shared_utilization + flop_sp_efficiency + sm_efficiency
+
+fit4 <- rpart(pct_oracle ~ ite + l1_cache_global_hit_rate + L2_DCM + L3_TCM + l2_l1_read_hit_rate + sm_efficiency,method="class", data=df,control=rpart.control(minsplit=10,minbucket=3))
+
+#prune
+pfit<- prune(fit4, cp=fit4$cptable[which.min(fit4$cptable[,"xerror"]),"CP"])
+
+predictions_fit = predict(pfit,apps,type="class")
+predictions_pfit = predict(fit4,apps,type="class")
+print(predictions_fit)
+print(predictions_pfit)
+#setEPS()
+#postscript("prp_tree_quadro.eps")
+
+x <- prp(pfit,type=0,extra=102,digits=4,under=FALSE,faclen=0,varlen=0,split.border.col=1,fallen.leaves = TRUE,leaf.round=1.8,ycompress = TRUE,compress=TRUE,xcompact=FALSE,xcompact.ratio=0.5,ycompact=FALSE,nn=FALSE,split.font=0.9,branch=1,lt="\n< ",ge="\n>= ",xflip=TRUE,cex=0.6,ycompress.cex=Inf,accept.cex=0,Fallen.yspace=0.05,trace=TRUE,nn.cex=0.7)
+
+x <- prp(fit4,type=0,extra=102,digits=4,under=FALSE,faclen=0,varlen=0,split.border.col=1,fallen.leaves = TRUE,leaf.round=1.8,ycompress = TRUE,compress=TRUE,xcompact=FALSE,xcompact.ratio=0.5,ycompact=FALSE,nn=FALSE,split.font=0.9,branch=1,lt="\n< ",ge="\n>= ",xflip=TRUE,cex=0.6,ycompress.cex=Inf,accept.cex=0,Fallen.yspace=0.05,trace=TRUE,nn.cex=0.7)
+
+#dev.off()
+
+accuracy.global = sum(predictions4==apps$pct_gpu)/nrow(apps)
+print(accuracy.global)
+table(predictions2)
+table(apps$pct_gpu)
+print(table(predictions3,apps$pct_gpu))
+
+apps$pct_gpu_p5 = predictions3
+
+dev.off()
+###########################################
+
+
 
 #create file with predictions
 write.csv(apps,file='app_predicted.csv',row.names=F,quote=F)
