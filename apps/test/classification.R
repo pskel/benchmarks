@@ -19,7 +19,8 @@ library(caret)
 #READ SYNTHETIC FLOAT DATA
 options(digits = 2, width = 100)
 #df=read.csv("quadro_syn_float_data.csv")
-df=read.csv("synthetic4c.csv")
+#df=read.csv("synthetic4c.csv")
+df=read.csv("synthetic_quadro_predicted.csv")
 #df2=read.csv("synthetic2b.csv")
 apps=read.csv("apps_profile.csv")
 
@@ -32,6 +33,7 @@ df$pct_oracle = factor(df$pct_oracle)
 df$l2_utilization = factor(df$l2_utilization)
 
 df = df[-which(is.na(df$pct_oracle)),]
+df = df[-which((df$ite == 1)),]
 
 #add new metrics
 df$PAPI_FP_INS_ELEMENT = df$PAPI_FP_INS/(df$input*df$input)
@@ -210,7 +212,7 @@ dev.off()
 ###########################################
 
 ###### PREDICTION 2 #########
-fit2 <- rpart(pct_oracle ~ BR_INS	+ ite + L2_DCM + L3_TCM + l2_l1_read_hit_rate + l2_utilization + sm_efficiency,method="class", data=df,control=rpart.control(minsplit=5,minbucket=2))
+fit2 <- rpart(pct_oracle ~ l1_cache_global_hit_rate + ite + L2_DCM + L3_TCM + l2_l1_read_hit_rate,method="class", data=df,control=rpart.control(minsplit=5,minbucket=2))
 
 predictions2 = predict(fit2,apps,type="class")
 accuracy.global = sum(predictions2==apps$pct_gpu)/nrow(apps)
@@ -221,8 +223,8 @@ print(table(predictions2,apps$pct_gpu))
 
 apps$pct_gpu_p2 = predictions2
 
-#setEPS()
-#postscript("prp_tree2.eps")
+setEPS()
+postscript("prp_tree_quadro1.eps")
 
 x <- prp(fit2,type=0,extra=102,digits=4,under=FALSE,faclen=0,varlen=0,split.border.col=1,fallen.leaves = TRUE,leaf.round=1.9,ycompress = TRUE,compress=TRUE,xcompact=FALSE,xcompact.ratio=0.8,ycompact=FALSE,nn=FALSE,split.font=1,branch=1,lt="\n< ",ge="\n>= ",xflip=TRUE,cex=0.6,ycompress.cex=Inf,accept.cex=0,Fallen.yspace=0.05,trace=TRUE,nn.cex=0.7)
 
