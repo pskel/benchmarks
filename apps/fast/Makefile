@@ -7,15 +7,15 @@ ACC		= /opt/pgi/linux86-64/2016/bin/pgc++
 PSKEL_SRC	= python ../pskelccv2.py 
 OPTIMUS         = optirun #remover este valor se não estiver em um sistema OPTIMUS (notebook)
 CUDA_LIB_PATH   = /usr/local/cuda-5.5/lib64
-GENCODE		= -gencode arch=compute_35,code=\"sm_35,compute_35\" #-gencode arch=compute_20,code=sm_20 -gencode arch=compute_30,code=sm_30
+GENCODE		= -gencode arch=compute_35,code=\"sm_35,compute_35\" -gencode arch=compute_20,code=sm_20 -gencode arch=compute_20,code=sm_21 -gencode arch=compute_30,code=sm_30
 CUDAFLAGS    	= -O3 ${GENCODE} -m64 -lineinfo #-Xcompiler -ftree-vectorize -Xcompiler -march=native -Xcompiler -mtune=native -Xcompiler -O3
 CUDAFLAGS_T    	= -O3 ${GENCODE} -m64 -lineinfo #-Xcompiler -ftree-vectorize -Xcompiler -march=native -Xcompiler -mtune=native -Xcompiler -O3
 ACCFLAGS	= -O3 -ta=tesla -tp=sandybridge -Minfo=accel
 ACCFLAGS_T	= -O3 -ta=tesla -tp=sandybridge -Minfo=accel
 ACCFLAGS_M	= -O3 -ta=multicore -tp=sandybridge -Minfo=accel
 CXXFLAGS	= -O3 -w
-TBB_SRC_PATH	= /home/alyson/tbb/2017-2/include #/opt/intel/tbb/include
-TBB_LIB_PATH	= /home/alyson/tbb/2017-2/lib/intel64/gcc4.7 #/opt/intel/tbb/lib/intel64/gcc4.4
+TBB_SRC_PATH	= /home/alyson/tbb/2017-3/include #/opt/intel/tbb/include
+TBB_LIB_PATH	= /home/alyson/tbb/2017-3/lib/intel64/gcc4.7 #/opt/intel/tbb/lib/intel64/gcc4.4
 OMP_TBB         = -fopenmp -lgomp -I${TBB_SRC_PATH} -L${TBB_LIB_PATH} -ltbb
 GA_LIB_PATH 	= /home/alyson/galib247/ga
 GA_SRC_PATH 	= /home/alyson/galib247/

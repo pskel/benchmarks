@@ -85,11 +85,12 @@ __parallel__ void stencilKernel(Array2D<float> &input,Array2D<float> &output,Mas
     
     float componenteVentoY = yfactor * ywind;
     float componenteVentoX = xfactor * xwind;
-        
+     
     float temp_wind = (-componenteVentoX * ((inValue - temperaturaNeighborX)*CELL_LENGTH_INV)) -
                       ( componenteVentoY * ((inValue - temperaturaNeighborY)*CELL_LENGTH_INV));
         	
     output(i,j) = result + temp_wind * cloud.deltaT;
+
 
 	/*
 		float temp_wind = 0.0f;
@@ -278,7 +279,7 @@ int main(int argc, char **argv){
 	limSupPO = pontoOrvalho + DELTAPO;
 	//char maindir[30];
 	//char dirname[TAM_VETOR_FILENAME];
-	//char dirMatrix_temp[TAM_VETOR_FILENAME];
+	//chr dirMatrix_temp[TAM_VETOR_FILENAME];
 	//char dirMatrix_stat[TAM_VETOR_FILENAME];
 	//char dirMatrix_windX[TAM_VETOR_FILENAME];
 	//char dirMatrix_windY[TAM_VETOR_FILENAME];
@@ -353,11 +354,11 @@ int main(int argc, char **argv){
     	hr_timer_t timer;
 	//hrt_start(&timer);
     
-	Stencil2D<Array2D<float>, Mask2D<float>, Cloud> stencilCloud(inputGrid, outputGrid, mask, cloud);
+        Stencil2D<Array2D<float>, Mask2D<float>, Cloud> stencilCloud(inputGrid, outputGrid, mask, cloud);
 	hrt_start(&timer);
     
 
-	if(GPUTime == 0.0){
+        if(GPUTime == 0.0){
 		//cout<<"Running Iterative CPU"<<endl;
 		//if(numCPUThreads == 1)
 		//	stencilCloud.runSequential();

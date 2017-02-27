@@ -94,6 +94,20 @@ __parallel__ void stencilKernel(Array2D<bool> &input, Array2D<bool> &output, Mas
     }
     */ 
 
+    /*
+	int NW=input(i-1,j-1);
+	int N = input(i,j-1);
+	int NE=input(i+1,j-1);
+        int W = input(i-1,j);
+        int E = input(i+1,j); 
+	int SW=input(i-1,j+1);
+       	int S = input(i,j+1);
+	int SE=input(i+1,j+1);
+
+	int neighbors = NW+N+NE+W+E+SW+S+SE;
+    */
+	//output(i,j) = (neighbors == 3 || (neighbors == 2 && input(i,j)))?1:0;
+
     output(i,j) = (neighbors == 3 || (neighbors == 2 && L0))? 1 : 0;
     
     /*if(neighbors == 3 || (neighbors == 2 && L0)){
@@ -144,8 +158,10 @@ int main(int argc, char **argv){
 	#pragma omp for
     	for(int h = 0; h < height; h++){		
        		for(int w = 0; w < width; w++){
-      			inputGrid(h,w) = (rand_r(&seed)%2) ;            
+      			inputGrid(h,w) = (bool) (rand_r(&seed)%2) ;            
+            		//outputGrid(i,j) =  inputGrid(i,j);         
             		outputGrid(h,w) =  0;
+
 		}
 	}
 	}

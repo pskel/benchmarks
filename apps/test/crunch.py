@@ -72,12 +72,12 @@ kv_prof['BR_TKN'] = 'BR_TKN'
 kv_prof['BR_MSP'] = 'BR_MSP'
 
 kv_prof['L1_DCH'] = 'L1_DCH'
-kv_prof['L1_REUSE'] = 'L1_REUSE'
+#kv_prof['L1_REUSE'] = 'L1_REUSE'
 
 kv_prof['L2_DCH'] = 'L2_DCH'
 kv_prof['L2_DCM'] = 'L2_DCM'
-#kv_prof['L2_LDM'] = 'L2_LDM'
-#kv_prof['L2_STM'] = 'L2_STM'
+kv_prof['L2_LDM'] = 'L2_LDM'
+kv_prof['L2_STM'] = 'L2_STM'
 kv_prof['L2_DCR'] = 'L2_DCR'
 kv_prof['L2_TCM']  = 'L2_TCM'
 kv_prof['L2_DCM']  = 'L2_DCM'
@@ -86,8 +86,10 @@ kv_prof['L2_TCR']  = 'L2_TCR'
 kv_prof['L2_TCW'] = 'L2_TCW'
 kv_prof['L2_REUSE'] = 'L2_REUSE'
 
+
 kv_prof['L3_TCH']  = 'L3_TCH'
 kv_prof['L3_TCM']  = 'L3_TCM'
+kv_prof['L3_LDM']  = 'L3_LDM'
 kv_prof['L3_DCR']  = 'L3_DCR'
 kv_prof['L3_DCW'] = 'L3_DCW'
 kv_prof['L3_TCR'] = 'L3_TCR'
@@ -96,7 +98,7 @@ kv_prof['INS_CYC'] = 'INS_CYC'
 kv_prof['STL_ICY'] = 'STL_ICY'
 kv_prof['REF_CYC'] = 'REF_CYC'
 #kv_prof['FPO_CYC'] = 'FPO_CYC'
-kv_prof['L3_REUSE'] = 'L3_REUSE'
+#kv_prof['L3_REUSE'] = 'L3_REUSE'
 
 #GLOBAL MEMORY
 kv_prof['gld_requested_throughput'] = 'gld_requested_throughput'
@@ -171,10 +173,10 @@ kv_prof['flops_sp'] = 'flops_sp'
 kv_prof['flops_sp_add'] = 'flops_sp_add'
 kv_prof['flops_sp_mul'] = 'flops_sp_mul'
 kv_prof['flops_sp_fma'] = 'flops_sp_fma'
-kv_prof['flops_dp'] = 'flops_dp'
-kv_prof['flops_dp_add'] = 'flops_dp_add'
-kv_prof['flops_dp_mul'] = 'flops_dp_mul'
-kv_prof['flops_dp_fma'] = 'flops_dp_fma'
+#kv_prof['flops_dp'] = 'flops_dp'
+#kv_prof['flops_dp_add'] = 'flops_dp_add'
+#kv_prof['flops_dp_mul'] = 'flops_dp_mul'
+#kv_prof['flops_dp_fma'] = 'flops_dp_fma'
 kv_prof['flops_sp_special'] = 'flops_sp_special'
 
 #INSTRUCTIONS
@@ -406,10 +408,10 @@ kv_prof['__l1_global_store_transactions'] =  '__l1_global_store_transactions'
 #atomic_throughput
 
 # fixed header fields for synthetic
-fixed_header = ['app','input','ite','pct_gpu','thrd_cpu','mask_type','mask_radius','numAdd','numMult']
+#fixed_header = ['app','input','ite','pct_gpu','thrd_cpu','mask_type','mask_radius','numAdd','numMult']
 
 # fixed header fields for apps
-#fixed_header = ['app','input','pct_gpu','thrd_cpu']
+fixed_header = ['app','input','ite','pct_gpu','thrd_cpu']
 
 HEADER_FIXED_COLS = len(fixed_header)
 
@@ -421,13 +423,13 @@ header = list()
 metrics_time = list()
 for metric in kv_time:
   metrics_time.append(metric)
-  header.append(kv_time[metric])
+  #header.append(kv_time[metric])
 
 
 metrics_prof = list()
 for metric in kv_prof:
   metrics_prof.append(metric)
-  #header.append(kv_prof[metric])
+  header.append(kv_prof[metric])
 
 #sort the header by metric name
 header.sort()
@@ -459,8 +461,8 @@ def get_test_files():
   
   basedir = sys.argv[1]
 
-  prof = basedir + '/prof5'
-  time = basedir + '/time5'
+  prof = basedir + '/prof'
+  time = basedir + '/time'
 
   for d in (basedir, prof):
     if not os.path.isdir(d):
@@ -563,18 +565,18 @@ prof_files.sort()
 
 # extract the results from the files
 results = list()
-for i in range(len(time_files)):
+for i in range(len(prof_files)):
   # extract configuration attributes from the file name
-  data = get_attr_from_filename(time_files[i])
+  data = get_attr_from_filename(prof_files[i])
 
   # from the "time" files, we want PS: also needs to take this for prof
-  for metric in metrics_time:
-    data += [ mean(extract_values(metric, time_files[i])) ]
+  #for metric in metrics_time:
+    #data += [ mean(extract_values(metric, time_files[i])) ]
 
   # for the "prof" files, we want all metrics
   #if data[3] > '0' :
-  #for metric in metrics_prof:
-	#data += [ mean(extract_values(metric, prof_files[i])) ]
+  for metric in metrics_prof:
+	data += [ mean(extract_values(metric, prof_files[i])) ]
   #k += 1
 	
   # create a results row

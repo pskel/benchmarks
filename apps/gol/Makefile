@@ -7,8 +7,8 @@ ACC		= /opt/pgi/linux86-64/2016/bin/pgc++
 PSKEL_SRC	= python ../pskelccv2.py 
 OPTIMUS         = optirun #remover este valor se não estiver em um sistema OPTIMUS (notebook)
 CUDA_LIB_PATH   = /usr/local/cuda-5.5/lib64
-GENCODE		= -O3 -gencode arch=compute_35,code=\"sm_35,compute_35\" #-gencode arch=compute_20,code=sm_20 -gencode arch=compute_30,code=sm_30
-CUDAFLAGS    	= ${GENCODE} -m64 -lineinfo #-Xcompiler -ftree-vectorize -Xcompiler -march=native -Xcompiler -mtune=native -Xcompiler -O3
+GENCODE		= -gencode arch=compute_35,code=\"sm_35,compute_35\" -gencode arch=compute_20,code=sm_20 -gencode arch=compute_30,code=sm_30
+CUDAFLAGS    	= -O3 ${GENCODE} -m64 -lineinfo #-Xcompiler -ftree-vectorize -Xcompiler -march=native -Xcompiler -mtune=native -Xcompiler -O3
 CUDAFLAGS_T    	= -O3 ${GENCODE} -m64 -lineinfo #-Xcompiler -ftree-vectorize -Xcompiler -march=native -Xcompiler -mtune=native -Xcompiler -O3
 ACCFLAGS	= -O3 -ta=tesla -tp=sandybridge -Minfo=accel
 ACCFLAGS_T	= -O3 -ta=tesla -tp=sandybridge -Minfo=accel
@@ -27,7 +27,7 @@ ACC_LIBS	= -I${HR_TIME} -lrt -mp
 SRC_NAME        = gol
 BIN_DIR         = ../../bin/
 
-all: pskel acc_parallel acc_multicore
+all: pskel_omp_gcc
 
 serial: ${SRC_NAME}_serial.cpp
 	${CUDAC} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_serial ${SRC_NAME}_serial.cpp ${LIBS}
@@ -75,6 +75,9 @@ src: ${SRC_NAME}_serial.cpp
 
 papi_tesla_omp_gcc: ${SRC_NAME}_pskel.cu
 	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi_omp_gcc ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_PAPI -DTESLA -DXEON
+
+papi_quadro_omp_gcc: ${SRC_NAME}_pskel.cu
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi_omp_gcc ${SRC_NAME}_pskel.cu ${LIBS} -DPSKEL_OMP -DPSKEL_PAPI -DQUADRO -DXEON
 	
 papi: ${SRC_NAME}_pskel.cu
 	${CUDAC} ${CUDAFLAGS} -o ${BIN_DIR}${SRC_NAME}_papi ${SRC_NAME}_pskel.cu ${LIBS} -lpapi -DPSKEL_PAPI -DTIME
