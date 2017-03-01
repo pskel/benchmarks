@@ -196,9 +196,9 @@ int main(int argc, char **argv){
 	}
 	#else
 */	
-	//#pragma omp parallel num_threads(numCPUThreads)
+	#pragma omp parallel num_threads(numCPUThreads)
 	{
-	//#pragma omp for 
+	#pragma omp for 
 	for(size_t h = 0; h < y_max; h++){	
 		for(size_t w = 0; w < x_max; w++){
 			inputGrid(h,w) = 1.0f + w*0.1f + h*0.01f;
