@@ -100,7 +100,7 @@ kv_prof['REF_CYC'] = 'REF_CYC'
 #kv_prof['FPO_CYC'] = 'FPO_CYC'
 #kv_prof['L3_REUSE'] = 'L3_REUSE'
 
-#GLOBAL MEMORY
+#GLOBAL MEMORY 9
 kv_prof['gld_requested_throughput'] = 'gld_requested_throughput'
 kv_prof['gst_requested_throughput'] = 'gst_requested_throughput'
 kv_prof['gld_transactions_per_request'] = 'gld_transactions_per_request'
@@ -110,18 +110,18 @@ kv_prof['gst_transactions'] = 'gst_transactions'
 kv_prof['gst_throughput'] = 'gst_throughput'
 kv_prof['gld_throughput'] = 'gld_throughput'
 kv_prof['nc_cache_global_hit_rate'] = 'nc_cache_global_hit_rate'
-
-#DRAM
+ 
+#DRAM 4
 kv_prof['dram_write_transactions'] = 'dram_write_transactions'
 kv_prof['dram_read_transactions'] = 'dram_read_transactions'
 kv_prof['dram_read_throughput'] = 'dram_read_throughput'
 kv_prof['dram_write_throughput'] = 'dram_write_throughput'
 
-#L1
+#L1 2
 kv_prof['l1_cache_global_hit_rate'] = 'l1_cache_global_hit_rate'
 kv_prof['l1_cache_local_hit_rate'] = 'l1_cache_local_hit_rate'
 
-#L2
+#L2 10
 kv_prof['l2_read_throughput'] = 'l2_read_throughput'
 kv_prof['l2_write_throughput'] = 'l2_write_throughput'
 kv_prof['l2_read_transactions'] = 'l2_read_transactions'
@@ -133,18 +133,17 @@ kv_prof['l2_texture_read_throughput'] = 'l2_texture_read_throughput'
 kv_prof['l2_atomic_throughput'] = 'l2_atomic_throughput'
 kv_prof['l2_atomic_transactions'] = 'l2_atomic_transactions'
 
-#L2_L1
+#L2_L1 5
 kv_prof['l2_l1_read_hit_rate'] = 'l2_l1_read_hit_rate'
 kv_prof['l2_l1_read_throughput'] = 'l2_l1_read_throughput'
 kv_prof['l2_l1_write_throughput'] = 'l2_l1_write_throughput'
 kv_prof['l2_l1_read_transactions'] = 'l2_l1_read_transactions'
 kv_prof['l2_l1_write_transactions'] = 'l2_l1_write_transactions'
-
 kv_prof['tex_cache_hit_rate'] = 'tex_cache_hit_rate'
 kv_prof['tex_cache_transactions'] = 'tex_cache_transactions'
 kv_prof['tex_cache_throughput'] = 'tex_cache_throughput'
 
-#SHARED
+#SHARED 10
 kv_prof['shared_load_transactions'] = 'shared_load_transactions'
 kv_prof['shared_store_transactions'] = 'shared_store_transactions'
 kv_prof['l1_shared_load_transactions'] = 'l1_shared_load_transactions'
@@ -157,7 +156,7 @@ kv_prof['shared_store_throughput'] = 'shared_store_throughput'
 kv_prof['shared_load'] = 'shared_load'
 kv_prof['shared_store'] = 'shared_store'
 
-#FLOPS
+#FLOPS 5
 kv_prof['flop_count_sp'] = 'flop_count_sp'
 kv_prof['flop_count_sp_add'] = 'flop_count_sp_add'
 kv_prof['flop_count_sp_mul'] = 'flop_count_sp_mul'
@@ -168,7 +167,7 @@ kv_prof['flop_count_sp_special'] = 'flop_count_sp_special'
 #kv_prof['flop_count_dp_mul'] = 'flop_count_dp_mul'
 #kv_prof['flop_count_dp_fma'] = 'flop_count_dp_fma'
 
-#FLOPS_QUADRO
+#FLOPS_QUADRO 
 kv_prof['flops_sp'] = 'flops_sp'
 kv_prof['flops_sp_add'] = 'flops_sp_add'
 kv_prof['flops_sp_mul'] = 'flops_sp_mul'
@@ -179,7 +178,7 @@ kv_prof['flops_sp_fma'] = 'flops_sp_fma'
 #kv_prof['flops_dp_fma'] = 'flops_dp_fma'
 kv_prof['flops_sp_special'] = 'flops_sp_special'
 
-#INSTRUCTIONS
+#INSTRUCTIONS 17
 kv_prof['inst_executed'] = 'inst_executed'
 kv_prof['inst_issued'] = 'inst_issued'
 kv_prof['inst_fp_32'] = 'inst_fp_32'
@@ -200,7 +199,7 @@ kv_prof['ldst_executed'] = 'ldst_executed'
 #inst_inter_thread_communication
 
 
-#STALL
+#STALL 10
 kv_prof['stall_pipe_busy'] = 'stall_pipe_busy'
 kv_prof['stall_inst_fetch'] = 'stall_inst_fetch'
 kv_prof['stall_exec_dependency'] = 'stall_exec_dependency'
@@ -212,10 +211,10 @@ kv_prof['stall_constant_memory_dependency'] = 'stall_constant_memory_dependency'
 kv_prof['stall_not_selected'] = 'stall_not_selected'
 kv_prof['stall_texture'] =  'stall_texture'
 
-#STALL_QUADRO
+#STALL_QUADRO 1
 kv_prof['stall_data_request'] = 'stall_data_request'
 
-#EFFICIENCY
+#EFFICIENCY 11
 kv_prof['sm_efficiency'] = 'sm_efficiency'
 kv_prof['sm_efficiency_instance'] = 'sm_efficiency_instance'
 kv_prof['warp_execution_efficiency'] = 'warp_execution_efficiency'
@@ -228,7 +227,7 @@ kv_prof['gst_efficiency'] = 'gst_efficiency'
 kv_prof['shared_efficiency'] = 'shared_efficiency'
 kv_prof['nc_gld_efficiency'] = 'nc_gld_efficiency'
 
-#UTILIZATION
+#UTILIZATION 10
 kv_prof['sysmem_utilization'] = 'sysmem_utilization'
 kv_prof['ldst_fu_utilization'] = 'ldst_fu_utilization'
 kv_prof['alu_fu_utilization'] = 'alu_fu_utilization'
@@ -240,13 +239,13 @@ kv_prof['dram_utilization'] = 'dram_utilization'
 kv_prof['tex_utilization'] = 'tex_utilization'
 kv_prof['tex_fu_utilization'] = 'tex_fu_utilization'
  
-#SYSMEM
+#SYSMEM 4
 kv_prof['sysmem_write_throughput'] = 'sysmem_write_throughput'
 kv_prof['sysmem_read_throughput'] = 'sysmem_read_throughput'
 kv_prof['sysmem_write_transactions'] = 'sysmem_write_transactions'
 kv_prof['sysmem_read_transactions'] = 'sysmem_read_transactions'
 
-#MISC
+#MISC 6
 kv_prof['achieved_occupancy'] = 'achieved_occupancy'
 kv_prof['issue_slots'] = 'issue_slots'
 kv_prof['eligible_warps_per_cycle'] = 'eligible_warps_per_cycle'
@@ -423,13 +422,13 @@ header = list()
 metrics_time = list()
 for metric in kv_time:
   metrics_time.append(metric)
-  #header.append(kv_time[metric])
+  header.append(kv_time[metric])
 
 
 metrics_prof = list()
 for metric in kv_prof:
   metrics_prof.append(metric)
-  header.append(kv_prof[metric])
+  #header.append(kv_prof[metric])
 
 #sort the header by metric name
 header.sort()
@@ -565,18 +564,18 @@ prof_files.sort()
 
 # extract the results from the files
 results = list()
-for i in range(len(prof_files)):
+for i in range(len(time_files)):
   # extract configuration attributes from the file name
-  data = get_attr_from_filename(prof_files[i])
+  data = get_attr_from_filename(time_files[i])
 
   # from the "time" files, we want PS: also needs to take this for prof
-  #for metric in metrics_time:
-    #data += [ mean(extract_values(metric, time_files[i])) ]
+  for metric in metrics_time:
+    data += [ mean(extract_values(metric, time_files[i])) ]
 
   # for the "prof" files, we want all metrics
   #if data[3] > '0' :
-  for metric in metrics_prof:
-	data += [ mean(extract_values(metric, prof_files[i])) ]
+  #for metric in metrics_prof:
+	#data += [ mean(extract_values(metric, prof_files[i])) ]
   #k += 1
 	
   # create a results row
