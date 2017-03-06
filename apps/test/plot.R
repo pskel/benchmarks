@@ -235,38 +235,98 @@ for(j in c('cloudsim','convolution','fast','gol','jacobi')){
 
 #-----------------------------------------------------------------------------------------#
 #PLOT SPEEDUP GEOMEAN for all iterations of all aplications
-i=8192
-apps.geomean = apps[which(apps$input==8192),]
-#get indexes of 1 iteration
-fast.index = which(apps.geomean$app == "fast" & apps.geomean$ite == 1)
-conv.index = which(apps.geomean$app == "convolution" & apps.geomean$ite == 1)
-cloudsim.index = which(apps.geomean$app == "cloudsim" & apps.geomean$ite == 1)
-gol.index = which(apps.geomean$app == "gol" & apps.geomean$ite == 1)
-jacobi.index = which(apps.geomean$app == "jacobi" & apps.geomean$ite == 1)
+# i=8192
+# apps.geomean = apps[which(apps$input==8192),]
+# #get indexes of 1 iteration
+# fast.index = which(apps.geomean$app == "fast" & apps.geomean$ite == 1)
+# conv.index = which(apps.geomean$app == "convolution" & apps.geomean$ite == 1)
+# cloudsim.index = which(apps.geomean$app == "cloudsim" & apps.geomean$ite == 1)
+# gol.index = which(apps.geomean$app == "gol" & apps.geomean$ite == 1)
+# jacobi.index = which(apps.geomean$app == "jacobi" & apps.geomean$ite == 1)
+# 
+# apps.geomean = apps.geomean[-c(fast.index,conv.index,cloudsim.index,gol.index,jacobi.index),]
 
-apps.geomean = apps.geomean[-c(fast.index,conv.index,cloudsim.index,gol.index,jacobi.index),]
+# x1 <- apps.geomean[,c("speedup_cpu")]
+# x2 <- apps.geomean[,c("speedup_50")]
+# x3 <- apps.geomean[,c("speedup_55")]
+# x4 <- apps.geomean[,c("speedup_60")]
+# x5 <- apps.geomean[,c("speedup_65")]
+# x6 <- apps.geomean[,c("speedup_70")]
+# x7 <- apps.geomean[,c("speedup_75")]
+# x8 <- apps.geomean[,c("speedup_80")]
+# x9 <- apps.geomean[,c("speedup_85")]
+# x10<- apps.geomean[,c("speedup_gpu")]
+# x11<- apps.geomean[,c("speedup_predicted")]
+# x12<- apps.geomean[,c("speedup_oracle")]
 
-x1 <- apps.geomean[,c("speedup_cpu")]
-x2 <- apps.geomean[,c("speedup_50")]
-x3 <- apps.geomean[,c("speedup_55")]
-x4 <- apps.geomean[,c("speedup_60")]
-x5 <- apps.geomean[,c("speedup_65")]
-x6 <- apps.geomean[,c("speedup_70")]
-x7 <- apps.geomean[,c("speedup_75")]
-x8 <- apps.geomean[,c("speedup_80")]
-x9 <- apps.geomean[,c("speedup_85")]
-x10<- apps.geomean[,c("speedup_gpu")]
-x11<- apps.geomean[,c("speedup_predicted")]
-x12<- apps.geomean[,c("speedup_oracle")]
+    
+######### QUADRO ######################
+x1 <- 11.55 #cpu-only 
+x2 <- 10.5 #0.05
+x3 <- 11.25 #0.1
+x4 <- 11.64 #0.15
+x5 <- 12.09 #0.2
+x6 <- 12.55 #0.25
+x7 <- 12.7 #0.3
+x8 <- 13.65 #0.35
+x9 <- 14.28 #0.4
+x10 <- 14.81  #0.45
+x11 <- 14.95 #0.5
+x12 <- 16.25 #0.55
+x13 <- 16.63 #0.6
+x14 <- 16.85 #0.65
+x15 <- 17.06 #0.7
+x16 <- 17.04 #0.75
+x17 <- 17.16 #0.8
+x18 <- 16.64  #0.85
+x19 <- 15.99 #0.9
+x20 <- 15.38  #0.95
+x21 <- 15.47 #gpu-only
+x22 <- 15.74 #naive
+x23 <- 18.81 #awp
+x24 <- 20.40 #oracle
 
-height <- c(exp(mean(log(x1))),exp(mean(log(x2))),exp(mean(log(x3))),exp(mean(log(x4))),exp(mean(log(x5))),exp(mean(log(x6))),exp(mean(log(x7))),exp(mean(log(x8))),exp(mean(log(x9))),exp(mean(log(x10))),exp(mean(log(x11))),exp(mean(log(x12))))
+height <- c(x1,x2,x3,x4,x5,x6,x7,x8,x9,x10,x11,x12,x13,x14,x15,x16,x17,x18,x19,x20,x21,x22,x23,x24)
+
+#height <- c(exp(mean(log(x1))),exp(mean(log(x2))),exp(mean(log(x3))),exp(mean(log(x4))),exp(mean(log(x5))),exp(mean(log(x6))),exp(mean(log(x7))),exp(mean(log(x8))),exp(mean(log(x9))),exp(mean(log(x10))),exp(mean(log(x11))),exp(mean(log(x12))))
 
 setEPS()
-postscript("geomean_speedup.eps")
-xx <- barplot(height,xlab = "",ylab = "",ylim = c(0,20),names.arg = FALSE,cex.names=1.5,cex.lab=1.8,cex.axis=2.2,mgp=c(3,1,.1))
-text(x = xx, y=height, label=round(height,1), pos=3, col="black", font=2, cex=1.4)
-text(x = xx+0.5 , y=-0.7, label=c("0%","50%","55%","60%","65%","70%","75%","80%","85%","100%","AWP","Oracle"), pos=2,cex=2.1,srt=45,xpd=TRUE)
+postscript("geomean_speedup_quadro.eps")
+xx <- barplot(height,xlab = "",ylab = "",ylim = c(0,25),names.arg = FALSE,cex.names=1.0,cex.lab=1.0,cex.axis=1.0,mgp=c(3,1,.1))
+text(x = xx, y=height, label=round(height,1), pos=3, col="black", font=2, cex=0.75)
+text(x = xx+0.5 , y=-0.7, label=c("0%","5%","10%","15%","20%","25%","30%","35%","40%","45%","50%","55%","60%","65%","70%","75%","80%","85%","90%","95%","100%","Naive","AWP","Oracle"), pos=2,cex=1,srt=45,xpd=TRUE)
 dev.off()
+###############################################################################################
+
+
+########## TESLA ###############
+x1 <- 11.55 #cpu-only
+x2 <- 10.5 #0.05
+x3 <- 11.25 #0.1
+x4 <- 11.64 #0.15
+x5 <- 12.09 #0.2
+x6 <- 12.55 #0.25
+x7 <- 12.7 #0.3
+x8 <- 13.65 #0.35
+x9 <- 14.28 #0.4
+x10 <- 14.81  #0.45
+x11 <- 14.95 #0.5
+x12 <- 16.25 #0.55
+x13 <- 16.63 #0.6
+x14 <- 16.85 #0.65
+x15 <- 17.06 #0.7
+x16 <- 17.04 #0.75
+x17 <- 17.16 #0.8
+x18 <- 16.64  #0.85
+x19 <- 15.99 #0.9
+x20 <- 15.38  #0.95
+x21 <- 15.47 #gpu-only
+x22 <- 15.74 #naive
+x23 <- 18.81 #awp
+x24 <- 20.40 #oracle
+
+
+
 
 #----------------------------------------------------------------------------------------------#
 #PLOT Execution time for different input sizes
