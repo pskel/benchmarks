@@ -329,7 +329,7 @@ height <- c(x1,x2,x3,x4,x5,x6,x7,x8,x9,x10,x11,x12,x13,x14,x15,x16,x17,x18,x19,x
 
 setEPS()
 postscript("geomean_speedup_tesla.eps")
-xx <- barplot(height,xlab = "",ylab = "",ylim = c(0,25),names.arg = FALSE,cex.names=1.0,cex.lab=1.0,cex.axis=1.0,mgp=c(3,1,.1))
+xx <- barplot(height,xlab = "",ylab = "",ylim = c(0,30),names.arg = FALSE,cex.names=1.0,cex.lab=1.0,cex.axis=1.0,mgp=c(3,1,.1))
 text(x = xx, y=height, label=round(height,1), pos=3, col="black", font=2, cex=0.75)
 text(x = xx+0.5 , y=-0.7, label=c("0%","5%","10%","15%","20%","25%","30%","35%","40%","45%","50%","55%","60%","65%","70%","75%","80%","85%","90%","95%","100%","Naive","AWP","Oracle"), pos=2,cex=1,srt=45,xpd=TRUE)
 dev.off()
