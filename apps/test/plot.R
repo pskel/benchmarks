@@ -1,7 +1,7 @@
 ###################### PLOT BAR GRAPHS #################################################
 #read speedup data
 apps = read.csv('app_predicted.csv')
-#apps = read.csv('apps_quadro.csv')
+apps = read.csv('apps_quadro_c.csv')
 apps$app = as.character(apps$app)
 
 par(xpd=TRUE,cex.lab=1.5)
@@ -79,31 +79,31 @@ par(xpd=TRUE,cex.lab=1.5)
  
 ########### CLOUDSIM ################
     seq_cloudsim = 58.28
-    x1 <- 7.45 #cpu-only 
-    x2 <- 7.40 #0.05
-    x3 <- 7.03 #0.1
-    x4 <- 6.62 #0.15
-    x5 <- 6.31 #0.2
-    x6 <- 6.00 #0.25
-    x7 <- 5.64 #0.3
-    x8 <- 5.25 #0.35
-    x9 <- 4.96 #0.4
-    x10 <- 4.61  #0.45
+    x1 <- 9.28 #cpu-only 
+    x2 <- 8.81 #0.05
+    x3 <- 7.95 #0.1
+    x4 <- 7.47 #0.15
+    x5 <- 7.03 #0.2
+    x6 <- 6.53 #0.25
+    x7 <- 6.08 #0.3
+    x8 <- 5.65 #0.35
+    x9 <- 5.25 #0.4
+    x10 <- 4.83  #0.45
     x11 <- 4.33 #0.5
     x12 <- 4.02 #0.55
     x13 <- 3.84 #0.6
     x14 <- 3.4 #0.65
     x15 <- 3.15 #0.7
-    x16 <- 2.92 #0.75
-    x17 <- 2.67 #0.8
-    x18 <- 2.57  #0.85
-    x19 <- 2.70 #0.9
-    x20 <- 2.82 #0.95
+    x16 <- 3.00 #0.75
+    x17 <- 2.92 #0.8
+    x18 <- 2.84  #0.85
+    x19 <- 2.98 #0.9
+    x20 <- 3.09 #0.95
     x21 <- 3.13 #gpu-only
     
     height <- seq_cloudsim/c(x1,x2,x3,x4,x5,x6,x7,x8,x9,x10,x11,x12,x13,x14,x15,x16,x17,x18,x19,x20,x21)
     setEPS()
-    postscript("cloudsim_partition_nolabel.eps")
+    postscript("cloudsim_partition_nolabel2.eps")
     ##names.arg = c(0.0,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,1.0)
     
     xx <- barplot(height,ylim = c(0,25),cex.axis=2.2,cex.names=1.5,cex.lab=1.8,mgp=c(2.8,0.5,0),names.arg=FALSE)
@@ -224,9 +224,9 @@ for(j in c('cloudsim','convolution','fast','gol','jacobi')){
     # create a two row matrix with x and y
     height <- rbind(x,y,t,w,z)
     setEPS()
-    postscript(paste(c(j,"_tesla.eps"),collapse=""))
+    postscript(paste(c(j,"_quadro_c.eps"),collapse=""))
     
-    xx <- barplot(height, beside = TRUE, names.arg = c(1,10,20,30,40,50,60,"gmean"),ylim=c(0,50))
+    xx <- barplot(height, beside = TRUE, names.arg = c(1,10,20,30,40,50,60,"gmean"),ylim=c(0,25))
     ##xlab = "# of iterations", ylab = "Speedup over single core",legend = c("CPU only","GPU only","Naive","AWP","Oracle"), args.legend = list(x="top",horiz=FALSE,inset=c(0,-0.1),ncol=2,cex=1.5),cex.axis=1.3,cex.names=1.2,cex.lab=1.5,mgp=c(2.8,1,0)
    #text(x = xx, y=height[x][], label=round(height[x],1), pos=3, col="black", font=2, cex=1.1)
     dev.off()
@@ -300,39 +300,33 @@ dev.off()
 
 
 ########## TESLA ###############
-x1 <- 9.54 #cpu-only
-x2 <- 7.6 #0.05
-x3 <- 7.93 #0.1
-x4 <- 8.43 #0.15
-x5 <- 8.8 #0.2
-x6 <- 9.33 #0.25
-x7 <- 9.8 #0.3
-x8 <- 10.38 #0.35
-x9 <- 11.1 #0.4
-x10 <- 11.62  #0.45
-x11 <- 12.87 #0.5
-x12 <- 13.94 #0.55
-x13 <- 15.3 #0.6
-x14 <- 17.2 #0.65
-x15 <- 18.9 #0.7
-x16 <- 19.91 #0.75
-x17 <- 21.85 #0.8
-x18 <- 23.38  #0.85
-x19 <- 22.65 #0.9
-x20 <- 21.73  #0.95
-x21 <- 21.52 #gpu-only
-x22 <- 17.8 #naive
-x23 <- 24.88 #awp
-x24 <- 26.12 #oracle
+x1 <- 11.55 #cpu-only
+x2 <- 10.5 #0.05
+x3 <- 11.25 #0.1
+x4 <- 11.64 #0.15
+x5 <- 12.09 #0.2
+x6 <- 12.55 #0.25
+x7 <- 12.7 #0.3
+x8 <- 13.65 #0.35
+x9 <- 14.28 #0.4
+x10 <- 14.81  #0.45
+x11 <- 14.95 #0.5
+x12 <- 16.25 #0.55
+x13 <- 16.63 #0.6
+x14 <- 16.85 #0.65
+x15 <- 17.06 #0.7
+x16 <- 17.04 #0.75
+x17 <- 17.16 #0.8
+x18 <- 16.64  #0.85
+x19 <- 15.99 #0.9
+x20 <- 15.38  #0.95
+x21 <- 15.47 #gpu-only
+x22 <- 15.74 #naive
+x23 <- 18.81 #awp
+x24 <- 20.40 #oracle
 
-height <- c(x1,x2,x3,x4,x5,x6,x7,x8,x9,x10,x11,x12,x13,x14,x15,x16,x17,x18,x19,x20,x21,x22,x23,x24)
 
-setEPS()
-postscript("geomean_speedup_tesla.eps")
-xx <- barplot(height,xlab = "",ylab = "",ylim = c(0,30),names.arg = FALSE,cex.names=1.0,cex.lab=1.0,cex.axis=1.0,mgp=c(3,1,.1))
-text(x = xx, y=height, label=round(height,1), pos=3, col="black", font=2, cex=0.75)
-text(x = xx+0.5 , y=-0.7, label=c("0%","5%","10%","15%","20%","25%","30%","35%","40%","45%","50%","55%","60%","65%","70%","75%","80%","85%","90%","95%","100%","Naive","AWP","Oracle"), pos=2,cex=1,srt=45,xpd=TRUE)
-dev.off()
+
 
 #----------------------------------------------------------------------------------------------#
 #PLOT Execution time for different input sizes

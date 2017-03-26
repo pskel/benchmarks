@@ -3,10 +3,17 @@ library(sperrorest)
 options(digits = 2, width = 100)
 #df=read.csv("apps_profile.csv")
 df=read.csv("synthetic4b.csv")
+df=read.csv("synthetic_quadro_predicted.csv")
+
+#remove NA values
+df = df[-which(is.na(df$pct_gpu)),]
 
 #transform values
 df$app = as.character(df$app)
 df$pct_gpu = factor(df$pct_gpu)
+
+#remove 1 iteration instances
+df = df[-which((df$ite == 1)),]
 
 #checking summary of the dataset
 summary(df)
@@ -147,7 +154,8 @@ for(i in c(5,10,20,30,40)){
 set.seed(100) # This is very important because we want a consistent answer each time
 # This actually partitions the data into three test/training sets
 df$pct_gpu = factor(df$pct_gpu)
-parti = partition.cv(df,nfold = nrow(df))
+parti = partition.cv.strat(df,strat='pct_gpu',nfold = 2)
+#parti = partition.cv(df,nfold = nrow(df))
 accuracy.rpart.cpugpu = c()
 
 # Now we are going to loop through each training set and evaluate the accuracy on the corresponding test set
@@ -175,6 +183,8 @@ for (i in 1:length(parti[[1]])) {
   #accuracy.rpart[i] = sum(test.data$pct_gpu == predictions.rpart)/length(predictions.rpart)
   
   #cpu.gpu.decision.tree = rpart(pct_gpu ~ ite + BR_INS	+ BR_MSP + 	BR_TKN + 	FDV_INS + 	FPO_CYC + 	FP_INS + 	INS_CYC + 	L2_DCM + 	L2_DCR + 	L2_DCW + 	L2_LDM + 	L2_STM + 	L2_TCM + 	L2_TCR + 	L2_TCW + 	L3_DCR + 	L3_DCW + 	L3_TCM + 	L3_TCR + 	L3_TCW + 	LD_INS + 	REF_CYC + 	SR_INS + 	STL_ICY	 + VEC_SP + achieved_occupancy + sysmem_utilization + ldst_fu_utilization + alu_fu_utilization + cf_fu_utilization + issue_slot_utilization + l1_shared_utilization + l2_utilization + dram_utilization + l1_cache_global_hit_rate + branch_efficiency + l1_cache_local_hit_rate + sm_efficiency + ipc + gld_transactions_per_request + gst_transactions_per_request + stall_inst_fetch + stall_exec_dependency + stall_data_request + stall_memory_dependency + stall_sync + stall_other + warp_execution_efficiency + gld_efficiency + gst_efficiency + l2_l1_read_hit_rate + issued_ipc + flop_sp_efficiency + stall_pipe_busy + stall_memory_throttle,data=prof, method='class',control=rpart.control(minsplit=10))
+  
+  fit <- rpart(pct_gpu ~ l1_cache_global_hit_rate + l2_l1_read_hit_rate + ite + L2_DCM + L3_TCM,method="class", data=train.data,control=rpart.control(minsplit=5,minbucket=2))
   
   predictions.rpart.cpugpu = predict(fit,test.data,type='class')
   accuracy.rpart.cpugpu[i] = sum(test.data$pct_gpu == predictions.rpart.cpugpu)/length(predictions.rpart.cpugpu)

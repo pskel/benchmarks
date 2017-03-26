@@ -70,14 +70,17 @@ public:
 
 void stencilKernel(float *input, float *output, int width, int height, int T_MAX,float alpha, float beta){
 	for (int t = 0; t < T_MAX; t++){
-		#pragma omp parallel for
+		#pragma omp parallel for shared(input, output, width, height, alpha, beta) schedule(dynamic)
 		for (int y = 1; y < height - 1; y++){
 			for (int x = 1; x < width - 1; x++){
-                		output[y*width+x] = 0.25f * (input[(y+1)*width + x] + input[(y-1)*width + x] +
-				                   	     input[y*width + (x+1)] + input[y*width + (x-1)] - beta);
+				//float L1 = input[(y-1)*width + x];
+				float L2 = input[y*width + (x+1)] + input[y*width + (x-1)];
+				//float L3 = input[(y-1)*width + x];
 
-						    //alpha * input[y*width + x] +
-						    //0.25f * (input[(y+1)*width + x] + input[(y-1)*width + x] +
+				output[y*width+x] = 0.25f * (L2 - beta);
+
+
+						    //alpha * input[y*width + x] +						    //0.25f * (input[(y+1)*width + x] + input[(y-1)*width + x] +
 						    //				                   	     input[y*width + (x+1)] + input[y*width + (x-1)] - beta);
     			}
     		}   
@@ -123,7 +126,9 @@ int main(int argc, char **argv){
 	inputGrid = (float*) malloc(width*height*sizeof(float));
 	outputGrid = (float*) malloc(width*height*sizeof(float));
 
-	//#pragma omp parallel for
+	omp_set_num_threads(nthreads);
+
+	#pragma omp parallel for
 	for(int j=0;j<height;j++) {
 		for(int i=0;i<width;i++) {
 			inputGrid[j*width + i] = 1. + i*0.1 + j*0.01;
