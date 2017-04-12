@@ -19,8 +19,8 @@ library(caret)
 #READ SYNTHETIC FLOAT DATA
 options(digits = 2, width = 100)
 #df=read.csv("quadro_syn_float_data.csv")
-#df=read.csv("synthetic4c.csv")
-df=read.csv("synthetic_quadro_predicted.csv")
+df=read.csv("synthetic4c.csv")
+#df=read.csv("synthetic_quadro_predicted.csv")
 #df2=read.csv("synthetic2b.csv")
 #apps=read.csv("apps_profile.csv")
 apps=read.csv("apps_quadro.csv")
@@ -37,6 +37,12 @@ df = df[-which(is.na(df$pct_oracle)),]
 
 #remove 1 iteration instances
 df = df[-which((df$ite == 1)),]
+
+df$pct_type = df$pct_oracle
+
+df$pct_type = as.integer(df$pct_type)
+df[which(df$pct_oracle != 1 & df$pct_oracle != 0),"pct_type"] = 2
+df$pct_type = as.factor(df$pct_type)
 
 #add new metrics
 df$PAPI_FP_INS_ELEMENT = df$PAPI_FP_INS/(df$input*df$input)
@@ -202,7 +208,14 @@ df = df[,-match(c("flop_count_sp_mul"),names(df))]
 df = df[-which(df$pct_oracle==0.95 | df$pct_oracle==0.9),]
 
 ###### PREDICTION 1 #########
-fit1 <- rpart(pct_oracle ~ BR_INS	+ ite + FP_INS + L2_DCM + L3_TCM + BR_MSP + 	achieved_occupancy + alu_fu_utilization + branch_efficiency + cf_fu_utilization + dram_utilization + gld_efficiency + gst_efficiency + inst_per_warp + ipc + issue_slot_utilization + issued_ipc + l1_shared_utilization + l2_l1_read_hit_rate + l2_utilization + ldst_fu_utilization + sm_efficiency + stall_data_request + stall_inst_fetch + stall_sync + stall_other  + warp_execution_efficiency,method="class", data=df,control=rpart.control(minsplit=5,minbucket=2))
+fitsvm <- svm(pct_type ~ BR_INS	+ ite + FP_INS + L2_DCM + L3_TCM + BR_MSP + l1_shared_utilization + l2_l1_read_hit_rate + l2_utilization + ldst_fu_utilization, data=df, na.action=na.omit)
+
+plot(fitsvm, df,L2_DCM ~ L3_TCM)
+
+fit1 <- rpart(pct_type ~ BR_INS	+ ite + FP_INS + L2_DCM + L3_TCM + BR_MSP + 	achieved_occupancy + alu_fu_utilization + branch_efficiency + cf_fu_utilization + dram_utilization + gld_efficiency + inst_per_warp + ipc + issue_slot_utilization + issued_ipc + l1_shared_utilization + l2_l1_read_hit_rate + l2_utilization + ldst_fu_utilization + stall_data_request + stall_inst_fetch + stall_sync + stall_other,method="class", data=df,control=rpart.control(minsplit=10,minbucket=3))
+
+x <- prp(fit1,type=0,extra=102,digits=4,under=FALSE,faclen=0,varlen=0,split.border.col=1,fallen.leaves = TRUE,leaf.round=1.9,ycompress = TRUE,compress=TRUE,xcompact=FALSE,xcompact.ratio=0.8,ycompact=FALSE,nn=FALSE,split.font=1,branch=1,lt="\n< ",ge="\n>= ",xflip=TRUE,cex=0.6,ycompress.cex=Inf,accept.cex=0,Fallen.yspace=0.05,trace=TRUE,nn.cex=0.7)
+
 
 predictions = predict(fit1,apps,type="class")
 accuracy.global = sum(predictions==apps$pct_gpu)/nrow(apps)
@@ -216,7 +229,6 @@ apps$pct_gpu_p1 = predictions
 setEPS()
 postscript("prp_tree1.eps")
 
-x <- prp(fit1,type=0,extra=102,digits=4,under=FALSE,faclen=0,varlen=0,split.border.col=1,fallen.leaves = TRUE,leaf.round=1.9,ycompress = TRUE,compress=TRUE,xcompact=FALSE,xcompact.ratio=0.8,ycompact=FALSE,nn=FALSE,split.font=1,branch=1,lt="\n< ",ge="\n>= ",xflip=TRUE,cex=0.6,ycompress.cex=Inf,accept.cex=0,Fallen.yspace=0.05,trace=TRUE,nn.cex=0.7)
 
 dev.off()
 ###########################################
@@ -281,7 +293,7 @@ df$dram_utilization = as.integer(df$dram_utilization)
 fit4 <- rpart(pct_oracle ~ ITERATIONS + GPU_L1_TCH + GPU_L2_TCH + CPU_L2_DCM + CPU_L3_TCM ,method="class", data=df,control=rpart.control(minsplit=5,minbucket=3))
 
 #prune
-pfit<- prune(fit4, cp=fit4$cptable[which.min(fit4$cptable[,"xerror"]),"CP"])
+pfit<- prune(fit, cp=fit$cptable[which.min(fit$cptable[,"xerror"]),"CP"])
 
 predictions_fit = predict(pfit,apps,type="class")
 predictions_pfit = predict(fit4,apps,type="class")
@@ -290,7 +302,7 @@ print(predictions_pfit)
 setEPS()
 postscript("prp_tree_quadro2b.eps")
 
-x <- prp(pfit,type=0,extra=102,digits=4,under=FALSE,faclen=0,varlen=0,split.border.col=1,fallen.leaves = TRUE,leaf.round=1.8,ycompress = TRUE,compress=TRUE,xcompact=FALSE,xcompact.ratio=0.5,ycompact=FALSE,nn=FALSE,split.font=0.9,branch=1,lt="\n< ",ge="\n>= ",xflip=TRUE,cex=0.6,ycompress.cex=Inf,accept.cex=0,Fallen.yspace=0.05,trace=TRUE,nn.cex=0.7)
+x <- prp(fit,type=0,extra=102,digits=4,under=FALSE,faclen=0,varlen=0,split.border.col=1,fallen.leaves = TRUE,leaf.round=1.8,ycompress = TRUE,compress=TRUE,xcompact=FALSE,xcompact.ratio=0.5,ycompact=FALSE,nn=FALSE,split.font=0.9,branch=1,lt="\n< ",ge="\n>= ",xflip=TRUE,cex=0.6,ycompress.cex=Inf,accept.cex=0,Fallen.yspace=0.05,trace=TRUE,nn.cex=0.7)
 
 #x <- prp(fit4,type=0,extra=102,digits=4,under=FALSE,faclen=0,varlen=0,split.border.col=1,fallen.leaves = TRUE,leaf.round=1.8,ycompress = TRUE,compress=TRUE,xcompact=FALSE,xcompact.ratio=0.5,ycompact=FALSE,nn=FALSE,split.font=0.9,branch=1,lt="\n< ",ge="\n>= ",xflip=TRUE,cex=0.6,ycompress.cex=Inf,accept.cex=0,Fallen.yspace=0.05,trace=TRUE,nn.cex=0.7)
 

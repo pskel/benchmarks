@@ -1,0 +1,109 @@
+==28713== NVPROF is profiling process 28713, command: ../../bin/cloudsim_pskel_omp_gcc 7860 7860 1 2 1 16 16 1 0
+==28713== Warning: Unified Memory Profiling is not supported on devices of compute capability less than 3.0
+GPUassert: out of memory ../../pskel/include/PSkelArray.hpp 76
+==28713== Profiling application: ../../bin/cloudsim_pskel_omp_gcc 7860 7860 1 2 1 16 16 1 0
+==28713== Profiling result:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+100.00%  268.81ms         2  134.41ms  134.06ms  134.75ms  [CUDA memcpy HtoD]
+
+==28713== API calls:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+ 73.63%  269.63ms         2  134.82ms  134.46ms  135.17ms  cudaMemcpyAsync
+ 26.27%  96.180ms         6  16.030ms  11.073us  93.772ms  cudaMalloc
+  0.07%  274.04us        91  3.0110us     251ns  109.72us  cuDeviceGetAttribute
+  0.02%  66.154us         1  66.154us  66.154us  66.154us  cuDeviceTotalMem
+  0.01%  30.951us         1  30.951us  30.951us  30.951us  cuDeviceGetName
+  0.00%  3.4570us         3  1.1520us     396ns  2.5630us  cuDeviceGetCount
+  0.00%  1.1800us         3     393ns     301ns     471ns  cuDeviceGet
+  0.00%     398ns         1     398ns     398ns     398ns  cudaGetErrorString
+======== Error: Application returned non-zero code 2
+==28727== NVPROF is profiling process 28727, command: ../../bin/cloudsim_pskel_omp_gcc 7860 7860 1 2 1 16 16 1 0
+GPUassert: out of memory ../../pskel/include/PSkelArray.hpp 76
+==28727== Profiling application: ../../bin/cloudsim_pskel_omp_gcc 7860 7860 1 2 1 16 16 1 0
+==28727== Profiling result:
+No events/metrics were profiled.
+======== Error: Application returned non-zero code 2
+CPU_time	0.200149
+CPU_time	0.199469
+CPU_time	0.199483
+CPU_time	0.199397
+CPU_time	0.199652
+CPU_time	0.199258
+CPU_time	0.199351
+CPU_time	0.19938
+CPU_time	0.199592
+
+--------------------------------------------------------------------------------
+PROFILE VALUES
+--------------------------------------------------------------------------------
+PAPI_TOT_INS				   559220896
+PAPI_FP_INS				   270108778
+PAPI_VEC_SP				   269286882
+PAPI_LD_INS				   186179600
+PAPI_SR_INS				    15683490
+--------------------------------------------------------------------------------
+PAPI_TOT_INS				   559172040
+PAPI_BR_INS				    15557796
+PAPI_BR_CN				    15557295
+PAPI_BR_TKN				    15486594
+PAPI_BR_MSP				       19391
+--------------------------------------------------------------------------------
+PAPI_L2_DCA				    23468722
+PAPI_L2_DCM				     2892423
+PAPI_L2_LDM				     2143278
+PAPI_L2_STM				      749145
+--------------------------------------------------------------------------------
+PAPI_L2_DCR				    19294134
+PAPI_L2_DCW				     3676488
+PAPI_L3_DCR				     2142648
+PAPI_L3_DCW				      750124
+--------------------------------------------------------------------------------
+PAPI_L3_TCA				     3284133
+PAPI_L3_TCM				     3091233
+PAPI_L3_LDM				      183443
+--------------------------------------------------------------------------------
+PAPI_TOT_CYC				   474704499
+PAPI_TOT_INS				   559172050
+PAPI_RES_STL				   311007115
+PAPI_REF_CYC				   474704334
+PAPI_FP_OPS				   270094666
+--------------------------------------------------------------------------------
+PAPI_L1_DCM				    23467820
+PAPI_LST_INS				   201843020
+--------------------------------------------------------------------------------
+PAPI_L1_LDM				    19293448
+PAPI_L1_STM				     3676543
+--------------------------------------------------------------------------------
+PAPI_TLB_DM				        2922
+PAPI_TLB_IM				          28
+PAPI_TLB_TL				        2950
+--------------------------------------------------------------------------------
+PERCENTUAL VALUES
+--------------------------------------------------------------------------------
+FP_INS  = 48.301
+VEC_SP  = 48.154
+LD_INS  = 33.293
+SR_INS  = 2.805
+--------------------------------------------------------------------------------
+BR_INS  = 2.78
+BR_CN   = 100.00
+BR_TKN  = 99.54
+BR_MSP  = 0.12
+--------------------------------------------------------------------------------
+L1_DCH  = 88.37
+--------------------------------------------------------------------------------
+L2_DCM  = 12.32
+L2_LDM  = 74.10
+L2_STM  = 25.90
+L2_DCR  = 83.99
+--------------------------------------------------------------------------------
+L3_TCM  = 94.13
+L3_LDM  = 5.93
+L3_DCR  = 74.07
+--------------------------------------------------------------------------------
+INS_CYC = 1.18
+FPO_CYC = 0.57
+STL_ICY = 65.52
+REF_CYC = 1.00
+--------------------------------------------------------------------------------
+Exec_time	1.79723
