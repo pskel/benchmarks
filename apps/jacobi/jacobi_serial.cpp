@@ -103,58 +103,57 @@ void stencilKernel(float *input, float *output, int width, int height,
     memcpy(input, output, width * height * sizeof(int));
 }
 
-int main(int argc, char **argv) {
-  int width;
-  int height;
-  int T_MAX;
-  int nthreads;
+int main(int argc, char **argv){
+	int width;
+	int height;
+	int T_MAX;
+	int nthreads;
 
-  float *inputGrid;
-  float *outputGrid;
-  float alpha, beta;
+	float *inputGrid;
+	float *outputGrid;
+	float alpha,beta;
 
-  if (argc != 5) {
-    printf("Wrong number of parameters.\n");
-    printf("Usage: jacobi WIDTH HEIGHT ITERATIONS NTHREADS\n");
-    exit(-1);
-  }
+	if (argc != 5){
+		printf ("Wrong number of parameters.\n");
+		printf ("Usage: jacobi WIDTH HEIGHT ITERATIONS NTHREADS\n");
+		exit (-1);
+	}
 
-  width = atoi(argv[1]);
-  height = atoi(argv[2]);
-  T_MAX = atoi(argv[3]);
-  nthreads = atoi(argv[4]);
-  alpha = 0.25 / (float)width;
-  beta = 1.0 / (float)height;
+	width = atoi (argv[1]);
+	height = atoi (argv[2]);
+	T_MAX = atoi (argv[3]);
+	nthreads = atoi (argv[4]);
+	alpha = 0.25/(float) width;
+    	beta = 1.0/(float) height;
 
-  // tbb::task_scheduler_init init(nthreads); //
-  // (tbb::task_scheduler_init::automatic);
+	omp_set_num_threads(nthreads);
+	//tbb::task_scheduler_init init(nthreads); // (tbb::task_scheduler_init::automatic);
+	
+	inputGrid = (float*) malloc(width*height*sizeof(float));
+	outputGrid = (float*) malloc(width*height*sizeof(float));
 
-  inputGrid = (float *)malloc(width * height * sizeof(float));
-  outputGrid = (float *)malloc(width * height * sizeof(float));
+	#pragma omp parallel for
+	for(int j=0;j<height;j++) {
+		for(int i=0;i<width;i++) {
+			inputGrid[j*width + i] = 1. + i*0.1 + j*0.01;
+		}
+	}
+  
+	//#pragma pskel stencil dim2d(width,height) inout(inputGrid, outputGrid) iterations(T_MAX) device(gpu)
+	hr_timer_t timer;
+	hrt_start(&timer);
 
-  //#pragma omp parallel for
-  for (int j = 0; j < height; j++) {
-    for (int i = 0; i < width; i++) {
-      inputGrid[j * width + i] = 1. + i * 0.1 + j * 0.01;
-    }
-  }
-
-  //#pragma pskel stencil dim2d(width,height) inout(inputGrid, outputGrid)
-  // iterations(T_MAX) device(gpu)
-  hr_timer_t timer;
-  hrt_start(&timer);
-
-  stencilKernel(inputGrid, outputGrid, width, height, T_MAX, alpha, beta);
-  // TBBStencil jacobi(inputGrid,outputGrid,width,height);
-  // TBBStencil::setValues(inputGrid, outputGrid, width, height);
-  // for(int it = 0; it < T_MAX; it++){
-  //	tbb::parallel_for(tbb::blocked_range<size_t>(1, height-1), jacobi);
-  //	jacobi.swap();
-  //}
-  // if(T_MAX%2==0){
-  //	jacobi.swap();
-  //}
-  hrt_stop(&timer);
-  cout << "Exec_time\t" << hrt_elapsed_time(&timer) << endl;
-  return 0;
+	stencilKernel(inputGrid, outputGrid,width,height,T_MAX,alpha,beta);
+	//TBBStencil jacobi(inputGrid,outputGrid,width,height); 
+    	//TBBStencil::setValues(inputGrid, outputGrid, width, height);	
+	//for(int it = 0; it < T_MAX; it++){
+	//	tbb::parallel_for(tbb::blocked_range<size_t>(1, height-1), jacobi);
+	//	jacobi.swap();	
+    	//}
+	//if(T_MAX%2==0){
+	//	jacobi.swap();
+	//}
+	hrt_stop(&timer);
+	cout << "Exec_time\t" << hrt_elapsed_time(&timer) << endl;  
+	return 0;
 }

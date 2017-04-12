@@ -293,7 +293,7 @@ df$dram_utilization = as.integer(df$dram_utilization)
 fit4 <- rpart(pct_oracle ~ ITERATIONS + GPU_L1_TCH + GPU_L2_TCH + CPU_L2_DCM + CPU_L3_TCM ,method="class", data=df,control=rpart.control(minsplit=5,minbucket=3))
 
 #prune
-pfit<- prune(fit4, cp=fit4$cptable[which.min(fit4$cptable[,"xerror"]),"CP"])
+pfit<- prune(fit, cp=fit$cptable[which.min(fit$cptable[,"xerror"]),"CP"])
 
 predictions_fit = predict(pfit,apps,type="class")
 predictions_pfit = predict(fit4,apps,type="class")
@@ -302,7 +302,7 @@ print(predictions_pfit)
 setEPS()
 postscript("prp_tree_quadro2b.eps")
 
-x <- prp(pfit,type=0,extra=102,digits=4,under=FALSE,faclen=0,varlen=0,split.border.col=1,fallen.leaves = TRUE,leaf.round=1.8,ycompress = TRUE,compress=TRUE,xcompact=FALSE,xcompact.ratio=0.5,ycompact=FALSE,nn=FALSE,split.font=0.9,branch=1,lt="\n< ",ge="\n>= ",xflip=TRUE,cex=0.6,ycompress.cex=Inf,accept.cex=0,Fallen.yspace=0.05,trace=TRUE,nn.cex=0.7)
+x <- prp(fit,type=0,extra=102,digits=4,under=FALSE,faclen=0,varlen=0,split.border.col=1,fallen.leaves = TRUE,leaf.round=1.8,ycompress = TRUE,compress=TRUE,xcompact=FALSE,xcompact.ratio=0.5,ycompact=FALSE,nn=FALSE,split.font=0.9,branch=1,lt="\n< ",ge="\n>= ",xflip=TRUE,cex=0.6,ycompress.cex=Inf,accept.cex=0,Fallen.yspace=0.05,trace=TRUE,nn.cex=0.7)
 
 #x <- prp(fit4,type=0,extra=102,digits=4,under=FALSE,faclen=0,varlen=0,split.border.col=1,fallen.leaves = TRUE,leaf.round=1.8,ycompress = TRUE,compress=TRUE,xcompact=FALSE,xcompact.ratio=0.5,ycompact=FALSE,nn=FALSE,split.font=0.9,branch=1,lt="\n< ",ge="\n>= ",xflip=TRUE,cex=0.6,ycompress.cex=Inf,accept.cex=0,Fallen.yspace=0.05,trace=TRUE,nn.cex=0.7)
 
