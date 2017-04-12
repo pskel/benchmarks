@@ -118,12 +118,13 @@ int main(int argc, char **argv){
 	alpha = 0.25/(float) width;
     	beta = 1.0/(float) height;
 
+	omp_set_num_threads(nthreads);
 	//tbb::task_scheduler_init init(nthreads); // (tbb::task_scheduler_init::automatic);
 	
 	inputGrid = (float*) malloc(width*height*sizeof(float));
 	outputGrid = (float*) malloc(width*height*sizeof(float));
 
-	//#pragma omp parallel for
+	#pragma omp parallel for
 	for(int j=0;j<height;j++) {
 		for(int i=0;i<width;i++) {
 			inputGrid[j*width + i] = 1. + i*0.1 + j*0.01;
