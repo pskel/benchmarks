@@ -42,11 +42,11 @@ namespace PSkel{
 		output(i,j)= accum;
 		*/
 
-		float L1 = input(i-2,j-2) * 0.33 + input(i-2,j-1) * 0.33 + input(i-2,j)   * 0.33 + input(i-2,j+1) * 0.33  + input(i-2,j+2) * 0.33;
-		float L2 = input(i-1,j-2) * 0.33 + input(i-1,j-1) * 0.33 + input(i-1,j)   * 0.33 + input(i-1,j+1) * 0.33  + input(i-1,j+2) * 0.33; 
-                float L3 = input(i, j-2)  * 0.33 + input(i,j-1)   * 0.33 + input(i,j)     * 0.33 + input(i,j+1)   * 0.33  + input(i, j+2)  * 0.33; 
-                float L4 = input(i+1,j-2) * 0.33 + input(i+1,j-1) * 0.33 + input(i+1,j)   * 0.33 + input(i+1,j+1) * 0.33  + input(i+1,j+2) * 0.33;  
- 		float L5 = input(i+2,j-2) * 0.33 + input(i+2,j-1) * 0.33 + input(i+2,j)   * 0.33 + input(i+2,j+1) * 0.33  + input(i+2,j+2) * 0.33; 
+		//float L1 = input(i-2,j-2) * 0.33 + input(i-2,j-1) * 0.33 + input(i-2,j)   * 0.33 + input(i-2,j+1) * 0.33  + input(i-2,j+2) * 0.33;
+		float L2 = /*input(i-1,j-2) * 0.33 + */ input(i-1,j-1) * 0.33 + input(i-1,j)   * 0.33 + input(i-1,j+1) * 0.33  /*+ input(i-1,j+2) * 0.33*/; 
+        float L3 = /*input(i, j-2)  * 0.33 + */ input(i,j-1)   * 0.33 + input(i,j)     * 0.33 + input(i,j+1)   * 0.33  /*+ input(i, j+2)  * 0.33*/; 
+        float L4 = /*input(i+1,j-2) * 0.33 + */ input(i+1,j-1) * 0.33 + input(i+1,j)   * 0.33 + input(i+1,j+1) * 0.33  /*+ input(i+1,j+2) * 0.33*/;  
+ 		//float L5 = input(i+2,j-2) * 0.33 + input(i+2,j-1) * 0.33 + input(i+2,j)   * 0.33 + input(i+2,j+1) * 0.33  + input(i+2,j+2) * 0.33; 
 		
 /*
 		float L1 = input(i-2,j-2) * 0.33 + input(i-1,j-2) * 0.33 + input(i,j-2)   * 0.33 + input(i+1,j-2) * 0.33  + input(i+2,j-2) * 0.33;
@@ -64,7 +64,7 @@ namespace PSkel{
  		float L5 = input(i-2,j+2) * mask.getWeight(20) + input(i-1,j+2) * mask.getWeight(21)  + input(i,j+2) * mask.getWeight(22)  + input(i+1,j+2) * mask.getWeight(23) + input(i+2,j+2) * mask.getWeight(24); 
 	*/	
 	
-		output(i,j) = L1 + L2 + L3 + L4 + L5;
+		output(i,j) = /*L1 + */L2 + L3 + L4/* + L5*/;
 			
 		/*output(i,j) = input(i-2,j-2) * 0.33 + input(i-2,j-1) * 0.33 + input(i-2,j)   * 0.33 + input(i-2,j+1) * 0.33  + input(i-2,j+2) * 0.33 + 
 			      input(i-1,j-2) * 0.33 + input(i-1,j-1) * 0.33 + input(i-1,j)   * 0.33 + input(i-1,j+1) * 0.33  + input(i-1,j+2) * 0.33 + 

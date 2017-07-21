@@ -10,6 +10,9 @@
 
 //#define PSKEL_SHARED_MASK
 
+//#define PSKEL_SHARED
+//#define JACOBI_KERNEL
+
 #define PSKEL_CUDA
 
 #ifndef PSKEL_OMP
@@ -133,9 +136,9 @@ int main(int argc, char **argv){
 
 	Array2D<float> inputGrid(x_max, y_max);
 	Array2D<float> outputGrid(x_max, y_max);
-	//int n[4][2] = {{0,1},{-1,0},{1,0},{-1,0}};
-	//Mask2D<float> mask(4,n);	
-	Mask2D<float> mask(4);
+	int n[4][2] = {{0,1},{-1,0},{1,0},{-1,0}};
+	Mask2D<float> mask(4,n);	
+	//Mask2D<float> mask(4);
 	
 	mask.set(0,0,-1,0);
 	mask.set(1,0,1,0);
