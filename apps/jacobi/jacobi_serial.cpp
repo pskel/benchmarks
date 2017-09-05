@@ -17,85 +17,90 @@
 
 using namespace std;
 
-void update(float *input, float* output, size_t begin, size_t end, size_t width){
-	for (size_t y = begin; y < end; y++){
-		for (size_t x = 0; x < width; x++){
-		output[y*width+x] = 0.25f * (input[(y+1)*width + x] + input[(y-1)*width + x] +
-                                             input[y*width + (x+1)] + input[y*width + (x-1)] );
-		
-		}
-	}
+void update(float *input, float *output, size_t begin, size_t end,
+            size_t width) {
+  for (size_t y = begin; y < end; y++) {
+    for (size_t x = 0; x < width; x++) {
+      output[y * width + x] =
+          0.25f * (input[(y + 1) * width + x] + input[(y - 1) * width + x] +
+                   input[y * width + (x + 1)] + input[y * width + (x - 1)]);
+    }
+  }
 }
 
-
-class TBBStencil{
+class TBBStencil {
 private:
-	float *input;
-	float *output;
-	int width, height;
-public:	
-	TBBStencil (){}
+  float *input;
+  float *output;
+  int width, height;
 
-	TBBStencil(float *_input, float *_output, int _width, int _height){
-		input = _input;
-		output = _output;
-		width = _width;
-		height = _height;
-	}
+public:
+  TBBStencil() {}
 
-	void swap(){
-		float *temp;
-		temp = output;
-		output = input;
-		input = temp;		
-	}
+  TBBStencil(float *_input, float *_output, int _width, int _height) {
+    input = _input;
+    output = _output;
+    width = _width;
+    height = _height;
+  }
 
-	void operator()(const tbb::blocked_range<size_t> &r)const{
-		//size_t begin = r.begin();
-		//size_t end = r.end();
-		//update(input,output,begin,end,width);
-		
- 		for (size_t y = r.begin(); y != r.end(); y++){
-			for (size_t x = 1; x < width-1; x++){
-				output[y*width+x] = 0.25f * (input[(y+1)*width + x] + input[(y-1)*width + x] + input[y*width + (x+1)] + input[y*width + (x-1)] );
-			}
-	}
-	}
+  void swap() {
+    float *temp;
+    temp = output;
+    output = input;
+    input = temp;
+  }
+
+  void operator()(const tbb::blocked_range<size_t> &r) const {
+    // size_t begin = r.begin();
+    // size_t end = r.end();
+    // update(input,output,begin,end,width);
+
+    for (size_t y = r.begin(); y != r.end(); y++) {
+      for (size_t x = 1; x < width - 1; x++) {
+        output[y * width + x] =
+            0.25f * (input[(y + 1) * width + x] + input[(y - 1) * width + x] +
+                     input[y * width + (x + 1)] + input[y * width + (x - 1)]);
+      }
+    }
+  }
 };
 
-//float* TBBStencil::input = NULL;
-//float* TBBStencil::output = NULL;
-//int TBBStencil::width = 0;
-//int TBBStencil::height = 0;
+// float* TBBStencil::input = NULL;
+// float* TBBStencil::output = NULL;
+// int TBBStencil::width = 0;
+// int TBBStencil::height = 0;
 
-void stencilKernel(float *input, float *output, int width, int height, int T_MAX,float alpha, float beta){
-	for (int t = 0; t < T_MAX; t++){
-		#pragma omp parallel for shared(input, output, width, height, alpha, beta) schedule(dynamic)
-		for (int y = 1; y < height - 1; y++){
-			for (int x = 1; x < width - 1; x++){
-				//float L1 = input[(y-1)*width + x];
-				float L2 = input[y*width + (x+1)] + input[y*width + (x-1)];
-				//float L3 = input[(y-1)*width + x];
+void stencilKernel(float *input, float *output, int width, int height,
+                   int T_MAX, float alpha, float beta) {
+  for (int t = 0; t < T_MAX; t++) {
+#pragma omp parallel for
+    for (int y = 1; y < height - 1; y++) {
+      for (int x = 1; x < width - 1; x++) {
+        output[y * width + x] =
+            0.25f *
+            (input[(y + 1) * width + x] + input[(y - 1) * width + x] +
+             input[y * width + (x + 1)] + input[y * width + (x - 1)] - beta);
 
-				output[y*width+x] = 0.25f * (L2 - beta);
+        // alpha * input[y*width + x] +
+        // 0.25f * (input[(y+1)*width + x] + input[(y-1)*width + x] +
+        //				                   	     input[y*width
+        //+
+        //(x+1)] + input[y*width + (x-1)] - beta);
+      }
+    }
 
-
-						    //alpha * input[y*width + x] +						    //0.25f * (input[(y+1)*width + x] + input[(y-1)*width + x] +
-						    //				                   	     input[y*width + (x+1)] + input[y*width + (x-1)] - beta);
-    			}
-    		}   
-    	
-    	swap(output,input);
-    	//#pragma omp parallel for
-    	//for (int y = 1; y < height - 1; y++){
-    	//	for (int x = 1; x < width - 1; x++){
-	//			input[y*width+x] = output[y*width+x];
-	//		}
-	//	}
-	}
-	//swap(output,input);
-	if(T_MAX%2==0)
-	   memcpy(input,output,width*height*sizeof(int));
+    swap(output, input);
+    //#pragma omp parallel for
+    // for (int y = 1; y < height - 1; y++){
+    //	for (int x = 1; x < width - 1; x++){
+    //			input[y*width+x] = output[y*width+x];
+    //		}
+    //	}
+  }
+  // swap(output,input);
+  if (T_MAX % 2 == 0)
+    memcpy(input, output, width * height * sizeof(int));
 }
 
 int main(int argc, char **argv){
@@ -121,12 +126,11 @@ int main(int argc, char **argv){
 	alpha = 0.25/(float) width;
     	beta = 1.0/(float) height;
 
+	omp_set_num_threads(nthreads);
 	//tbb::task_scheduler_init init(nthreads); // (tbb::task_scheduler_init::automatic);
 	
 	inputGrid = (float*) malloc(width*height*sizeof(float));
 	outputGrid = (float*) malloc(width*height*sizeof(float));
-
-	omp_set_num_threads(nthreads);
 
 	#pragma omp parallel for
 	for(int j=0;j<height;j++) {
@@ -141,7 +145,7 @@ int main(int argc, char **argv){
 
 	stencilKernel(inputGrid, outputGrid,width,height,T_MAX,alpha,beta);
 	//TBBStencil jacobi(inputGrid,outputGrid,width,height); 
-    //TBBStencil::setValues(inputGrid, outputGrid, width, height);	
+    	//TBBStencil::setValues(inputGrid, outputGrid, width, height);	
 	//for(int it = 0; it < T_MAX; it++){
 	//	tbb::parallel_for(tbb::blocked_range<size_t>(1, height-1), jacobi);
 	//	jacobi.swap();	
