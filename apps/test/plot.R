@@ -259,6 +259,45 @@ for(j in c('cloudsim','convolution','fast','gol','jacobi')){
 # x11<- apps.geomean[,c("speedup_predicted")]
 # x12<- apps.geomean[,c("speedup_oracle")]
 
+######### QUADRO WAMCA ######################
+x1 <- 12.11 #cpu-only 
+x2 <- 9.02 #0.05
+x3 <- 9.9 #0.1
+x4 <- 10.15 #0.15
+x5 <- 10.51 #0.2
+x6 <- 10.89 #0.25
+x7 <- 11.0 #0.3
+x8 <- 11.84 #0.35
+x9 <- 12.54 #0.4
+x10 <- 12.93  #0.45
+x11 <- 13.1 #0.5
+x12 <- 14.5 #0.55
+x13 <- 14.57 #0.6
+x14 <- 14.62 #0.65
+x15 <- 14.64 #0.7
+x16 <- 14.49 #0.75
+x17 <- 14.75 #0.8
+x18 <- 14.16  #0.85
+x19 <- 13.48 #0.9
+x20 <- 12.91  #0.95
+x21 <- 13.4 #gpu-only
+x22 <- 14.53 #naive
+x23 <- 17.86 #awp
+x24 <- 18.7 #oracle
+
+height <- c(x1,x2,x3,x4,x5,x6,x7,x8,x9,x10,x11,x12,x13,x14,x15,x16,x17,x18,x19,x20,x21,x22,x23,x24)
+
+#height <- c(exp(mean(log(x1))),exp(mean(log(x2))),exp(mean(log(x3))),exp(mean(log(x4))),exp(mean(log(x5))),exp(mean(log(x6))),exp(mean(log(x7))),exp(mean(log(x8))),exp(mean(log(x9))),exp(mean(log(x10))),exp(mean(log(x11))),exp(mean(log(x12))))
+
+setEPS()
+postscript("geomean_speedup_quadro_wamca.eps")
+xx <- barplot(height,xlab = "",ylab = "",ylim = c(0,20),names.arg = FALSE,cex.names=1.0,cex.lab=1.0,cex.axis=1.0,mgp=c(3,1,.1))
+text(x = xx, y=height, label=round(height,1), pos=3, col="black", font=2, cex=0.75)
+text(x = xx+0.5 , y=-0.7, label=c("0%","5%","10%","15%","20%","25%","30%","35%","40%","45%","50%","55%","60%","65%","70%","75%","80%","85%","90%","95%","100%","Naive","AWP","Oracle"), pos=2,cex=1,srt=45,xpd=TRUE)
+dev.off()
+    
+    
+        
     
 ######### QUADRO ######################
 x1 <- 11.55 #cpu-only 
