@@ -108,8 +108,14 @@ __parallel__ void stencilKernel(Array2D<bool> &input, Array2D<bool> &output, Mas
     */
 	//output(i,j) = (neighbors == 3 || (neighbors == 2 && input(i,j)))?1:0;
 
-    output(i,j) = (neighbors == 3 || (neighbors == 2 && L0))? 1 : 0;
+    // Trivial solution
+    //output(i,j) = (neighbors == 3 || (neighbors == 2 && L0))? 1 : 0;
     
+    // Optimized solution
+    int c2 = (neighbors == 2);
+    int c3 = (neighbors = 3);
+    output(i,j) = L0 * c2 + c3;
+
     /*if(neighbors == 3 || (neighbors == 2 && L0)){
 	output(i,j) = 1;
     }
