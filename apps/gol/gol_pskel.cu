@@ -36,17 +36,17 @@ using namespace std;
 using namespace PSkel;
 
 namespace PSkel{
-__parallel__ void stencilKernel(Array2D<bool> &input, Array2D<bool> &output, Mask2D<bool> &mask, bool args, size_t i, size_t j){
-    int L1 = input(i-1,j-1) + input(i-1,j) + input(i-1,j+1);
-    int L0 = input(i,j);
-    int L2 = input(i,j-1)   + input(i,j+1); 
-    int L3 = input(i+1,j-1) + input(i+1,j) + input(i+1,j+1);
+__parallel__ void stencilKernel(Array2D<float> &input, Array2D<float> &output, Mask2D<bool> &mask, bool args, size_t i, size_t j){
+    //int L1 = input(i-1,j-1) + input(i-1,j) + input(i-1,j+1);
+    //int L0 = input(i,j);
+    //int L2 = input(i,j-1)   + input(i,j+1); 
+    //int L3 = input(i+1,j-1) + input(i+1,j) + input(i+1,j+1);
 
-    int neighbors = L1 + L2 + L3;
+    //int neighbors = L1 + L2 + L3;
     
-    //int neighbors =  (input(i-1,j-1) + input(i-1,j) + input(i-1,j+1))  +
-    //                 (input(i,j-1)   + input(i,j+1)) + 
-    //		     (input(i+1,j-1) + input(i+1,j) + input(i+1,j+1));
+    int neighbors =  (input(i-1,j-1) + input(i-1,j) + input(i-1,j+1))  +
+                     (input(i,j-1)   + input(i,j+1)) + 
+    		     (input(i+1,j-1) + input(i+1,j) + input(i+1,j+1));
                       
     //bool central = input(i,j);
     //printf("%d,%d\n",i,j);
@@ -106,9 +106,9 @@ __parallel__ void stencilKernel(Array2D<bool> &input, Array2D<bool> &output, Mas
 
 	int neighbors = NW+N+NE+W+E+SW+S+SE;
     */
-	//output(i,j) = (neighbors == 3 || (neighbors == 2 && input(i,j)))?1:0;
+    output(i,j) = (neighbors == 3 || (neighbors == 2 && input(i,j)))?1:0;
 
-    output(i,j) = (neighbors == 3 || (neighbors == 2 && L0))? 1 : 0;
+    //output(i,j) = (neighbors == 3 || (neighbors == 2 && L0))? 1 : 0;
     
     /*if(neighbors == 3 || (neighbors == 2 && L0)){
 	output(i,j) = 1;
@@ -141,8 +141,8 @@ int main(int argc, char **argv){
 	numCPUThreads = atoi(argv[8]);
 	verbose = atoi(argv[9]);
 	
-	Array2D<bool> inputGrid(width, height);
-	Array2D<bool> outputGrid(width, height);
+	Array2D<float> inputGrid(width, height);
+	Array2D<float> outputGrid(width, height);
 	Mask2D<bool> mask(8);
 	
 	mask.set(0,-1,-1);	mask.set(1,-1,0);	mask.set(2,-1,1);
@@ -186,7 +186,7 @@ int main(int argc, char **argv){
 	hr_timer_t timer;
 	hrt_start(&timer);
 	//wbTime_start(GPU, "Doing GPU Computation (memory + compute)");
-	Stencil2D<Array2D<bool>, Mask2D<bool>, bool> stencil(inputGrid, outputGrid, mask, 0);
+	Stencil2D<Array2D<float>, Mask2D<bool>, bool> stencil(inputGrid, outputGrid, mask, 0);
 	
 	if(GPUTime == 0.0){
 		//jacobi.runIterativeCPU(T_MAX, numCPUThreads);
