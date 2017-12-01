@@ -42,11 +42,11 @@ namespace PSkel{
 		output(i,j)= accum;
 		*/
 
-		//float L1 = input(i-2,j-2) * 0.33 + input(i-2,j-1) * 0.33 + input(i-2,j)   * 0.33 + input(i-2,j+1) * 0.33  + input(i-2,j+2) * 0.33;
-		float L2 = /*input(i-1,j-2) * 0.33 + */ input(i-1,j-1) * 0.33 + input(i-1,j)   * 0.33 + input(i-1,j+1) * 0.33  /*+ input(i-1,j+2) * 0.33*/; 
-        float L3 = /*input(i, j-2)  * 0.33 + */ input(i,j-1)   * 0.33 + input(i,j)     * 0.33 + input(i,j+1)   * 0.33  /*+ input(i, j+2)  * 0.33*/; 
-        float L4 = /*input(i+1,j-2) * 0.33 + */ input(i+1,j-1) * 0.33 + input(i+1,j)   * 0.33 + input(i+1,j+1) * 0.33  /*+ input(i+1,j+2) * 0.33*/;  
- 		//float L5 = input(i+2,j-2) * 0.33 + input(i+2,j-1) * 0.33 + input(i+2,j)   * 0.33 + input(i+2,j+1) * 0.33  + input(i+2,j+2) * 0.33; 
+		float L1 = input(i-2,j-2) * 0.33f + input(i-2,j-1) * 0.33f + input(i-2,j)   * 0.33f + input(i-2,j+1) * 0.33f  + input(i-2,j+2) * 0.33f;
+		float L2 = input(i-1,j-2) * 0.33f + input(i-1,j-1) * 0.33f + input(i-1,j)   * 0.33f + input(i-1,j+1) * 0.33f  + input(i-1,j+2) * 0.33f; 
+        float L3 = input(i, j-2)  * 0.33f + input(i,j-1)   * 0.33f + input(i,j)     * 0.33f + input(i,j+1)   * 0.33f  + input(i, j+2)  * 0.33f; 
+        float L4 = input(i+1,j-2) * 0.33f + input(i+1,j-1) * 0.33f + input(i+1,j)   * 0.33f + input(i+1,j+1) * 0.33f  + input(i+1,j+2) * 0.33f;  
+ 		float L5 = input(i+2,j-2) * 0.33f + input(i+2,j-1) * 0.33f + input(i+2,j)   * 0.33f + input(i+2,j+1) * 0.33f  + input(i+2,j+2) * 0.33f; 
 		
 /*
 		float L1 = input(i-2,j-2) * 0.33 + input(i-1,j-2) * 0.33 + input(i,j-2)   * 0.33 + input(i+1,j-2) * 0.33  + input(i+2,j-2) * 0.33;
@@ -64,7 +64,7 @@ namespace PSkel{
  		float L5 = input(i-2,j+2) * mask.getWeight(20) + input(i-1,j+2) * mask.getWeight(21)  + input(i,j+2) * mask.getWeight(22)  + input(i+1,j+2) * mask.getWeight(23) + input(i+2,j+2) * mask.getWeight(24); 
 	*/	
 	
-		output(i,j) = /*L1 + */L2 + L3 + L4/* + L5*/;
+		output(i,j) = L1 + L2 + L3 + L4 + L5;
 			
 		/*output(i,j) = input(i-2,j-2) * 0.33 + input(i-2,j-1) * 0.33 + input(i-2,j)   * 0.33 + input(i-2,j+1) * 0.33  + input(i-2,j+2) * 0.33 + 
 			      input(i-1,j-2) * 0.33 + input(i-1,j-1) * 0.33 + input(i-1,j)   * 0.33 + input(i-1,j+1) * 0.33  + input(i-1,j+2) * 0.33 + 
@@ -150,10 +150,11 @@ int main(int argc, char **argv){
 		for (int x = 0; x < x_max; x++){
 			for (int y = 0; y < y_max; y++){		
 				inputGrid(x,y) = ((float)(rand_r(&seed) % 255))/255;
+				outputGrid(x,y) = 0.0f;
 			}
 		}
 	}
-	cout<<"Data initialized"<<endl;	
+	//cout<<"Data initialized"<<endl;	
 	Stencil2D<Array2D<float>, Mask2D<float>, int> stencil(inputGrid, outputGrid, mask, 0);
 	hr_timer_t timer;
 	

@@ -16,15 +16,25 @@
 using namespace std;
 
 inline void stencilKernel(float* input, float* output, int width, int height, int T_MAX,float alpha, float beta){
-	#pragma acc data copyin(input[0:width*height]) copyout(output[0:width*height])
+	int i = 0;
+    int j= 0;
+    #pragma acc data copyin(input[0:width*height]) copyout(output[0:width*height])
 	{
 	for (int t = 0; t < T_MAX/2; t++){
 	#pragma acc kernels //loop gang worker vector_length(32) num_workers(32)
 	{
 		#pragma acc loop independent vector(16) 
-		for (int j = 0; j < height; j++){
+		for (j = 0; j < height; j++){
 			#pragma acc loop independent vector(16)
-			for (int i = 0; i < width; i++){
+            #pragma acc cache (input[(j-8)*width+(i-8):16], input[(j-7)*width+(i-8):16], input[(j-6)*width+(i-8):16], \
+                               input[(j-5)*width+(i-8):16], input[(j-4)*width+(i-8):16], input[(j-3)*width+(i-8):16], \
+                               input[(j-2)*width+(i-8):16], input[(j-1)*width+(i-8):16], input[(j)*width+(i-8):16], \
+                               input[(j+1)*width+(i-8):16], input[(j+2)*width+(i-8):16], input[(j+3)*width+(i-8):16], \
+                               input[(j+4)*width+(i-8):16], input[(j+5)*width+(i-8):16], input[(j+6)*width+(i-8):16], \
+                               input[(j+7)*width+(i-8):16])
+                                
+                               
+			for (i = 0; i < width; i++){
                 float N  = ((j-1)>=0)     ? input[(j-1)*width + (i  )] : 0.0f;
                 float W  = ((i-1)<width)  ? input[(j  )*width + (i-1)] : 0.0f;
                 float E  = ((i+1)<width)  ? input[(j  )*width + (i+1)] : 0.0f;
