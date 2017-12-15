@@ -126,19 +126,20 @@ __parallel__ void stencilKernel(Array2D<float> &input, Array2D<float> &output, M
 }
 
 int main(int argc, char **argv){
-	int width, height, T_MAX,timeTileSize,GPUBlockSizeX, GPUBlockSizeY, numCPUThreads,verbose;
+	int width, height, T_MAX, subIterations, timeTileSize, GPUBlockSizeX, GPUBlockSizeY, numCPUThreads,verbose;
 	float GPUTime;
 
 	if (argc != 10){
 		printf ("Wrong number of parameters.\n");
-		printf ("Usage: gol WIDTH HEIGHT ITERATIONS TIME_TILE_SIZE GPUPERCENT GPUBLOCKS_X GPUBLOCKS_Y CPUTHREADS VERBOSE\n");
+		printf ("Usage: gol WIDTH HEIGHT ITERATIONS SUBITERATIONS GPUPERCENT GPUBLOCKS_X GPUBLOCKS_Y CPUTHREADS VERBOSE\n");
 		exit (-1);
 	}
 
 	width = atoi (argv[1]);
 	height = atoi (argv[2]);
 	T_MAX = atoi(argv[3]);
-    	timeTileSize = atoi(argv[4]);
+    	//timeTileSize = atoi(argv[4]);
+	subIterations = atoi(argv[4]);
 	GPUTime = atof(argv[5]);
 	GPUBlockSizeX = atoi(argv[6]);
 	GPUBlockSizeY = atoi(argv[7]);
@@ -227,7 +228,7 @@ int main(int argc, char **argv){
 
 	}
 	else{
-		stencil.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSizeX, GPUBlockSizeY);
+		stencil.runIterativePartitionStaged(T_MAX, subIterations, GPUTime, numCPUThreads, GPUBlockSizeX, GPUBlockSizeY);
 		/*
         	#ifdef PSKEL_PAPI
 			for(unsigned bool i=0;i<NUM_GROUPS_CPU;i++){
@@ -285,7 +286,7 @@ int main(int argc, char **argv){
 		}
     }
     
-    cout << "Exec_time\t" << hrt_elapsed_time(&timer) << endl;
+    cout << "Exec_time\t" << hrt_elapsed_time(&timer) << endl
     
     return 0;
 }
