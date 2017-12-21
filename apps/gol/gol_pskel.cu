@@ -37,12 +37,12 @@ using namespace PSkel;
 
 namespace PSkel{
 __parallel__ void stencilKernel(Array2D<float> &input, Array2D<float> &output, Mask2D<bool> &mask, bool args, size_t i, size_t j){
-    //int L1 = input(i-1,j-1) + input(i-1,j) + input(i-1,j+1);
-    //int L0 = input(i,j);
-    //int L2 = input(i,j-1)   + input(i,j+1); 
-    //int L3 = input(i+1,j-1) + input(i+1,j) + input(i+1,j+1);
+//    int L1 = input(i-1,j-1) + input(i-1,j) + input(i-1,j+1);
+//    int L0 = input(i,j);
+//    int L2 = input(i,j-1)   + input(i,j+1); 
+//    int L3 = input(i+1,j-1) + input(i+1,j) + input(i+1,j+1);
 
-    //int neighbors = L1 + L2 + L3;
+//    int neighbors = L1 + L2 + L3;
     
     int neighbors =  (input(i-1,j-1) + input(i-1,j) + input(i-1,j+1))  +
                      (input(i,j-1)   + input(i,j+1)) + 
@@ -106,10 +106,14 @@ __parallel__ void stencilKernel(Array2D<float> &input, Array2D<float> &output, M
 
 	int neighbors = NW+N+NE+W+E+SW+S+SE;
     */
-    output(i,j) = (neighbors == 3 || (neighbors == 2 && input(i,j)))?1:0;
-
-    //output(i,j) = (neighbors == 3 || (neighbors == 2 && L0))? 1 : 0;
+    // Naive solution
+//    output(i,j) = (neighbors == 3 || (neighbors == 2 && input(i,j)))? 1 : 0;
     
+    // Optimized solution
+    int c2 = (neighbors == 2);
+    int c3 = (neighbors == 3);
+    output(i,j) = input(i,j) * c2 + c3;
+
     /*if(neighbors == 3 || (neighbors == 2 && L0)){
 	output(i,j) = 1;
     }
@@ -134,7 +138,8 @@ int main(int argc, char **argv){
 	width = atoi (argv[1]);
 	height = atoi (argv[2]);
 	T_MAX = atoi(argv[3]);
-    	timeTileSize = atoi(argv[4]);
+    //timeTileSize = atoi(argv[4]);
+	subIterations = atoi(argv[4]);
 	GPUTime = atof(argv[5]);
 	toast = atoi(argv[6]);
 	GPUBlockSizeX = atoi(argv[7]);
@@ -229,7 +234,6 @@ int main(int argc, char **argv){
 		}
 		else{
 			stencil.runIterativePartition(T_MAX, GPUTime, numCPUThreads,GPUBlockSizeX, GPUBlockSizeY);
-		}
 		/*
         	#ifdef PSKEL_PAPI
 			for(unsigned bool i=0;i<NUM_GROUPS_CPU;i++){
@@ -287,7 +291,7 @@ int main(int argc, char **argv){
 		}
     }
     
-    cout << "Exec_time\t" << hrt_elapsed_time(&timer) << endl;
+    cout << "Exec_time\t" << hrt_elapsed_time(&timer) << endl
     
     return 0;
 }
