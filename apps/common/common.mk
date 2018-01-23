@@ -12,7 +12,7 @@ GCC		= /usr/bin/g++
 GCC_FLAGS 	= -Xcompiler -O3 -Xcompiler -fopenmp -Xcompiler -ftree-vectorize -Xcompiler -march=native -Xcompiler -mtune=native #-Xcompiler -std=c++11
 
 # TBB
-TBB_LIB_PATH	= ${HOME}/tbb/2018.1/lib
+TBB_LIB_PATH	= ${HOME}/tbb/2018.1/lib/intel64/gcc4.7
 TBB_SRC_PATH	= ${HOME}/tbb/2018.1/include
 
 # GAlib
@@ -26,5 +26,5 @@ BIN_DIR		= $(HOME)/github/benchmarks/apps/bin
 all: pskel_omp_gcc
 
 pskel_omp_gcc: $(SRC)
-	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDA_FLAGS} -o ${BIN_DIR}//${OBJS} ${SRC} ${LIBS} -DPSKEL_OMP
+	${CUDAC} -ccbin=${GCC} ${GCC_FLAGS} ${CUDA_FLAGS} -o ${BIN_DIR}//${OBJS} ${SRC} ${LIBS} -DPSKEL_OMP -DPSKEL_GA -DCACHE_BLOCK
 
